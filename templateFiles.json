@@ -1,0 +1,9 @@
+{
+  "base": "shared",
+  "overlays": {
+    "web": "web",
+    "app": "app"
+  },
+  "conditions": {},
+  "seeds": []
+}

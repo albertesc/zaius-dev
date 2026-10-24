@@ -9,9 +9,9 @@ kit deja en un proyecto está decidido y escrito en
 con sus ejemplos (Casa del Roble y Aforo), está en una página privada de la
 persona.
 
-- **Hecho:** el bloque 0. El plan, aprobado el 2026-10-24, con un commit al
-  cerrar cada bloque.
-- **Lo siguiente:** el bloque 1.
+- **Hecho:** los bloques 0 y 1. El plan, aprobado el 2026-10-24, con un commit
+  al cerrar cada bloque.
+- **Lo siguiente:** el bloque 2.
 
 ## Decidido al empezar (2026-10-24)
 
@@ -20,6 +20,9 @@ persona.
 - Los ejemplos de la plantilla, uno en cada camino: en las apps, el dominio
   `orders` (como en la 0.x); en las webs, otro negocio, que se elige en el
   bloque 4.
+- Todo proyecto lleva tests: no se pregunta, porque `zaius-build` trabaja test a
+  test.
+- El kit no cita la fuente del método de las apps.
 
 ## Bloques
 
@@ -29,11 +32,11 @@ persona.
   `.gitattributes`, `.yarnrc.yml`).
   *Está cuando:* una sesión nueva, sin contexto, sabe qué es el kit, qué está
   decidido y qué toca después, solo con estos ficheros.
-- [ ] **1. El instalador.** `bin/` y `cli/` desde `zaius-dev-old`, con sus
+- [x] **1. El instalador.** `bin/` y `cli/` desde `zaius-dev-old`, con sus
   tests, adaptados:
   - la plantilla en `shared/`, `web/` y `app/` (las capas, por tipo);
   - las respuestas: `type` (web o app), `name`, `packageManager`, `i18n` y
-    `languages`, `tests`; en web, `server` («¿recibe mensajes?») y `content`
+    `languages`; en web, `server` («¿recibe mensajes?») y `content`
     («¿blog o noticias?»); en app, `api` y `mocks`; `privateArea`, solo con
     `change`, en una web;
   - fuera `stack`, `rendering`, `adapter`, `backend`, `islands` y `po`;
@@ -41,6 +44,14 @@ persona.
 
   *Está cuando:* `npm test` en verde, y `init --yes` deja una web y una app con
   una plantilla mínima de prueba.
+  *Hecho (2026-10-24):* 193 tests en verde, sin la pregunta de los tests. Probado con la plantilla mínima
+  (`web/` y `app/` con un `AGENTS.md` y un `.gitignore`): `init` de una web y
+  de una app, `change` que añade la zona privada (y con ella el servidor) y que
+  no deja cambiar el tipo, `status`, y un proyecto Astro existente detectado
+  como web, con su servidor, su contenido y pnpm. Dos arreglos sobre lo traído:
+  al elegir una app, la API y los mocks salen marcados con su valor por defecto;
+  y un cambio de respuestas que no cambia ningún fichero también se apunta en
+  `zaius-dev.json`.
 - [ ] **2. Lo común (`shared/`).** La configuración base (TypeScript, ESLint,
   Vitest), su `package.fragment.json`, los documentos comunes (sistema de
   diseño, normas D1–D6 y D10–D13, propuestas de diseño, bocetos), la semilla de
@@ -70,6 +81,9 @@ persona.
 - [ ] **6. Proyectos existentes.** La detección por tipo y `zaius-adopt`.
   *Está cuando:* `verify` trae un proyecto existente de cada tipo hasta el
   final.
+  *Por ver:* un proyecto de la 0.x tiene su `zaius-dev.json` (con `stack`), y
+  hoy `init` dice que ya tiene el kit y `change` y `update` piden la versión
+  0.x; tiene que traerse como existente.
 - [ ] **7. `verify` entero y los documentos del kit.** Todas las combinaciones,
   el README (instalar, usar, publicar una versión), `CLAUDE.md`, el
   `CHANGELOG` y la skill `contribute-to-kit`.

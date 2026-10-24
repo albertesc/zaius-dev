@@ -1,0 +1,31 @@
+{
+  "name": "zaius-dev",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Instalador de un proceso de trabajo con la IA para webs (Astro) y apps (React), con TypeScript: la arquitectura, la nomenclatura, las comprobaciones y la metodología de cada una.",
+  "license": "MIT",
+  "repository": "github:albertesc/zaius-dev",
+  "type": "module",
+  "bin": {
+    "zaius-dev": "bin/zaiusDev.mjs"
+  },
+  "files": [
+    "bin",
+    "cli",
+    "!cli/*.test.mjs",
+    "shared",
+    "web",
+    "app",
+    "templateFiles.json",
+    "CHANGELOG.md"
+  ],
+  "scripts": {
+    "test": "node --test \"cli/*.test.mjs\""
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "dependencies": {
+    "@clack/prompts": "^1.8.1"
+  }
+}

@@ -1,0 +1,14 @@
+node_modules
+dist
+coverage
+*.tsbuildinfo
+.env*.local
+# kit:if yarn
+.pnp.*
+.yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
+# kit:end

@@ -10,9 +10,8 @@ proyecto de uno de dos tipos, cada uno con su stack y su metodología:
 - **Una web** (Astro): páginas, contenido y buscadores. La unidad de trabajo es
   la página.
 - **Una app** (React + Vite): usuarios, datos y gestión. La unidad de trabajo es
-  la historia de usuario, con el método de
-  [hola-ai](https://github.com/nschurmann/hola-ai) (backlog → historia →
-  pareja).
+  la historia de usuario: el backlog, la historia refinada y la construcción en
+  pareja.
 
 Los dos comparten los estándares de código, el sistema de diseño, los comandos
 y la forma de trabajar con la IA.
@@ -32,12 +31,117 @@ la que se trae lo que sirve, y no se toca. Dónde va el trabajo, por bloques:
 | `CHANGELOG.md` | Qué cambia en cada versión del kit. |
 | `README.md` | Qué es el kit y cómo se usa. |
 | `LICENSE` | La licencia, MIT. |
-| `.gitignore`, `.gitattributes` | Lo que no se versiona (también `scripts/forbiddenNames.local.json`, los nombres del proyecto de origen) y LF en todos los clones. |
+| `.gitignore`, `.gitattributes` | Lo que no se versiona y LF en todos los clones. |
 | `.yarnrc.yml` | Pide `node_modules` a yarn 4, para que la orden encuentre sus dependencias. |
+| `bin/zaiusDev.mjs` | La entrada de la orden `zaius-dev`. |
+| `cli/` | El instalador: las órdenes (`init`, `change`, `update`, `status`), las preguntas, el render de la plantilla, el manifiesto del proyecto, la fusión de `package.json` y las órdenes de cada gestor de paquetes. JavaScript (`.mjs`) con JSDoc, cada fichero con su `.test.mjs` (`node:test`). |
+| `shared/` | Lo común de la plantilla, que llega a todos los proyectos. |
+| `web/`, `app/` | Lo de cada camino, que solo llega a los proyectos de su tipo. |
+| `templateFiles.json` | Las carpetas de la plantilla y qué ficheros dependen de una respuesta. |
 
-Llegan con sus bloques: `bin/` y `cli/` (el instalador), `shared/` (lo común
-de la plantilla), `web/` y `app/` (cada camino), `templateFiles.json`,
-`templateTests/` y `scripts/verifyKit.mjs`.
+Llegan con sus bloques: `templateTests/` (los tests del código base de la
+plantilla) y `scripts/verifyKit.mjs` (instala combinaciones y las comprueba).
+
+## La plantilla
+
+### Las carpetas
+
+`templateFiles.json` dice cuál es la base (`"base": "shared"`) y qué carpeta es
+la de cada tipo (`"overlays": { "web": "web", "app": "app" }`). Un proyecto
+recibe la base y la carpeta de su tipo, cada una copiada sin su nombre:
+`web/src/pages/index.astro` llega como `src/pages/index.astro`. Las condiciones
+y las semillas se comparan con esa ruta, sin la carpeta. Cada carpeta puede
+tener su `package.fragment.json`, y se suman en ese orden.
+
+- **Dos ficheros no pueden dar el mismo del proyecto:** si están en `shared/` y
+  en la carpeta de un tipo, la instalación para con un error. Un fichero que
+  cambia según el tipo va entero en `web/` y en `app/`, nunca en `shared/` con
+  ramas.
+- **Un enlace de un fichero de `shared/`** a un documento de un camino apunta a
+  uno que existe en los dos, en la misma ruta.
+
+### Ficheros con punto
+
+Lo que en el proyecto empieza por punto lleva en la plantilla el prefijo `dot-`
+(`dot-claude/`, `dot-gitignore`): así el kit no carga como suyas las skills del
+proyecto, y `npm pack` no deja fuera ficheros como `.gitignore`. El instalador
+cambia el prefijo por el punto al copiar.
+
+### Las respuestas
+
+| Condición | Pregunta | Verdadera si |
+|---|---|---|
+| `existing` | ¿Es un proyecto nuevo o uno que ya existe? | Existente: el kit se aplica sobre un proyecto con código. |
+| `web`, `app` | ¿Qué vas a construir? | La del tipo elegido. Cada una activa su carpeta. |
+| `server` | Web: ¿la web recibe mensajes o datos de quien la visita? | Sí: con servidor, en Node hasta que se elige la plataforma al publicar. También con zona privada. |
+| `content` | Web: ¿lleva blog, noticias o artículos? | Sí: las colecciones de contenido. |
+| `privateArea` | Web, solo con `change`: ¿la web tiene una zona privada? | Sí: el servidor, la sesión y los permisos. |
+| `api` | App: ¿quieres apuntar cómo es la API? | Sí: `docs/api/` y `docs/api-requests.md`. |
+| `mocks` | App: ¿quieres datos de ejemplo para avanzar sin la API? | Sí: las respuestas inventadas de cada service. |
+| `i18n` | ¿Va a estar en más de un idioma? | Sí: i18next y un catálogo por idioma. |
+| `npm`, `pnpm`, `yarn`, `bun` | ¿Con qué gestor de paquetes? | La del gestor elegido; las otras tres, falsas. |
+
+Las condiciones de una web son falsas en una app, y las de una app, en una web.
+Los tests no se preguntan: todo proyecto los lleva, cada fichero con código con
+el suyo, porque `zaius-build` trabaja test a test.
+Las órdenes no se escriben nunca con un gestor concreto: van con `%%PM%%` y
+`%%PM_EXEC%%` (`%%PM%% run test`). Los scripts, siempre con `run` (`bun test`
+es el runner de bun), y los binarios, con `%%PM_EXEC%%` (`yarn exec` no lanza
+nada en yarn 1).
+
+### Bloques condicionales
+
+Dentro de un fichero, un bloque se escribe entre líneas marcadoras. La línea
+del marcador desaparece entera al instalar; los bloques se pueden anidar y la
+condición se niega con `!`.
+
+```md
+<!-- kit:if i18n -->
+Los textos salen de los catálogos con `t()`.
+<!-- kit:else -->
+Los textos van escritos en el componente.
+<!-- kit:end -->
+```
+
+En código y en `.env`, con el comentario de cada lenguaje (`// kit:if mocks`,
+`# kit:if mocks`). Un marcador ocupa siempre su línea, sin nada más.
+
+### Ficheros enteros
+
+`conditions`, en `templateFiles.json`, dice qué rutas solo se copian con unas
+condiciones (todas a la vez si es una lista), y `seeds`, qué ficheros son
+semillas: se crean una vez y son del proyecto, que los rellena.
+
+```json
+{ "conditions": { "src/utils/apiMockUtils*": "mocks" }, "seeds": ["docs/next-steps.md"] }
+```
+
+### Los valores
+
+| Placeholder | Qué pone |
+|---|---|
+| `%%APP_NAME%%` | El nombre del proyecto, tal cual (`Gestión de pedidos`). En markdown. |
+| `%%APP_NAME_JSON%%` | El nombre como cadena JSON, con sus comillas. |
+| `%%APP_NAME_HTML%%` | El nombre escapado para HTML. |
+| `%%APP_SLUG%%` | El nombre del paquete npm (`gestion-de-pedidos`). |
+| `%%PM%%` | El gestor de paquetes (`npm`, `pnpm`, `yarn` o `bun`). |
+| `%%PM_EXEC%%` | La orden que lanza un binario del proyecto: `npx`, `pnpm exec`, `yarn run` o `bunx`. |
+| `%%PM_DLX%%` | La orden que lanza un programa sin instalarlo: `npx`, `pnpm dlx`, `npx` con yarn o `bunx`. |
+| `%%DEFAULT_LANGUAGE%%` | El idioma por defecto (`es`). |
+| `%%LANGUAGES%%` | Los idiomas, para la prosa (`es, ca`). |
+| `%%LANGUAGES_TS%%` | Los idiomas como lista de TypeScript (`'es', 'ca'`). |
+| `%%LANGUAGE%%` | Solo en el nombre de un fichero: el fichero se copia una vez por idioma. |
+| `%%TEST_TIMEZONE%%` | La zona horaria de los tests (la del sistema al instalar). |
+| `%%HUMAN_PORT%%` | El puerto del servidor de la persona (`4321` en una web, `5173` en una app). |
+| `%%REVIEW_PORT%%` | El puerto de la revisión visual de la IA (`4323` en una web, `5175` en una app). |
+| `%%KIT_VERSION%%` | La versión del kit. |
+| `%%KIT_RUN%%` | La orden que lanza el kit con esa versión (`npx github:albertesc/zaius-dev#v0.1.0`). |
+| `%%KIT_UPDATE%%` | La orden de actualizar, con la versión por poner. |
+| `%%DATE%%` | La fecha de la instalación (`aaaa-mm-dd`). |
+
+Un `%%X%%` sin valor, o una condición que no existe, paran la instalación con
+un error. `{{…}}` no es un placeholder: es la interpolación de i18next y se deja
+tal cual.
 
 ## Lo que deja en un proyecto
 
@@ -49,7 +153,7 @@ es una app. Una web nace sin login; si un día necesita una zona privada
 pequeña, la orden `change` del kit le añade el servidor, la sesión y los
 permisos, y sigue siendo una web.
 
-Después, las preguntas comunes (nombre, gestor de paquetes, idiomas, tests) y
+Después, las preguntas comunes (nombre, gestor de paquetes, idiomas) y
 las del camino:
 
 - **Web:** «¿La web recibe mensajes o datos?» (con servidor, en Node hasta que
@@ -155,7 +259,7 @@ persona, sigue solo con lo que hay en el repo.
 - `shared/` no tiene ningún «si es una web…»: si un párrafo cambia según el
   camino, ese párrafo vive en el camino.
 - Las condiciones de la plantilla son solo para las opciones de dentro de un
-  camino (idiomas, tests, API, servidor, contenido).
+  camino (idiomas, API, servidor, contenido).
 - Un proyecto lleva lo común y su camino, y nada del otro.
 
 ## Reglas para editar el kit
@@ -175,9 +279,8 @@ persona, sigue solo con lo que hay en el repo.
   carpeta nace con la primera pieza que la necesita.
 - **Nada que dependa de una librería de diseño.** Las piezas se nombran por su
   papel y remiten a `docs/ux-ui/design-system.md`, que cada proyecto rellena.
-- **Ningún nombre de un proyecto real** entra en la plantilla. Los del proyecto
-  de origen van en `scripts/forbiddenNames.local.json`, que no se versiona (el
-  repo es público).
+- **Ningún nombre de un proyecto real** entra en la plantilla: los ejemplos son
+  inventados (el repo es público).
 - **En cualquier sistema.** El kit y los proyectos funcionan en Windows, macOS
   y Linux: rutas con `node:path` y pasadas a `/` para compararlas; nada que dé
   por hecho LF o CRLF; órdenes válidas en `cmd`, PowerShell y `sh`; las
