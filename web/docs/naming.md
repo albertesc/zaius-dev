@@ -456,7 +456,11 @@ Las actions guardan o envían; los endpoints responden lo que es HTTP de verdad
 |---|---|---|
 | Fichero de actions | `<sección>Actions.ts`, uno por página o sección, en `src/actions/`; exporta `<sección>Actions` | `contactActions.ts`, `contactActions` |
 | Composición | `src/actions/index.ts` exporta `server`, con una clave por fichero | `export const server = { contact: contactActions }` |
+<!-- kit:if backend -->
 | Action | `<verbo><Entidad><Zona?><Qué>`: lo que hace, con su verbo y su objeto; si llama a un service, como su método | `sendContactMessage` |
+<!-- kit:else -->
+| Action | `<verbo><Entidad><Zona?><Qué>`: lo que hace, con su verbo y su objeto | `sendContactMessage` |
+<!-- kit:end -->
 | Llamada | `actions.<sección>.<action>` | `actions.contact.sendContactMessage` |
 | Schema de un formulario | `<prefijo><Qué>FormSchema`, al lado de la action que lo usa, en `src/actions/` | `contactFormSchema` |
 | Tipo de un formulario | `<Prefijo><Qué>FormValues` | `ContactFormValues` |

@@ -8,9 +8,9 @@ escrito en
 con sus ejemplos (Casa del Roble y Aforo), está en una página privada de la
 persona.
 
-- **Hecho:** los bloques 0 a 6. El plan, aprobado el 2026-10-24, con un commit
+- **Hecho:** los bloques 0 a 7. El plan, aprobado el 2026-10-24, con un commit
   al cerrar cada bloque.
-- **Lo siguiente:** el bloque 7.
+- **Lo siguiente:** el bloque 8, que hace la persona con los proyectos de prueba.
 
 ## Decidido al empezar (2026-10-24)
 
@@ -137,10 +137,16 @@ persona.
   pasa tipos, lint, tests y build. Sin enlaces rotos antes ni después (un
   enlace a un apartado del README del kit, que en un proyecto existente es
   el suyo, ya no lleva el apartado).
-- [ ] **7. `verify` entero y los documentos del kit.** Todas las combinaciones,
+- [x] **7. `verify` entero y los documentos del kit.** Todas las combinaciones,
   el README (instalar, usar, publicar una versión), `CLAUDE.md`, el
   `CHANGELOG` y la skill `contribute-to-kit`.
   *Está cuando:* todas las combinaciones en verde.
+  *Hecho (2026-10-24):* `npm run verify`, con 19 combinaciones (`app-…` y
+  `web-…`), en verde con npm y pnpm; las de yarn y bun se saltan en este
+  equipo, que no los tiene. `--docs`, en verde con todas. El README del kit,
+  `CLAUDE.md` con sus órdenes y la skill `contribute-to-kit`. Lo que encontró
+  `verify` al estrenarlo: tres frases de una web que hablaban de los services
+  sin API, ya en su bloque.
 - [ ] **8. De principio a fin, con la IA.** Casa del Roble y Aforo en carpetas
   de prueba: `init` → `backlog` → `page`/`spec` → `build` → `review` con
   Claude Code, cortando la sesión a mitad para retomarla sin contexto.

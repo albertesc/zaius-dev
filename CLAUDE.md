@@ -12,7 +12,20 @@ en [next-steps.md](./next-steps.md). Se leen los dos antes de tocar nada.
 npm test                                   # los tests del instalador (node:test, cli/*.test.mjs)
 node --test cli/templateRender.test.mjs    # un solo fichero de tests
 node --test --test-name-pattern="bloques anidados" cli/templateRender.test.mjs   # un solo test, por su nombre
+npm run verify                             # instala cada combinación y pasa sus comprobaciones
+npm run verify -- --only=web-todo-si --keep   # una combinación, dejando el proyecto en la carpeta temporal
+npm run verify -- --only=web-              # las que empiezan así (o una lista: app-todo-si,web-api)
+npm run verify -- --docs                   # solo los ficheros, sin instalar: segundos
 ```
+
+- Las combinaciones de `verify` (en [scripts/verifyKit.mjs](./scripts/verifyKit.mjs))
+  son las de las apps (`app-…`) y las de las webs (`web-…`), con sus gestores;
+  las de un gestor que no está instalado se saltan, avisando. Cada una instala
+  las dependencias en un proyecto de verdad, desde el paquete de `npm pack`:
+  tarda y necesita red. Pasa también los tests de `templateTests/`, el código
+  base de la plantilla, que no llegan al proyecto. Con `--docs` solo mira los
+  ficheros: nada sin resolver, enlaces y anclas, y lo que habla de una pieza
+  que no se ha pedido (`findAnswerLeaks`).
 
 - Para probar el instalador sin preguntas ni `npm install`:
   `node bin/zaiusDev.mjs init --cwd <carpeta> --config <respuestas.json> --yes --skip-install`.

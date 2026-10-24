@@ -35,9 +35,9 @@ Dónde va el trabajo, por bloques: [next-steps.md](./next-steps.md).
 | `shared/` | Lo común de la plantilla, que llega a todos los proyectos. |
 | `web/`, `app/` | Lo de cada camino, que solo llega a los proyectos de su tipo. |
 | `templateFiles.json` | Las carpetas de la plantilla y qué ficheros dependen de una respuesta. |
-
-Llegan con sus bloques: `templateTests/` (los tests del código base de la
-plantilla) y `scripts/verifyKit.mjs` (instala combinaciones y las comprueba).
+| `templateTests/` | Los tests del código base de la plantilla, con las mismas carpetas (`web/`, `app/`). No llegan a los proyectos: `verify` los copia en cada uno, los pasa y los quita. |
+| `scripts/verifyKit.mjs` | Instala cada combinación de respuestas en una carpeta temporal y pasa sus comprobaciones (`npm run verify`). |
+| `.claude/skills/contribute-to-kit/` | La skill para traer al kit una regla nacida en un proyecto. |
 
 ## La plantilla
 
@@ -324,6 +324,8 @@ Lo que cambia según el tipo dentro de un fichero de `shared/` va en sus valores
   del paréntesis al declarar una función), y cada función lleva su JSDoc.
 - **Cada cambio lleva su entrada en `CHANGELOG.md`**, y `next-steps.md` se pone
   al día en cada paso.
+- **Comprobar:** `npm test` y `npm run verify` en verde (en Windows, desde
+  PowerShell).
 - **Por bloques, con el OK.** El trabajo va por los bloques de
   `next-steps.md`, cada uno con su «Está cuando», y se para al terminar cada
   bloque.

@@ -40,3 +40,10 @@
 - Una condición de `templateFiles.json` que empieza por su carpeta
   (`web/docs/guides/create-a-form.md`) solo cuenta en ella. zod solo llega
   donde se usa, y el `.gitignore`, solo a los proyectos nuevos.
+- `npm run verify` (`scripts/verifyKit.mjs`): instala desde el paquete de
+  `npm pack` cada combinación de las apps y de las webs (también un proyecto
+  existente de cada tipo, una web que crece con `change` y cada plataforma),
+  pasa tipos, lint, tests, build y los tests del código base, y busca lo que
+  queda sin resolver, los enlaces rotos y lo que habla de una pieza que no se
+  ha pedido; `--docs`, solo los ficheros. El README del kit, `CLAUDE.md` y la
+  skill `contribute-to-kit`.

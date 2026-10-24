@@ -20,7 +20,8 @@
     "CHANGELOG.md"
   ],
   "scripts": {
-    "test": "node --test \"cli/*.test.mjs\""
+    "test": "node --test \"cli/*.test.mjs\"",
+    "verify": "node scripts/verifyKit.mjs"
   },
   "engines": {
     "node": ">=22"

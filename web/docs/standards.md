@@ -727,10 +727,17 @@ que después se pone en marcha en el navegador, con su JavaScript.
 - **Props serializables:** datos, nunca funciones ni instancias de clases.
 <!-- kit:end -->
 <!-- kit:if server -->
+<!-- kit:if backend -->
 - **Nunca importa código que solo funciona en el servidor:** ni services, ni
   `src/actions/`, ni el middleware, ni `astro:env/server`. Si envía algo, lo
   hace con las actions de `astro:actions`; si tiene que leer, pide a un
   endpoint de `pages/api/`.
+<!-- kit:else -->
+- **Nunca importa código que solo funciona en el servidor:** ni
+  `src/actions/`, ni el middleware, ni `astro:env/server`. Si envía algo, lo
+  hace con las actions de `astro:actions`; si tiene que leer, pide a un
+  endpoint de `pages/api/`.
+<!-- kit:end -->
 <!-- kit:else -->
 - **Nunca importa código que solo funciona en el servidor**
   (`astro:env/server`): todo lo que necesita le llega por props, porque una
@@ -1038,7 +1045,7 @@ export const accountActions = {
 - Toda función que no es un componente lleva un JSDoc corto, siempre con la
   misma forma: [Nomenclatura](./naming.md#jsdoc).
 <!-- kit:if server -->
-  Cada action lleva el suyo, como un método de un service.
+  Cada action lleva el suyo, como cualquier función.
 <!-- kit:end -->
 - Sin comentarios en el cuerpo de las funciones, en el frontmatter ni en el
   HTML de un componente.

@@ -390,7 +390,7 @@ import { MAIL_API_KEY, MAIL_TO } from 'astro:env/server'
 import { contactFormSchema } from './contactFormSchema'
 import type { ContactFormValues } from './contactFormSchema'
 
-const MAIL_API_URL = 'https://api.mail-service.example/v1/emails'
+const MAIL_API_URL = 'https://api.mail.example/v1/emails'
 
 /**
  * Manda a la casa un mensaje del formulario de contacto, con la API del servicio de correo.
