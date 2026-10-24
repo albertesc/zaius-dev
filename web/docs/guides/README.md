@@ -85,5 +85,5 @@ Una guía nueva sigue la forma de [Crear una página](./create-a-page.md):
 5. **«Errores comunes»** al final, con una tabla de síntoma y causa.
 
 Además de la guía, se refleja en esta página, en
-[la documentación](../../README.md#documentación) y en la tabla «Qué leer»
+[la documentación](../../README.md) y en la tabla «Qué leer»
 de `AGENTS.md`.

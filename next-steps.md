@@ -8,9 +8,9 @@ escrito en
 con sus ejemplos (Casa del Roble y Aforo), está en una página privada de la
 persona.
 
-- **Hecho:** los bloques 0 a 5. El plan, aprobado el 2026-10-24, con un commit
+- **Hecho:** los bloques 0 a 6. El plan, aprobado el 2026-10-24, con un commit
   al cerrar cada bloque.
-- **Lo siguiente:** el bloque 6.
+- **Lo siguiente:** el bloque 7.
 
 ## Decidido al empezar (2026-10-24)
 
@@ -126,9 +126,17 @@ persona.
   y los `.env`), sin `.kit-new`, y pasa tipos, lint, tests, build y los tests
   del código base. Y una web con servidor cambia de plataforma (de Node a
   Vercel) con `change`, sin `.kit-new` y en verde.
-- [ ] **6. Proyectos existentes.** La detección por tipo y `zaius-adopt`.
+- [x] **6. Proyectos existentes.** La detección por tipo y `zaius-adopt`.
   *Está cuando:* `verify` trae un proyecto existente de cada tipo hasta el
   final.
+  *Hecho (2026-10-24), a mano hasta que llegue `verify`:* una app con React y
+  una web con Astro que ya existían: `init` las detecta, deja la
+  documentación, las skills y `zaius-adopt`, sin código, y su README de
+  siempre con el del kit al lado (`README.md.kit-new`); al terminar,
+  `change` trae el código base y las comprobaciones, quita `zaius-adopt` y
+  pasa tipos, lint, tests y build. Sin enlaces rotos antes ni después (un
+  enlace a un apartado del README del kit, que en un proyecto existente es
+  el suyo, ya no lleva el apartado).
 - [ ] **7. `verify` entero y los documentos del kit.** Todas las combinaciones,
   el README (instalar, usar, publicar una versión), `CLAUDE.md`, el
   `CHANGELOG` y la skill `contribute-to-kit`.
