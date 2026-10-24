@@ -9,17 +9,18 @@ kit deja en un proyecto está decidido y escrito en
 con sus ejemplos (Casa del Roble y Aforo), está en una página privada de la
 persona.
 
-- **Hecho:** los bloques 0, 1 y 2. El plan, aprobado el 2026-10-24, con un commit
+- **Hecho:** los bloques 0 a 3. El plan, aprobado el 2026-10-24, con un commit
   al cerrar cada bloque.
-- **Lo siguiente:** el bloque 3.
+- **Lo siguiente:** el bloque 4.
 
 ## Decidido al empezar (2026-10-24)
 
 - La primera versión que se publica es la `0.1.0`; la `1.0.0`, después del
   bloque 8.
 - Los ejemplos de la plantilla, uno en cada camino: en las apps, el dominio
-  `orders` (como en la 0.x); en las webs, otro negocio, que se elige en el
-  bloque 4.
+  `orders` (como en la 0.x); en las webs, una casa rural, Casa del Roble
+  (inicio, habitaciones, entorno, blog, contacto y, si crece, la zona de
+  clientes con sus reservas).
 - Todo proyecto lleva tests: no se pregunta, porque `zaius-build` trabaja test a
   test.
 - El kit no cita la fuente del método de las apps.
@@ -71,7 +72,7 @@ persona.
   nombre que lista `AGENTS.md` («Lo común y cada camino»). La configuración
   (TypeScript, ESLint, Vitest) cambia entera por stack: va en cada camino.
   `zaius-languages` y `zaius-api` dependen del stack: van en su camino.
-- [ ] **3. El camino Apps (`app/`).** El código base de React desde
+- [x] **3. El camino Apps (`app/`).** El código base de React desde
   `stack-react` (transporte, mocks, sesión, i18n, comprobación de la
   estructura), su `AGENTS.md`, la normativa, la nomenclatura, las guías y las
   normas D7–D9; las plantillas del brief, del backlog, de la spec (`XXX999`) y
@@ -79,6 +80,17 @@ persona.
   `form`, `permissions`, `languages` y `api`; y los apartados que piden los
   ficheros de `shared/`.
   *Está cuando:* las combinaciones de app pasan tipos, lint, tests y build.
+  *Hecho (2026-10-24):* el código base y la configuración de React traídos de
+  la 0.x, con sus tests en `templateTests/app/`; los documentos (`AGENTS.md`,
+  el README, la normativa con «Qué se revisa» y «Traer un proyecto que ya
+  existe», la nomenclatura con «Revisar los nombres», las guías, las normas
+  D1–D13, el sistema de diseño, la API y las semillas del brief y del
+  backlog) y las skills (`init`, `backlog`, `spec`, `publish`, `service`,
+  `form`, `permissions`, `languages` y `api`). Probado: con npm (multiidioma
+  y mocks; sin mocks ni API) y con pnpm, tipos, lint, tests y build en verde,
+  y los tests del código base dentro del proyecto; cinco combinaciones y un
+  proyecto existente, sin enlaces rotos, anclas que falten ni nada sin
+  resolver. Sin yarn ni bun en este equipo.
 - [ ] **4. El camino Webs (`web/`).** El código base de Astro desde
   `stack-astro`, más simple (estático; servidor en Node solo con formulario;
   islas con React; contenido), su `AGENTS.md`, la normativa, la nomenclatura,
@@ -112,4 +124,4 @@ persona.
 
 ## Pendiente de decidir
 
-- El negocio de los ejemplos de las webs (bloque 4).
+Nada por ahora.

@@ -22,3 +22,10 @@
   `zaius-design`, `zaius-rename`, `zaius-merge` y `zaius-adopt`. Valores nuevos
   para lo que cambia según el tipo: `%%KIND%%`, `%%UNIT%%`, `%%UNITS%%`,
   `%%UNIT_EXAMPLE%%`, `%%UNIT_DOCS%%` y `%%SPEC_SKILL%%`.
+- El camino Apps (`app/`): el código base de React, su configuración y sus
+  documentos, traídos de la 0.x y adaptados a las historias de usuario; las
+  semillas `docs/brief.md` y `docs/backlog.md`; y las skills `zaius-init`,
+  `zaius-backlog` y `zaius-spec` (nuevas), `zaius-publish`, `zaius-service`,
+  `zaius-form`, `zaius-permissions`, `zaius-languages` y `zaius-api`. Las
+  historias se nombran `XXX999` (las tres letras de su épica), y su fichero va
+  en `docs/specs/`.

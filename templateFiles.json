@@ -5,9 +5,29 @@
     "app": "app"
   },
   "conditions": {
-    "dot-claude/skills/zaius-adopt/**": "existing"
+    "src/**": "!existing",
+    "vite.config.ts": "!existing",
+    "tsconfig*.json": "!existing",
+    "eslint.config.js": "!existing",
+    "index.html": "!existing",
+    "dot-env.*": "!existing",
+    "dot-vscode/**": "!existing",
+    "src/utils/apiMockUtils*": "mocks",
+    "src/i18n/**": "i18n",
+    "src/utils/languageUtils*": "i18n",
+    "dot-claude/skills/zaius-adopt/**": "existing",
+    "dot-claude/skills/zaius-api/**": "api",
+    "dot-claude/skills/zaius-languages/**": "!i18n",
+    "docs/api/**": "api",
+    "docs/api-requests.md": "api"
   },
   "seeds": [
-    "docs/next-steps.md"
+    "docs/next-steps.md",
+    "src/i18n/%%LANGUAGE%%.json",
+    "src/router/rootRoutes.tsx",
+    "docs/brief.md",
+    "docs/backlog.md",
+    "docs/ux-ui/design-system.md",
+    "docs/api-requests.md"
   ]
 }

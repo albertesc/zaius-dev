@@ -7,7 +7,7 @@
  */
 export function buildNextSteps (answers, kitRun, folder = null) {
   const web = answers.type === 'web'
-  const unit = web ? 'HOME' : 'RES001'
+  const unit = web ? 'HOME' : 'ORD001'
   const steps = answers.existing
     ? [
         '1. Abre la IA en esta carpeta (claude u opencode).',

@@ -6,16 +6,16 @@ describe('buildNextSteps', () => {
   const app = { existing: false, type: 'app', packageManager: 'npm', mocks: true }
   const web = { existing: false, type: 'web', packageManager: 'npm', mocks: null }
 
-  it('en una app nueva lleva a zaius-init, al backlog y a cada historia con RES001', () => {
+  it('en una app nueva lleva a zaius-init, al backlog y a cada historia con ORD001', () => {
     const text = buildNextSteps(app, 'npx github:albertesc/zaius-dev#v0.1.0').join('\n')
 
     assert.match(text, /2\. Escribe \/zaius-init\n/)
     assert.match(text, /Te preguntará por la app/)
     assert.match(text, /3\. \/zaius-backlog: las épicas y las historias de usuario\./)
     assert.match(text, /4\. Para cada historia, tres pasos/)
-    assert.match(text, /\/zaius-spec RES001 {4}sus criterios, su boceto y sus tests\n/)
-    assert.match(text, /\/zaius-build RES001 {3}la construye contigo/)
-    assert.match(text, /\/zaius-review RES001 {2}la revisa/)
+    assert.match(text, /\/zaius-spec ORD001 {4}sus criterios, su boceto y sus tests\n/)
+    assert.match(text, /\/zaius-build ORD001 {3}la construye contigo/)
+    assert.match(text, /\/zaius-review ORD001 {2}la revisa/)
     assert.match(text, /npm run dev {4}arranca la app con los datos de prueba \(mocks\)/)
     assert.doesNotMatch(text, /zaius-page|HOME/)
   })
@@ -30,7 +30,7 @@ describe('buildNextSteps', () => {
     assert.match(text, /\/zaius-build HOME {3}la construye contigo/)
     assert.match(text, /\/zaius-review HOME {2}la revisa/)
     assert.match(text, /npm run dev {4}arranca la web\n/)
-    assert.doesNotMatch(text, /zaius-spec|RES001|mocks/)
+    assert.doesNotMatch(text, /zaius-spec|ORD001|mocks/)
   })
 
   it('da las órdenes del gestor de paquetes del proyecto, en columna', () => {

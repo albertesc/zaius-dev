@@ -1,0 +1,4 @@
+# kit:if mocks
+VITE_USE_MOCKS=true
+# kit:end
+VITE_API_URL=/api
