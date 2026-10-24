@@ -1,0 +1,134 @@
+<!doctype html>
+<!-- Arranque de esta plantilla: el de zaius-sketch. Para una página pública que se lee (una portada de bienvenida, una ayuda), el marco es el mismo, sin el menú lateral. -->
+<html lang="%%DEFAULT_LANGUAGE%%" data-fidelity="high" data-width="desktop" data-theme="light" data-state="content">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boceto · Pedidos · %%APP_NAME%%</title>
+  <style>
+    :root {
+      --brand: #1d4ed8;
+      --brand-text: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --surface: #ffffff;
+      --surface-alt: #f3f4f6;
+      --border: #d1d5db;
+      --line: solid;
+      --danger: #b91c1c;
+      --success: #15803d;
+      --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --radius: 6px;
+      --space: 8px;
+      --width-desktop: 1280px;
+      --width-mobile: 360px;
+      --toolbar: #111827;
+      --toolbar-text: #f9fafb;
+    }
+    [data-theme='dark'] { --text: #f3f4f6; --text-muted: #9ca3af; --surface: #111827; --surface-alt: #1f2937; --border: #374151; }
+    [data-fidelity='mid'] { --brand: #4b5563; --danger: #4b5563; --success: #4b5563; }
+    [data-fidelity='low'] { --brand: #9ca3af; --brand-text: #111827; --danger: #6b7280; --success: #6b7280; --font: system-ui, sans-serif; --radius: 0; --line: dashed; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--surface-alt); font-family: var(--font); color: var(--text); }
+    .toolbar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: calc(var(--space) * 2); align-items: center; padding: var(--space) calc(var(--space) * 2); background: var(--toolbar); color: var(--toolbar-text); font: 14px system-ui, sans-serif; }
+    .toolbar select { margin-left: 4px; }
+    .stage { overflow-x: auto; padding: calc(var(--space) * 3); }
+    .mockup { margin: 0 auto; width: var(--width-desktop); min-height: 720px; background: var(--surface); border: 1px var(--line) var(--border); }
+    [data-width='mobile'] .mockup { width: var(--width-mobile); }
+    .app-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space) calc(var(--space) * 2); border-bottom: 1px var(--line) var(--border); font-weight: 600; }
+    .app-body { display: flex; }
+    .app-nav { display: flex; flex-direction: column; gap: 4px; width: 220px; padding: calc(var(--space) * 2); border-right: 1px var(--line) var(--border); }
+    .app-nav a { padding: var(--space); border-radius: var(--radius); color: inherit; text-decoration: none; }
+    .app-nav a[aria-current='page'] { background: var(--surface-alt); font-weight: 600; }
+    [data-width='mobile'] .app-nav { display: none; }
+    .page { flex: 1; min-width: 0; padding: calc(var(--space) * 3); }
+    .page-header { display: flex; flex-wrap: wrap; gap: var(--space); align-items: center; justify-content: space-between; margin-bottom: calc(var(--space) * 3); }
+    .page-header h1 { margin: 0; font-size: 24px; }
+    .actions { display: flex; flex-wrap: wrap; gap: var(--space); }
+    .button { min-height: 32px; padding: 0 calc(var(--space) * 2); border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; white-space: nowrap; }
+    .button--primary { border-color: var(--brand); background: var(--brand); color: var(--brand-text); }
+    .button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    .table-wrap { overflow-x: auto; }
+    .table { width: 100%; border-collapse: collapse; }
+    .table th, .table td { padding: var(--space) calc(var(--space) * 1.5); border-bottom: 1px var(--line) var(--border); text-align: left; }
+    .table th { color: var(--text-muted); font-weight: 600; }
+    .table .number { text-align: right; white-space: nowrap; }
+    .badge { display: inline-block; padding: 2px var(--space); border: 1px var(--line) var(--border); border-radius: 999px; font-size: 13px; }
+    .badge--success { border-color: var(--success); color: var(--success); }
+    .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: calc(var(--space) * 2); }
+    .field input { min-height: 32px; padding: 0 var(--space); border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+    .field small { color: var(--text-muted); }
+    .field--error input { border-color: var(--danger); }
+    .field--error small { color: var(--danger); }
+    .alert { padding: calc(var(--space) * 1.5); border: 1px var(--line) var(--border); border-radius: var(--radius); }
+    .alert--error { border-color: var(--danger); color: var(--danger); }
+    .empty { padding: calc(var(--space) * 6); text-align: center; color: var(--text-muted); }
+    .skeleton { height: 16px; margin: calc(var(--space) * 1.5) 0; border-radius: var(--radius); background: var(--surface-alt); }
+    .pagination { display: flex; justify-content: flex-end; gap: var(--space); margin-top: calc(var(--space) * 2); color: var(--text-muted); }
+    [data-width='mobile'] .table .optional { display: none; }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <strong>Boceto: Pedidos</strong>
+    <label>Nivel <select data-control="fidelity"><option value="low">Baja</option><option value="mid">Media</option><option value="high">Alta</option></select></label>
+    <label>Ancho <select data-control="width"><option value="desktop">Ordenador</option><option value="mobile">Móvil</option></select></label>
+    <label>Tema <select data-control="theme"><option value="light">Claro</option><option value="dark">Oscuro</option></select></label>
+    <label>Estado <select data-control="state"></select></label>
+  </header>
+  <div class="stage">
+    <div class="mockup">
+      <header class="app-header">%%APP_NAME%% <span>Ana Ruiz</span></header>
+      <div class="app-body">
+        <nav class="app-nav" aria-label="Menú">
+          <a href="#">Inicio</a>
+          <a href="#" aria-current="page">Pedidos</a>
+          <a href="#">Facturas</a>
+        </nav>
+        <main class="page">
+          <div class="page-header">
+            <h1>Pedidos</h1>
+            <div class="actions">
+              <button class="button" type="button">Exporta los pedidos</button>
+              <button class="button button--primary" type="button">Crea un pedido</button>
+            </div>
+          </div>
+          <section data-for-state="content" data-label="Con datos">
+            <div class="table-wrap"><table class="table">
+              <thead><tr><th>Referencia</th><th>Cliente</th><th class="optional">Fecha</th><th>Estado</th><th class="number">Importe</th></tr></thead>
+              <tbody>
+                <tr><td>PED-2041</td><td>Talleres Norte</td><td class="optional">14/10/2026</td><td><span class="badge">Abierto</span></td><td class="number">1.250,00 €</td></tr>
+                <tr><td>PED-2040</td><td>Ferretería Sol</td><td class="optional">13/10/2026</td><td><span class="badge badge--success">Entregado</span></td><td class="number">318,40 €</td></tr>
+                <tr><td>PED-2039</td><td>Construcciones Ebro</td><td class="optional">13/10/2026</td><td><span class="badge">Abierto</span></td><td class="number">-</td></tr>
+              </tbody>
+            </table></div>
+            <div class="pagination">1–3 de 3 <button class="button" type="button">25 filas</button></div>
+          </section>
+          <section data-for-state="loading" data-label="Cargando">
+            <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+          </section>
+          <section data-for-state="empty" data-label="Vacío">
+            <div class="empty"><p>Todavía no hay pedidos.</p><button class="button button--primary" type="button">Crea un pedido</button></div>
+          </section>
+          <section data-for-state="error" data-label="Error">
+            <div class="alert alert--error">No se han podido cargar los pedidos. <button class="button" type="button">Reintenta</button></div>
+          </section>
+        </main>
+      </div>
+    </div>
+  </div>
+  <script>
+    const root = document.documentElement
+    const sections = [...document.querySelectorAll('[data-for-state]')]
+    const stateControl = document.querySelector('[data-control="state"]')
+    for (const section of sections) stateControl.add(new Option(section.dataset.label, section.dataset.forState))
+    if (sections.length === 0) stateControl.closest('label').remove()
+    const showState = () => sections.forEach((section) => { section.hidden = section.dataset.forState !== root.dataset.state })
+    for (const control of document.querySelectorAll('[data-control]')) {
+      control.value = root.dataset[control.dataset.control]
+      control.addEventListener('change', () => { root.dataset[control.dataset.control] = control.value; showState() })
+    }
+    showState()
+  </script>
+</body>
+</html>

@@ -4,6 +4,10 @@
     "web": "web",
     "app": "app"
   },
-  "conditions": {},
-  "seeds": []
+  "conditions": {
+    "dot-claude/skills/zaius-adopt/**": "existing"
+  },
+  "seeds": [
+    "docs/next-steps.md"
+  ]
 }

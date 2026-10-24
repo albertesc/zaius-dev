@@ -20,9 +20,9 @@ const WITHOUT_WEB = { server: null, content: null, privateArea: null }
 
 const WITHOUT_APP = { api: null, mocks: null }
 
-const TYPE_PORTS = {
-  web: { human: '4321', review: '4323' },
-  app: { human: '5173', review: '5175' },
+const TYPE_VALUES = {
+  web: { human: '4321', review: '4323', unit: 'página', units: 'páginas', unitExample: 'HOME', unitDocs: 'docs/pages', specSkill: 'zaius-page' },
+  app: { human: '5173', review: '5175', unit: 'historia', units: 'historias', unitExample: 'ORD001', unitDocs: 'docs/specs', specSkill: 'zaius-spec' },
 }
 
 const LANGUAGE_CODE = /^[a-z]{2,3}$/
@@ -209,6 +209,7 @@ export function buildKitCommand (source, version) {
  * @returns Lo que vale cada `%%PLACEHOLDER%%`.
  */
 export function buildTemplateValues (answers, { kitVersion, kitSource = null, date, timezone }) {
+  const type = TYPE_VALUES[answers.type]
   return {
     APP_NAME: answers.name,
     APP_NAME_JSON: JSON.stringify(answers.name),
@@ -221,8 +222,14 @@ export function buildTemplateValues (answers, { kitVersion, kitSource = null, da
     LANGUAGES: answers.languages.join(', '),
     LANGUAGES_TS: answers.languages.map((code) => `'${code}'`).join(', '),
     TEST_TIMEZONE: timezone,
-    HUMAN_PORT: TYPE_PORTS[answers.type].human,
-    REVIEW_PORT: TYPE_PORTS[answers.type].review,
+    KIND: answers.type,
+    UNIT: type.unit,
+    UNITS: type.units,
+    UNIT_EXAMPLE: type.unitExample,
+    UNIT_DOCS: type.unitDocs,
+    SPEC_SKILL: type.specSkill,
+    HUMAN_PORT: type.human,
+    REVIEW_PORT: type.review,
     KIT_VERSION: kitVersion,
     KIT_RUN: buildKitCommand(kitSource, kitVersion),
     KIT_UPDATE: `${buildKitCommand(kitSource, '<versión>')} update`,

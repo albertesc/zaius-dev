@@ -132,6 +132,11 @@ semillas: se crean una vez y son del proyecto, que los rellena.
 | `%%LANGUAGES_TS%%` | Los idiomas como lista de TypeScript (`'es', 'ca'`). |
 | `%%LANGUAGE%%` | Solo en el nombre de un fichero: el fichero se copia una vez por idioma. |
 | `%%TEST_TIMEZONE%%` | La zona horaria de los tests (la del sistema al instalar). |
+| `%%KIND%%` | El tipo, para la prosa: `web` o `app` («la %%KIND%%»). |
+| `%%UNIT%%`, `%%UNITS%%` | La unidad de trabajo: `página` y `páginas`, o `historia` e `historias`. |
+| `%%UNIT_EXAMPLE%%` | El nombre de una unidad de ejemplo: `HOME` en una web, `ORD001` en una app. |
+| `%%UNIT_DOCS%%` | La carpeta de los ficheros de las unidades: `docs/pages` o `docs/specs`. |
+| `%%SPEC_SKILL%%` | La skill que especifica una unidad: `zaius-page` o `zaius-spec`. |
 | `%%HUMAN_PORT%%` | El puerto del servidor de la persona (`4321` en una web, `5173` en una app). |
 | `%%REVIEW_PORT%%` | El puerto de la revisión visual de la IA (`4323` en una web, `5175` en una app). |
 | `%%KIT_VERSION%%` | La versión del kit. |
@@ -261,6 +266,25 @@ persona, sigue solo con lo que hay en el repo.
 - Las condiciones de la plantilla son solo para las opciones de dentro de un
   camino (idiomas, API, servidor, contenido).
 - Un proyecto lleva lo común y su camino, y nada del otro.
+
+Lo que cada camino da con el mismo nombre, porque lo usan los ficheros de
+`shared/`, que lo enlazan:
+
+- `AGENTS.md`, con «Skills del proyecto», «Diseño y UX» y «Comprobar un
+  cambio»;
+- `docs/standards.md`, con «Qué se revisa» (lo que se mira, en su orden, la
+  revisión visual y cómo se para el servidor de revisión), «Comprobar la
+  estructura» y «Traer un proyecto que ya existe»;
+- `docs/naming.md`, con «Revisar los nombres» (lo que se mira y cómo se mueve
+  cada cosa);
+- `docs/ux-ui/design-system.md`, con «Anchos», «Tema», «Bocetos» y «Piezas por
+  papel», y `docs/ux-ui/rules.md`;
+- `docs/brief.md`, `docs/backlog.md` y `docs/guides/`;
+- `.claude/skills/zaius-sketch/mockup.html`, la plantilla de los bocetos;
+- los scripts `dev`, `dev:review`, `typecheck`, `lint`, `test` y `build`.
+
+Lo que cambia según el tipo dentro de un fichero de `shared/` va en sus valores
+(`%%UNIT%%`, `%%SPEC_SKILL%%`…), nunca en un bloque `kit:if web`.
 
 ## Reglas para editar el kit
 

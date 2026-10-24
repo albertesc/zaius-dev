@@ -222,6 +222,14 @@ describe('buildTemplateValues', () => {
     assert.deepEqual([app.HUMAN_PORT, app.REVIEW_PORT], ['5173', '5175'])
   })
 
+  it('da la unidad de trabajo del tipo, su ejemplo, su carpeta y su skill', () => {
+    const web = buildTemplateValues(defaults, { kitVersion: '0.1.0', date: '2026-10-22', timezone: 'UTC' })
+    const app = buildTemplateValues(appDefaults, { kitVersion: '0.1.0', date: '2026-10-22', timezone: 'UTC' })
+
+    assert.deepEqual([web.KIND, web.UNIT, web.UNITS, web.UNIT_EXAMPLE, web.UNIT_DOCS, web.SPEC_SKILL], ['web', 'página', 'páginas', 'HOME', 'docs/pages', 'zaius-page'])
+    assert.deepEqual([app.KIND, app.UNIT, app.UNITS, app.UNIT_EXAMPLE, app.UNIT_DOCS, app.SPEC_SKILL], ['app', 'historia', 'historias', 'ORD001', 'docs/specs', 'zaius-spec'])
+  })
+
   it('da la orden del kit con la versión instalada y la de actualizar', () => {
     const values = buildTemplateValues(defaults, { kitVersion: '0.1.0', kitSource: 'github:albertesc/zaius-dev', date: '2026-10-22', timezone: 'UTC' })
 

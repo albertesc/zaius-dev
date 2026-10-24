@@ -1,0 +1,159 @@
+<!doctype html>
+<!-- Arranque de esta plantilla, además del de zaius-sketch: data-motion, el nivel de «Movimiento» del sistema de diseño (none, subtle o rich); con rich, lo que entra al llegar a ello lleva data-reveal, y la plantilla ya lo anima y respeta «reducir movimiento». Para una pantalla de trabajo (la zona privada, un formulario largo), el marco es el mismo, con una sola columna. -->
+<html lang="%%DEFAULT_LANGUAGE%%" data-fidelity="high" data-width="mobile" data-theme="light" data-state="content" data-motion="subtle">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boceto · Portada · %%APP_NAME%%</title>
+  <style>
+    :root {
+      --brand: #1d4ed8;
+      --brand-text: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --surface: #ffffff;
+      --surface-alt: #f3f4f6;
+      --border: #d1d5db;
+      --line: solid;
+      --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-display: var(--font);
+      --radius: 6px;
+      --space: 8px;
+      --motion-fast: 200ms;
+      --motion-slow: 600ms;
+      --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+      --width-desktop: 1280px;
+      --width-mobile: 360px;
+      --toolbar: #111827;
+      --toolbar-text: #f9fafb;
+    }
+    [data-theme='dark'] { --text: #f3f4f6; --text-muted: #9ca3af; --surface: #111827; --surface-alt: #1f2937; --border: #374151; }
+    [data-fidelity='mid'] { --brand: #4b5563; }
+    [data-fidelity='low'] { --brand: #9ca3af; --brand-text: #111827; --font: system-ui, sans-serif; --font-display: var(--font); --radius: 0; --line: dashed; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--surface-alt); font-family: var(--font); color: var(--text); }
+    .toolbar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: calc(var(--space) * 2); align-items: center; padding: var(--space) calc(var(--space) * 2); background: var(--toolbar); color: var(--toolbar-text); font: 14px system-ui, sans-serif; }
+    .toolbar select { margin-left: 4px; }
+    .stage { overflow-x: auto; padding: calc(var(--space) * 3); }
+    .mockup { margin: 0 auto; width: var(--width-desktop); background: var(--surface); border: 1px var(--line) var(--border); }
+    [data-width='mobile'] .mockup { width: var(--width-mobile); }
+    .site-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space); padding: calc(var(--space) * 2) calc(var(--space) * 4); border-bottom: 1px var(--line) var(--border); }
+    .logo { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+    .site-nav { display: flex; gap: calc(var(--space) * 3); }
+    .site-nav a { color: inherit; text-decoration: none; }
+    .menu-button { display: none; }
+    [data-width='mobile'] .site-header { padding: calc(var(--space) * 2); }
+    [data-width='mobile'] .site-nav { display: none; }
+    [data-width='mobile'] .menu-button { display: inline-block; }
+    .band { padding: calc(var(--space) * 8) calc(var(--space) * 4); display: flex; flex-direction: column; gap: calc(var(--space) * 2); }
+    [data-width='mobile'] .band { padding: calc(var(--space) * 5) calc(var(--space) * 2); }
+    .band--alt { background: var(--surface-alt); }
+    .hero { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--space) * 4); align-items: center; }
+    [data-width='mobile'] .hero { grid-template-columns: 1fr; }
+    .hero-text { display: flex; flex-direction: column; gap: calc(var(--space) * 2); }
+    h1, h2 { margin: 0; font-family: var(--font-display); line-height: 1.15; }
+    h1 { font-size: 44px; }
+    [data-width='mobile'] h1 { font-size: 32px; }
+    h2 { font-size: 28px; }
+    p { margin: 0; line-height: 1.55; }
+    .lead { color: var(--text-muted); font-size: 18px; }
+    .image { aspect-ratio: 4 / 3; border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface-alt); display: grid; place-items: center; color: var(--text-muted); font-size: 14px; }
+    .cta { display: inline-block; align-self: flex-start; padding: calc(var(--space) * 1.5) calc(var(--space) * 3); border: 1px var(--line) var(--brand); border-radius: var(--radius); background: var(--brand); color: var(--brand-text); font-weight: 600; text-decoration: none; }
+    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--space) * 2); }
+    [data-width='mobile'] .cards { grid-template-columns: 1fr; }
+    .card { display: flex; flex-direction: column; gap: var(--space); padding: calc(var(--space) * 2.5); border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface); }
+    .card strong { font-size: 20px; }
+    .empty { padding: calc(var(--space) * 4); border: 1px var(--line) var(--border); border-radius: var(--radius); text-align: center; color: var(--text-muted); }
+    .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: calc(var(--space) * 2); padding: calc(var(--space) * 4); border-top: 1px var(--line) var(--border); color: var(--text-muted); font-size: 14px; }
+    .site-footer nav { display: flex; flex-wrap: wrap; gap: calc(var(--space) * 2); }
+    .site-footer a { color: inherit; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+    [data-for-state][hidden] { display: none; }
+    .cta, .card { transition: transform var(--motion-fast) var(--motion-ease); }
+    .cta:hover, .card:hover { transform: translateY(-2px); }
+    [data-motion='none'] .cta, [data-motion='none'] .card { transition: none; }
+    [data-motion='rich'].has-motion [data-reveal] { opacity: 0; transform: translateY(16px); transition: opacity var(--motion-slow) var(--motion-ease), transform var(--motion-slow) var(--motion-ease); }
+    [data-motion='rich'].has-motion [data-reveal].is-visible { opacity: 1; transform: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .cta, .card { transition: none; }
+      .cta:hover, .card:hover { transform: none; }
+      [data-motion='rich'].has-motion [data-reveal] { transform: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="toolbar">
+    <strong>Boceto: Portada</strong>
+    <label>Nivel <select data-control="fidelity"><option value="low">Baja</option><option value="mid">Media</option><option value="high">Alta</option></select></label>
+    <label>Ancho <select data-control="width"><option value="mobile">Móvil</option><option value="desktop">Ordenador</option></select></label>
+    <label>Tema <select data-control="theme"><option value="light">Claro</option><option value="dark">Oscuro</option></select></label>
+    <label>Movimiento <select data-control="motion"><option value="none">Nada</option><option value="subtle">Lo justo</option><option value="rich">Vistoso</option></select></label>
+    <label>Estado <select data-control="state"></select></label>
+  </header>
+  <div class="stage">
+    <div class="mockup">
+      <header class="site-header">
+        <span class="logo">%%APP_NAME%%</span>
+        <nav class="site-nav" aria-label="Menú">
+          <a href="#">Cómo funciona</a>
+          <a href="#">Envíos</a>
+          <a href="#">Contacto</a>
+        </nav>
+        <button class="menu-button" type="button" aria-label="Abre el menú">Menú</button>
+      </header>
+      <main>
+        <section class="band hero">
+          <div class="hero-text" data-reveal>
+            <h1>Pide hoy y recíbelo mañana</h1>
+            <p class="lead">Envíos a toda la península en 24 horas, con seguimiento desde que sale del almacén.</p>
+            <a class="cta" href="#">Haz tu pedido</a>
+          </div>
+          <div class="image" data-reveal>Foto del almacén · 4:3</div>
+        </section>
+        <section class="band band--alt">
+          <h2 data-reveal>Tarifas de envío</h2>
+          <div data-for-state="content" data-label="Con tarifas" class="cards">
+            <article class="card" data-reveal><span>Estándar</span><strong>3,90 €</strong><p>De 48 a 72 horas.</p></article>
+            <article class="card" data-reveal><span>Urgente</span><strong>6,90 €</strong><p>En 24 horas, si pides antes de las 14:00.</p></article>
+            <article class="card" data-reveal><span>Recogida</span><strong>Gratis</strong><p>En el almacén, desde el día siguiente.</p></article>
+          </div>
+          <div data-for-state="empty" data-label="Sin tarifas" class="empty">Todavía no hay tarifas de envío.</div>
+        </section>
+      </main>
+      <footer class="site-footer">
+        <span>© 2026 %%APP_NAME%%</span>
+        <nav aria-label="Legal"><a href="#">Aviso legal</a><a href="#">Privacidad</a><a href="#">Cookies</a></nav>
+      </footer>
+    </div>
+  </div>
+  <script>
+    const root = document.documentElement
+    const sections = [...document.querySelectorAll('[data-for-state]')]
+    const stateControl = document.querySelector('[data-control="state"]')
+    for (const section of sections) stateControl.add(new Option(section.dataset.label, section.dataset.forState))
+    if (sections.length === 0) stateControl.closest('label').remove()
+    const showState = () => sections.forEach((section) => { section.hidden = section.dataset.forState !== root.dataset.state })
+    const revealed = [...document.querySelectorAll('[data-reveal]')]
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible')
+          observer.unobserve(entry.target)
+        }
+      }
+    })
+    const replayReveal = () => revealed.forEach((element) => { element.classList.remove('is-visible'); observer.observe(element) })
+    for (const control of document.querySelectorAll('[data-control]')) {
+      control.value = root.dataset[control.dataset.control]
+      control.addEventListener('change', () => {
+        root.dataset[control.dataset.control] = control.value
+        showState()
+        if (control.dataset.control === 'motion') requestAnimationFrame(replayReveal)
+      })
+    }
+    root.classList.add('has-motion')
+    showState()
+    replayReveal()
+  </script>
+</body>
+</html>

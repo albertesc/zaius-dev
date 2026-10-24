@@ -14,3 +14,11 @@
   `rendering`, `adapter`, `backend`, `islands`, `po`) y la de los tests, que
   todo proyecto lleva. Un cambio de respuestas
   que no cambia ningún fichero también se apunta en `zaius-dev.json`.
+- Lo común de la plantilla (`shared/`): `docs/process.md`, con cómo se trabaja
+  con la IA (el flujo, quién decide, iterar, empezar de cero y los estados de
+  una unidad); las semillas de `docs/next-steps.md` y `docs/ux-ui/README.md`;
+  y las skills `zaius-build` (la pareja, test a test), `zaius-review` (que
+  también cierra, sin `zaius-close`), `zaius-refactor`, `zaius-sketch`,
+  `zaius-design`, `zaius-rename`, `zaius-merge` y `zaius-adopt`. Valores nuevos
+  para lo que cambia según el tipo: `%%KIND%%`, `%%UNIT%%`, `%%UNITS%%`,
+  `%%UNIT_EXAMPLE%%`, `%%UNIT_DOCS%%` y `%%SPEC_SKILL%%`.

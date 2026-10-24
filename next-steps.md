@@ -9,9 +9,9 @@ kit deja en un proyecto está decidido y escrito en
 con sus ejemplos (Casa del Roble y Aforo), está en una página privada de la
 persona.
 
-- **Hecho:** los bloques 0 y 1. El plan, aprobado el 2026-10-24, con un commit
+- **Hecho:** los bloques 0, 1 y 2. El plan, aprobado el 2026-10-24, con un commit
   al cerrar cada bloque.
-- **Lo siguiente:** el bloque 2.
+- **Lo siguiente:** el bloque 3.
 
 ## Decidido al empezar (2026-10-24)
 
@@ -52,27 +52,40 @@ persona.
   al elegir una app, la API y los mocks salen marcados con su valor por defecto;
   y un cambio de respuestas que no cambia ningún fichero también se apunta en
   `zaius-dev.json`.
-- [ ] **2. Lo común (`shared/`).** La configuración base (TypeScript, ESLint,
+- [x] **2. Lo común (`shared/`).** La configuración base (TypeScript, ESLint,
   Vitest), su `package.fragment.json`, los documentos comunes (sistema de
   diseño, normas D1–D6 y D10–D13, propuestas de diseño, bocetos), la semilla de
   `docs/next-steps.md` con los estados y la regla de empezar de cero, y las
   skills comunes (`build`, `review`, `refactor`, `sketch`, `design`, `rename`,
-  `languages`, `merge`, `api`, `adopt`).
+  `merge`, `adopt`).
   *Está cuando:* `verify --docs` no encuentra marcadores sueltos ni ningún «si
   es una web» en `shared/`.
+  *Hecho (2026-10-24):* `docs/process.md` (el flujo, la persona decide, hablar
+  con la persona, iterar, empezar de cero y los estados), la semilla de
+  `docs/next-steps.md`, `docs/ux-ui/README.md` y las ocho skills comunes, con
+  la plantilla del boceto en cada camino. Sin `verify` todavía (bloque 7): una
+  web y una app instaladas sin marcadores ni valores sueltos, y `shared/` sin
+  nada de un camino. Lo que cambia según el tipo va en valores nuevos
+  (`%%KIND%%`, `%%UNIT%%`, `%%UNITS%%`, `%%UNIT_EXAMPLE%%`, `%%UNIT_DOCS%%`,
+  `%%SPEC_SKILL%%`), y lo propio de cada camino, en los apartados con el mismo
+  nombre que lista `AGENTS.md` («Lo común y cada camino»). La configuración
+  (TypeScript, ESLint, Vitest) cambia entera por stack: va en cada camino.
+  `zaius-languages` y `zaius-api` dependen del stack: van en su camino.
 - [ ] **3. El camino Apps (`app/`).** El código base de React desde
   `stack-react` (transporte, mocks, sesión, i18n, comprobación de la
   estructura), su `AGENTS.md`, la normativa, la nomenclatura, las guías y las
   normas D7–D9; las plantillas del brief, del backlog, de la spec (`XXX999`) y
   de la pantalla; las skills `init`, `backlog`, `spec`, `publish`, `service`,
-  `form` y `permissions`.
+  `form`, `permissions`, `languages` y `api`; y los apartados que piden los
+  ficheros de `shared/`.
   *Está cuando:* las combinaciones de app pasan tipos, lint, tests y build.
 - [ ] **4. El camino Webs (`web/`).** El código base de Astro desde
   `stack-astro`, más simple (estático; servidor en Node solo con formulario;
   islas con React; contenido), su `AGENTS.md`, la normativa, la nomenclatura,
   las guías, D14 y el rendimiento; las plantillas del brief, del backlog con el
   mapa del sitio y de la página (`NOMBRE`); las skills `init`, `backlog`,
-  `page`, `publish`, `form` y `service`.
+  `page`, `publish`, `form`, `service` y `languages`; y los apartados que piden
+  los ficheros de `shared/`.
   *Está cuando:* las combinaciones de web pasan tipos, lint, tests y build.
 - [ ] **5. La zona privada de una web.** `change` le añade el servidor, la
   sesión, los permisos, el middleware y `zaius-permissions`.
