@@ -52,7 +52,7 @@ export function buildStatusReport (manifest, status, kit) {
     `Carpeta del kit: ${kit.dir}`,
     `Proyecto: ${answers.name} · ${answers.existing ? 'existente, en migración' : 'nuevo'} · gestor de paquetes: ${answers.packageManager}`,
     answers.type === 'web'
-      ? `Tipo: web (Astro) · servidor: ${yesNo(answers.server)} · blog: ${yesNo(answers.content)} · zona privada: ${yesNo(answers.privateArea)}`
+      ? `Tipo: web (Astro) · servidor: ${answers.server ? `sí, en ${answers.platform ?? 'node'}` : 'no'} · blog: ${yesNo(answers.content)} · API: ${yesNo(answers.backend)} · zona privada: ${yesNo(answers.privateArea)}`
       : `Tipo: app (React) · API: ${yesNo(answers.api)} · mocks: ${yesNo(answers.mocks)}`,
     `Idiomas: ${answers.languages.join(', ')} · multiidioma: ${yesNo(answers.i18n)}`,
     '',

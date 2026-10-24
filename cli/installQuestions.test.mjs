@@ -110,36 +110,39 @@ describe('askInstallQuestions', () => {
   })
 
   it('al cambiar un proyecto que sigue en migración no pregunta lo que su código ya fija', async () => {
-    const prompts = createPrompts(['no', 'Pedidos', 'no', 'no', 'no'])
+    const prompts = createPrompts(['no', 'Pedidos', 'no', 'no', 'no', 'no'])
 
-    const answers = await askInstallQuestions({ ...defaults, existing: true }, { mode: 'change', prompts, known: { type: 'web', packageManager: 'pnpm', server: true } })
+    const answers = await askInstallQuestions({ ...defaults, existing: true }, { mode: 'change', prompts, known: { type: 'web', packageManager: 'pnpm', server: true, platform: 'netlify' } })
 
-    assert.deepEqual([answers.existing, answers.type, answers.packageManager, answers.server, answers.privateArea], [true, 'web', 'pnpm', true, false])
+    assert.deepEqual([answers.existing, answers.type, answers.packageManager, answers.server, answers.backend, answers.privateArea, answers.platform], [true, 'web', 'pnpm', true, false, false, 'netlify'])
     assert.deepEqual(askedMessages(prompts), [
       INSTALL_QUESTIONS.migrationDone.message,
       INSTALL_QUESTIONS.name.message,
       INSTALL_QUESTIONS.i18n.message,
       INSTALL_QUESTIONS.content.message,
+      INSTALL_QUESTIONS.backend.message,
       INSTALL_QUESTIONS.privateArea.message,
     ])
   })
 
-  it('al cambiar una web con el código del kit no pregunta el tipo, y sí la zona privada', async () => {
-    const current = { ...defaults, server: true, privateArea: true }
-    const prompts = createPrompts(['Pedidos', 'npm', 'no', 'yes', 'no', 'no'])
+  it('al cambiar una web con el código del kit no pregunta el tipo, y sí la API y la zona privada', async () => {
+    const current = { ...defaults, server: true, backend: true, privateArea: true, platform: 'node' }
+    const prompts = createPrompts(['Pedidos', 'npm', 'no', 'yes', 'no', 'yes', 'no', 'vercel'])
 
     const answers = await askInstallQuestions(current, { mode: 'change', prompts })
 
-    assert.deepEqual([answers.existing, answers.type, answers.server, answers.content, answers.privateArea], [false, 'web', true, false, false])
+    assert.deepEqual([answers.existing, answers.type, answers.server, answers.content, answers.backend, answers.privateArea, answers.platform], [false, 'web', true, false, true, false, 'vercel'])
     assert.deepEqual(askedMessages(prompts), [
       INSTALL_QUESTIONS.name.message,
       INSTALL_QUESTIONS.packageManager.message,
       INSTALL_QUESTIONS.i18n.message,
       INSTALL_QUESTIONS.server.message,
       INSTALL_QUESTIONS.content.message,
+      INSTALL_QUESTIONS.backend.message,
       INSTALL_QUESTIONS.privateArea.message,
+      INSTALL_QUESTIONS.platform.message,
     ])
-    assert.deepEqual(prompts.asked.slice(3).map(({ initialValue }) => initialValue), ['yes', 'no', 'yes'])
+    assert.deepEqual(prompts.asked.slice(3).map(({ initialValue }) => initialValue), ['yes', 'no', 'yes', 'yes', 'node'])
   })
 
   it('al cambiar una app con el código del kit no pregunta el tipo ni la zona privada', async () => {

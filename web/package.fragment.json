@@ -1,0 +1,61 @@
+{
+  "scripts": {
+    "dev": "astro dev",
+    "dev:review": "astro dev --port 4323 --ignore-lock",
+    "build": "astro check && astro build",
+    "typecheck": "astro check",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.4.2"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@types/jsdom": "^30.0.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "typescript-eslint": "^8.72.0",
+    "vite": "^8.3.4"
+  },
+  "when": {
+    "server": {
+      "dependencies": {
+        "zod": "^4.6.7"
+      }
+    },
+    "content": {
+      "dependencies": {
+        "@astrojs/mdx": "^8.1.1"
+      }
+    },
+    "backend": {
+      "dependencies": {
+        "zod": "^4.6.7"
+      }
+    },
+    "adapterNode": {
+      "dependencies": {
+        "@astrojs/node": "^11.1.9"
+      }
+    },
+    "adapterVercel": {
+      "dependencies": {
+        "@astrojs/vercel": "^11.0.16"
+      }
+    },
+    "adapterNetlify": {
+      "dependencies": {
+        "@astrojs/netlify": "^8.2.10"
+      }
+    },
+    "adapterCloudflare": {
+      "dependencies": {
+        "@astrojs/cloudflare": "^14.4.2"
+      },
+      "devDependencies": {
+        "wrangler": "^4.125.0"
+      }
+    }
+  }
+}

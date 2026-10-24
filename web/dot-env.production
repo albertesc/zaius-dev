@@ -1,0 +1,4 @@
+# kit:if mocks
+USE_MOCKS=false
+# kit:end
+API_URL=http://localhost:3000/api

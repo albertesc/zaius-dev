@@ -176,6 +176,23 @@ describe('renderTemplate', () => {
     assert.deepEqual([...app.keys()].sort(), ['AGENTS.md', 'src/main.tsx'])
   })
 
+  it('aplica un patrón que empieza por su carpeta solo a los ficheros de esa carpeta', async () => {
+    const kitDir = await createKitDir()
+    await mkdir(join(kitDir, 'web/docs'), { recursive: true })
+    await mkdir(join(kitDir, 'app/docs'), { recursive: true })
+    await writeFile(join(kitDir, 'web/docs/form.md'), 'web\n')
+    await writeFile(join(kitDir, 'app/docs/form.md'), 'app\n')
+    const rules = { base: 'shared', overlays: { web: 'web', app: 'app' }, conditions: { 'web/docs/form.md': 'server' } }
+
+    const web = await renderTemplate({ kitDir, rules, conditions: { web: true, app: false, server: false }, values: {}, languages: ['es'] })
+    const webWithServer = await renderTemplate({ kitDir, rules, conditions: { web: true, app: false, server: true }, values: {}, languages: ['es'] })
+    const app = await renderTemplate({ kitDir, rules, conditions: { web: false, app: true, server: false }, values: {}, languages: ['es'] })
+
+    assert.equal(web.has('docs/form.md'), false)
+    assert.equal(webWithServer.get('docs/form.md').content, 'web\n')
+    assert.equal(app.get('docs/form.md').content, 'app\n')
+  })
+
   it('no deja que dos ficheros de la plantilla den el mismo del proyecto', async () => {
     const kitDir = await createKitDir()
     await writeKitFile(kitDir, 'shared/AGENTS.md', 'base\n')

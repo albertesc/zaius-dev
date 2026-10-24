@@ -65,5 +65,7 @@ export function buildChangeWarnings (previous, next) {
   return [
     previous.privateArea && !next.privateArea ? 'Sin zona privada se quitan la sesión y los permisos: las páginas privadas dejan de funcionar.' : null,
     previous.server && !next.server ? 'Sin servidor, los formularios y lo que se pinta en cada petición dejan de funcionar.' : null,
+    previous.platform !== null && next.platform !== null && previous.platform !== next.platform ? `Cambia la plataforma de ${previous.platform} a ${next.platform}: revisa la configuración del despliegue.` : null,
+    previous.backend && !next.backend ? 'Sin API, se quitan el transporte y los services: lo que lee datos de otro sistema deja de funcionar.' : null,
   ].filter((warning) => warning !== null)
 }

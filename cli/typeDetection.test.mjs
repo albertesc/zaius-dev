@@ -29,17 +29,17 @@ describe('detectType', () => {
 describe('detectWebAnswers', () => {
   it('sin adaptador ni contenido, no tiene servidor ni blog y no fija nada', () => {
     assert.deepEqual(detectWebAnswers({ packageJson: astroPackage({}), configText: null, srcNames: [] }), {
-      answers: { server: false, content: false },
+      answers: { server: false, content: false, platform: null },
       known: {},
     })
   })
 
-  it('tiene servidor con un adaptador', () => {
-    for (const adapter of ['@astrojs/node', '@astrojs/vercel', '@astrojs/netlify', '@astrojs/cloudflare']) {
-      const detected = detectWebAnswers({ packageJson: astroPackage({ [adapter]: '^1.0.0' }), configText: 'export default {}', srcNames: [] })
+  it('tiene servidor con un adaptador, y su plataforma es la del adaptador', () => {
+    for (const platform of ['node', 'vercel', 'netlify', 'cloudflare']) {
+      const detected = detectWebAnswers({ packageJson: astroPackage({ [`@astrojs/${platform}`]: '^1.0.0' }), configText: 'export default {}', srcNames: [] })
 
-      assert.deepEqual(detected.answers, { server: true, content: false })
-      assert.deepEqual(detected.known, { server: true })
+      assert.deepEqual(detected.answers, { server: true, content: false, platform })
+      assert.deepEqual(detected.known, { server: true, platform })
     }
   })
 
@@ -58,10 +58,10 @@ describe('detectWebAnswers', () => {
   it('fija lo que el proyecto ya tiene: el servidor y el contenido', () => {
     const detected = detectWebAnswers({ packageJson: astroPackage({ '@astrojs/netlify': '^8.2.10', '@astrojs/mdx': '^8.1.1' }), configText: null, srcNames: [] })
 
-    assert.deepEqual(detected.known, { server: true, content: true })
+    assert.deepEqual(detected.known, { server: true, content: true, platform: 'netlify' })
   })
 
   it('no falla con un package.json roto', () => {
-    assert.deepEqual(detectWebAnswers({ packageJson: '{ roto', configText: null, srcNames: [] }).answers, { server: false, content: false })
+    assert.deepEqual(detectWebAnswers({ packageJson: '{ roto', configText: null, srcNames: [] }).answers, { server: false, content: false, platform: null })
   })
 })

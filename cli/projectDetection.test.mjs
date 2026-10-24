@@ -41,7 +41,7 @@ describe('detectProject', () => {
     const detected = await detectProject(projectDir)
 
     assert.equal(detected.type, 'web')
-    assert.deepEqual(detected.web, { server: true, content: true })
+    assert.deepEqual(detected.web, { server: true, content: true, platform: null })
     assert.deepEqual(detected.known, { type: 'web', server: true, content: true })
   })
 
@@ -51,7 +51,7 @@ describe('detectProject', () => {
 
     const detected = await detectProject(projectDir)
 
-    assert.deepEqual(detected.web, { server: false, content: false })
+    assert.deepEqual(detected.web, { server: false, content: false, platform: null })
     assert.deepEqual(detected.known, { type: 'web', packageManager: 'npm' })
   })
 

@@ -1,0 +1,5 @@
+{
+  "name": "%%APP_SLUG%%",
+  "compatibility_date": "%%DATE%%",
+  "compatibility_flags": ["nodejs_compat"]
+}

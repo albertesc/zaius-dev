@@ -9,7 +9,7 @@ Uso: zaius-dev [orden] [opciones]
 Órdenes:
   (ninguna)   Mira la carpeta: instala el kit o enseña el menú del proyecto
   init        Instala el kit en un proyecto nuevo o en uno existente
-  change      Cambia una respuesta (multiidioma, la zona privada de una web, mocks, terminar la migración)
+  change      Cambia una respuesta (multiidioma, la API o la zona privada de una web, mocks, terminar la migración)
   update      Pasa el proyecto a la versión del kit instalada en el equipo
   status      Enseña la versión, las respuestas y los ficheros cambiados
   help        Esta ayuda

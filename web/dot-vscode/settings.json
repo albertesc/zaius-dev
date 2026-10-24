@@ -1,0 +1,7 @@
+{
+  "explorer.fileNesting.enabled": true,
+  "explorer.fileNesting.patterns": {
+    "*.astro": "${capture}.test.ts",
+    "*.ts": "${capture}.test.ts"
+  }
+}

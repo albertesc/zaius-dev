@@ -62,11 +62,27 @@ export const INSTALL_QUESTIONS = {
       { value: YES, label: 'Sí', hint: 'Se escriben en Markdown, en colecciones de contenido' },
     ],
   },
+  backend: {
+    message: '¿La web muestra datos que salen de otro sistema (una API), como las reservas de verdad?',
+    options: [
+      { value: NO, label: 'No', hint: 'Los datos van en la propia web y se cambian pidiéndoselo a la IA' },
+      { value: YES, label: 'Sí', hint: 'Añado el transporte, los services y unos datos de ejemplo para trabajar sin ella' },
+    ],
+  },
   privateArea: {
     message: '¿La web tiene una zona privada, en la que se entra con una cuenta (la de los clientes)?',
     options: [
       { value: NO, label: 'No', hint: 'Toda la web es pública' },
       { value: YES, label: 'Sí', hint: 'Añado el servidor, la sesión y los permisos; si lo principal es esa zona, es mejor una app' },
+    ],
+  },
+  platform: {
+    message: '¿Dónde se va a publicar la web? El servidor cambia según la plataforma',
+    options: [
+      { value: 'node', label: 'Node', hint: 'Un servidor propio, con Node; si no lo sabes todavía, este' },
+      { value: 'vercel', label: 'Vercel' },
+      { value: 'netlify', label: 'Netlify' },
+      { value: 'cloudflare', label: 'Cloudflare', hint: 'Workers, con wrangler' },
     ],
   },
   api: {
@@ -87,7 +103,7 @@ export const INSTALL_QUESTIONS = {
 
 const TYPE_QUESTIONS = { web: ['server', 'content'], app: ['api', 'mocks'] }
 
-const KNOWN_LABELS = { type: 'tipo', packageManager: 'gestor', server: 'servidor', content: 'contenido' }
+const KNOWN_LABELS = { type: 'tipo', packageManager: 'gestor', server: 'servidor', content: 'contenido', backend: 'API', platform: 'plataforma' }
 
 /**
  * Hace una pregunta de sí o no con sus dos opciones y la respuesta actual marcada.
@@ -142,19 +158,23 @@ async function askLanguages (prompts, current) {
 }
 
 /**
- * Hace las preguntas de sí o no del tipo del proyecto que no fija ya su código, con la respuesta actual marcada o, si no la hay (se acaba de elegir el tipo), la de por defecto del tipo. En `change`, una web pregunta también por la zona privada.
+ * Hace las preguntas de sí o no del tipo del proyecto que no fija ya su código, con la respuesta actual marcada o, si no la hay (se acaba de elegir el tipo), la de por defecto del tipo. En `change`, una web pregunta también por la API, por la zona privada y, con servidor, por la plataforma en la que se publica.
  * @param prompts El módulo de preguntas.
  * @param answers Las respuestas de partida, con el tipo ya elegido.
  * @param options `mode` y `known`, las que fija el proyecto.
  * @returns Las respuestas del tipo, o `null` si se cancela.
  */
 async function askTypeQuestions (prompts, answers, { mode, known }) {
-  const names = [...TYPE_QUESTIONS[answers.type], ...(answers.type === 'web' && mode === 'change' ? ['privateArea'] : [])]
+  const names = [...TYPE_QUESTIONS[answers.type], ...(answers.type === 'web' && mode === 'change' ? ['backend', 'privateArea'] : [])]
   const result = {}
   for (const name of names) {
     const answer = known[name] ?? await askYesNo(prompts, INSTALL_QUESTIONS[name], answers[name] ?? TYPE_DEFAULTS[answers.type][name])
     if (answer === null) return null
     result[name] = answer
+  }
+  if (answers.type === 'web' && mode === 'change' && (result.server || result.privateArea)) {
+    result.platform = known.platform ?? await askSelect(prompts, INSTALL_QUESTIONS.platform, answers.platform ?? 'node')
+    if (result.platform === null) return null
   }
   return result
 }

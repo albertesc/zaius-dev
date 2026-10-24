@@ -4,6 +4,16 @@ coverage
 *.tsbuildinfo
 .env*.local
 .astro
+# kit:if adapterVercel
+.vercel
+# kit:end
+# kit:if adapterNetlify
+.netlify
+# kit:end
+# kit:if adapterCloudflare
+.wrangler
+.dev.vars*
+# kit:end
 # kit:if yarn
 .pnp.*
 .yarn/*

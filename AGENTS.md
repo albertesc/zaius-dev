@@ -16,10 +16,7 @@ proyecto de uno de dos tipos, cada uno con su stack y su metodología:
 Los dos comparten los estándares de código, el sistema de diseño, los comandos
 y la forma de trabajar con la IA.
 
-El kit se rehace desde cero. La versión anterior (la 0.x, con React y Astro como
-capas de una misma plantilla) está en `../zaius-dev-old`: es la referencia de
-la que se trae lo que sirve, y no se toca. Dónde va el trabajo, por bloques:
-[next-steps.md](./next-steps.md).
+Dónde va el trabajo, por bloques: [next-steps.md](./next-steps.md).
 
 ## Mapa
 
@@ -75,13 +72,16 @@ cambia el prefijo por el punto al copiar.
 | `web`, `app` | ¿Qué vas a construir? | La del tipo elegido. Cada una activa su carpeta. |
 | `server` | Web: ¿la web recibe mensajes o datos de quien la visita? | Sí: con servidor, en Node hasta que se elige la plataforma al publicar. También con zona privada. |
 | `content` | Web: ¿lleva blog, noticias o artículos? | Sí: las colecciones de contenido. |
-| `privateArea` | Web, solo con `change`: ¿la web tiene una zona privada? | Sí: el servidor, la sesión y los permisos. |
+| `adapterNode`, `adapterVercel`, `adapterNetlify`, `adapterCloudflare` | Web con servidor, solo con `change`: ¿dónde se va a publicar la web? | La de la plataforma elegida; Node mientras no se elige otra. La elige `zaius-publish`, que manda lanzar `change`: así el kit pone su adaptador y no lo pisa al actualizar. |
+| `backend` | Web, solo con `change`: ¿la web muestra datos de otro sistema (una API)? | Sí: el transporte, los services y sus datos de ejemplo. Siempre verdadera en una app y con la zona privada. |
+| `privateArea` | Web, solo con `change`: ¿la web tiene una zona privada? | Sí: el servidor, la API, la sesión y los permisos. |
 | `api` | App: ¿quieres apuntar cómo es la API? | Sí: `docs/api/` y `docs/api-requests.md`. |
-| `mocks` | App: ¿quieres datos de ejemplo para avanzar sin la API? | Sí: las respuestas inventadas de cada service. |
+| `mocks` | App: ¿quieres datos de ejemplo para avanzar sin la API? | Sí: las respuestas inventadas de cada service. En una web, va con la API. |
 | `i18n` | ¿Va a estar en más de un idioma? | Sí: i18next y un catálogo por idioma. |
 | `npm`, `pnpm`, `yarn`, `bun` | ¿Con qué gestor de paquetes? | La del gestor elegido; las otras tres, falsas. |
 
-Las condiciones de una web son falsas en una app, y las de una app, en una web.
+Las condiciones de una web son falsas en una app, y las de una app, en una web,
+salvo `backend` y `mocks`, que valen para las dos.
 Los tests no se preguntan: todo proyecto los lleva, cada fichero con código con
 el suyo, porque `zaius-build` trabaja test a test.
 Las órdenes no se escriben nunca con un gestor concreto: van con `%%PM%%` y
@@ -115,6 +115,11 @@ semillas: se crean una vez y son del proyecto, que los rellena.
 ```json
 { "conditions": { "src/utils/apiMockUtils*": "mocks" }, "seeds": ["docs/next-steps.md"] }
 ```
+
+Las condiciones valen para las tres carpetas, porque se comparan con la ruta
+sin la carpeta. Un patrón que empieza por la carpeta solo cuenta en ella:
+`"web/docs/guides/create-a-form.md": "server"` deja la guía de una app como
+está.
 
 ### Los valores
 
@@ -164,7 +169,8 @@ las del camino:
 - **Web:** «¿La web recibe mensajes o datos?» (con servidor, en Node hasta que
   se elige la plataforma al publicar) y «¿Lleva blog o noticias?» (colecciones
   de contenido). Las islas, con React, sin pregunta: llegan con la primera que
-  hace falta.
+  hace falta. La API y la zona privada no se preguntan al instalar: las añade
+  `change` cuando hacen falta, y la zona privada trae la API.
 - **App:** «¿Hay una API?» (sus documentos) y los mocks.
 
 Un proyecto existente se detecta y se trae por bloques con `zaius-adopt`.

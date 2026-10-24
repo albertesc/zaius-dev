@@ -130,6 +130,8 @@ describe('normalizeAnswers', () => {
   it('una web con zona privada tiene servidor', () => {
     assert.equal(normalizeAnswers({ privateArea: true, server: false }, defaults).server, true)
     assert.equal(normalizeAnswers({ privateArea: false, server: true }, defaults).server, true)
+    assert.equal(normalizeAnswers({ privateArea: true, backend: false }, defaults).backend, true)
+    assert.equal(normalizeAnswers({ backend: true }, defaults).server, false)
     assert.equal(normalizeAnswers({ privateArea: false }, defaults).server, false)
   })
 
@@ -159,18 +161,45 @@ describe('buildConditions', () => {
       server: false,
       content: false,
       privateArea: false,
+      backend: false,
+      adapterNode: false,
+      adapterVercel: false,
+      adapterNetlify: false,
+      adapterCloudflare: false,
       api: false,
       mocks: false,
     })
     assert.equal(buildConditions({ ...defaults, packageManager: 'bun' }).bun, true)
   })
 
-  it('en una web, da el servidor, el contenido y la zona privada', () => {
+  it('en una web, da el servidor, el contenido y la zona privada, que trae la API con sus datos de ejemplo', () => {
     const conditions = buildConditions(normalizeAnswers({ content: true, privateArea: true }, defaults))
 
     assert.deepEqual([conditions.web, conditions.app], [true, false])
-    assert.deepEqual([conditions.server, conditions.content, conditions.privateArea], [true, true, true])
-    assert.deepEqual([conditions.api, conditions.mocks], [false, false])
+    assert.deepEqual([conditions.server, conditions.content, conditions.privateArea, conditions.backend], [true, true, true, true])
+    assert.deepEqual([conditions.api, conditions.mocks], [false, true])
+  })
+
+  it('en una web con servidor, da la condición de su plataforma, Node mientras no se elige', () => {
+    const node = buildConditions(normalizeAnswers({ server: true }, defaults))
+    const vercel = buildConditions(normalizeAnswers({ server: true, platform: 'vercel' }, defaults))
+    const withoutServer = normalizeAnswers({ platform: 'vercel' }, defaults)
+
+    assert.deepEqual([node.adapterNode, node.adapterVercel], [true, false])
+    assert.deepEqual([vercel.adapterNode, vercel.adapterVercel], [false, true])
+    assert.equal(withoutServer.platform, null)
+    assert.equal(buildConditions(withoutServer).adapterVercel, false)
+    assert.throws(() => normalizeAnswers({ server: true, platform: 'heroku' }, defaults), /«platform» tiene que ser node, vercel, netlify o cloudflare/)
+  })
+
+  it('en una web, la API trae sus datos de ejemplo sin servidor', () => {
+    const conditions = buildConditions(normalizeAnswers({ backend: true }, defaults))
+
+    assert.deepEqual([conditions.backend, conditions.mocks, conditions.server, conditions.privateArea], [true, true, false, false])
+  })
+
+  it('en una app, los datos salen siempre de una API', () => {
+    assert.equal(buildConditions(appDefaults).backend, true)
   })
 
   it('en una app, da la API y los mocks, con las de una web falsas', () => {
@@ -185,7 +214,7 @@ describe('buildConditions', () => {
     const web = buildConditions({ ...defaults, api: true, mocks: true })
     const app = buildConditions({ ...appDefaults, server: true, content: true, privateArea: true })
 
-    assert.deepEqual([web.api, web.mocks], [false, false])
+    assert.deepEqual([web.api, web.mocks, web.backend], [false, false, false])
     assert.deepEqual([app.server, app.content, app.privateArea], [false, false, false])
   })
 })

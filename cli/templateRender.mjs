@@ -88,8 +88,8 @@ export function globToRegExp (pattern) {
 }
 
 /**
- * Dice si un fichero de la plantilla se instala con estas respuestas: cumple todos los patrones que le tocan.
- * @param path La ruta lógica del fichero: dentro de su carpeta de la plantilla (`shared/`, `web/` o `app/`), sin ella, con `/`.
+ * Dice si un fichero de la plantilla se instala con estas respuestas: cumple todos los patrones que le tocan. `renderTemplate` lo mira con la ruta lógica y con la de la plantilla, así que un patrón que empieza por su carpeta (`web/docs/x.md`) solo cuenta en ella.
+ * @param path La ruta lógica del fichero, sin su carpeta de la plantilla (`docs/x.md`), o la ruta en la plantilla (`web/docs/x.md`), con `/`.
  * @param rules Las condiciones de `templateFiles.json`, por patrón.
  * @param conditions Lo que vale cada condición.
  * @returns `true` si se copia.
@@ -166,7 +166,7 @@ export async function renderTemplate ({ kitDir, rules, conditions, values, langu
   const files = new Map()
   const sources = new Map()
   for (const { source, path } of await listTemplateFiles(kitDir, resolveTemplateRoots(rules, conditions))) {
-    if (!isTemplatePathIncluded(path, rules.conditions ?? {}, conditions)) continue
+    if (!isTemplatePathIncluded(path, rules.conditions ?? {}, conditions) || !isTemplatePathIncluded(source, rules.conditions ?? {}, conditions)) continue
     const content = await readFile(join(kitDir, source), 'utf8')
     const seed = seeds.some((pattern) => pattern.test(path))
     const variants = path.includes('%%LANGUAGE%%')

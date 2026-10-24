@@ -8,7 +8,7 @@ import { buildStatusReport, getProjectStatus, isOlderVersion } from './projectSt
 
 const answers = { existing: false, type: 'app', name: 'Pedidos', packageManager: 'pnpm', i18n: true, languages: ['es', 'ca'], server: null, content: null, privateArea: null, api: true, mocks: false }
 
-const webAnswers = { ...answers, type: 'web', server: true, content: false, privateArea: true, api: null, mocks: null }
+const webAnswers = { ...answers, type: 'web', server: true, content: false, privateArea: true, backend: true, platform: 'vercel', api: null, mocks: null }
 
 describe('getProjectStatus', () => {
   let projectDir
@@ -44,11 +44,11 @@ describe('buildStatusReport', () => {
   it('dice las respuestas de una web', () => {
     const kit = { version: '0.1.0', dir: '/kits/zaius-dev', run: 'zaius-dev' }
     const report = buildStatusReport({ kitVersion: '0.1.0', answers: webAnswers }, { changed: [], missing: [], kitNew: [] }, kit).join('\n')
-    const publicReport = buildStatusReport({ kitVersion: '0.1.0', answers: { ...webAnswers, server: false, content: true, privateArea: false } }, { changed: [], missing: [], kitNew: [] }, kit).join('\n')
+    const publicReport = buildStatusReport({ kitVersion: '0.1.0', answers: { ...webAnswers, server: false, content: true, privateArea: false, backend: false } }, { changed: [], missing: [], kitNew: [] }, kit).join('\n')
 
-    assert.match(report, /\nTipo: web \(Astro\) · servidor: sí · blog: no · zona privada: sí\nIdiomas/)
-    assert.match(publicReport, /Tipo: web \(Astro\) · servidor: no · blog: sí · zona privada: no/)
-    assert.doesNotMatch(report, /API|mocks/)
+    assert.match(report, /\nTipo: web \(Astro\) · servidor: sí, en vercel · blog: no · API: sí · zona privada: sí\nIdiomas/)
+    assert.match(publicReport, /Tipo: web \(Astro\) · servidor: no · blog: sí · API: no · zona privada: no/)
+    assert.doesNotMatch(report, /mocks/)
   })
 
   it('dice si el proyecto existe y sigue en migración', () => {

@@ -35,14 +35,16 @@ export function detectType (names, packageJson) {
 /**
  * Lee las respuestas de una web de un proyecto Astro: si tiene servidor, por su adaptador o su configuración, y si tiene contenido, por sus colecciones o MDX.
  * @param options `packageJson`, el contenido de su `package.json`; `configText`, el de su `astro.config.*` (o `null`); `srcNames`, los ficheros de su `src/`.
- * @returns `answers` (`server` y `content`) y `known`, las que su código ya fija: el servidor y el contenido, si los tiene.
+ * @returns `answers` (`server`, `content` y `platform`, la del adaptador, o `null`) y `known`, las que su código ya fija: el servidor, el contenido y la plataforma, si los tiene.
  */
 export function detectWebAnswers ({ packageJson, configText, srcNames }) {
   const dependencies = readDependencies(packageJson)
   const server = ADAPTERS.some((name) => Object.hasOwn(dependencies, name)) || SERVER_OUTPUT.test(configText ?? '')
   const content = Object.hasOwn(dependencies, '@astrojs/mdx') || srcNames.some((name) => CONTENT_CONFIG.test(name))
+  const adapter = ADAPTERS.find((name) => Object.hasOwn(dependencies, name))
+  const platform = adapter === undefined ? null : adapter.slice('@astrojs/'.length)
   return {
-    answers: { server, content },
-    known: { ...(server ? { server } : {}), ...(content ? { content } : {}) },
+    answers: { server, content, platform },
+    known: { ...(server ? { server } : {}), ...(content ? { content } : {}), ...(platform === null ? {} : { platform }) },
   }
 }

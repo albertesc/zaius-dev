@@ -350,7 +350,7 @@ describe('runStatusCommand', () => {
     assert.equal(await runStatusCommand({ projectDir, kitDir, prompts }), 0)
     assert.match(prompts.messages.at(-1), /Kit en el proyecto: 0\.1\.0 \(al día\)/)
     assert.ok(prompts.messages.at(-1).includes(`Carpeta del kit: ${kitDir}`))
-    assert.match(prompts.messages.at(-1), /Tipo: web \(Astro\) · servidor: no · blog: no · zona privada: no/)
+    assert.match(prompts.messages.at(-1), /Tipo: web \(Astro\) · servidor: no · blog: no · API: no · zona privada: no/)
   })
 
   it('pide el kit instalado', async () => {
@@ -385,7 +385,7 @@ describe('chooseCommand', () => {
       return prompts.selects[0].options.find(({ value }) => value === 'change').hint
     }
 
-    assert.equal(await changeHint(projectDir), 'La zona privada, el servidor, el blog o multiidioma')
+    assert.equal(await changeHint(projectDir), 'La zona privada, la API, el servidor, el blog o multiidioma')
     assert.equal(await changeHint(join(workDir, 'gestion')), 'Multiidioma, mocks o los documentos de la API')
     assert.equal(await changeHint(legacyDir), 'También para terminar la migración')
   })

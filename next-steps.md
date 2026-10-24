@@ -2,46 +2,48 @@
 
 ## Dónde estamos
 
-Al día el 2026-10-24. El kit empieza de cero. La versión anterior está en
-`../zaius-dev-old`, con sus cambios sin publicar, y es la referencia. Lo que el
-kit deja en un proyecto está decidido y escrito en
+Al día el 2026-10-24. Lo que el kit deja en un proyecto está decidido y
+escrito en
 [AGENTS.md](./AGENTS.md#lo-que-deja-en-un-proyecto); la propuesta de la fase 1,
 con sus ejemplos (Casa del Roble y Aforo), está en una página privada de la
 persona.
 
-- **Hecho:** los bloques 0 a 3. El plan, aprobado el 2026-10-24, con un commit
+- **Hecho:** los bloques 0 a 5. El plan, aprobado el 2026-10-24, con un commit
   al cerrar cada bloque.
-- **Lo siguiente:** el bloque 4.
+- **Lo siguiente:** el bloque 6.
 
 ## Decidido al empezar (2026-10-24)
 
 - La primera versión que se publica es la `0.1.0`; la `1.0.0`, después del
   bloque 8.
 - Los ejemplos de la plantilla, uno en cada camino: en las apps, el dominio
-  `orders` (como en la 0.x); en las webs, una casa rural, Casa del Roble
+  `orders`; en las webs, una casa rural, Casa del Roble
   (inicio, habitaciones, entorno, blog, contacto y, si crece, la zona de
   clientes con sus reservas).
+- Una web no pregunta por la API ni por la zona privada al instalar: las añade
+  `change` cuando hacen falta, y la zona privada trae el servidor y la API.
+- La plataforma de una web con servidor (Node, Vercel, Netlify o Cloudflare) es
+  una respuesta del kit, que solo se pregunta con `change`: la elige
+  `zaius-publish`, que manda lanzarlo, y así el kit pone su adaptador y no lo
+  pisa al actualizar. Mientras no se elige, Node.
 - Todo proyecto lleva tests: no se pregunta, porque `zaius-build` trabaja test a
   test.
 - El kit no cita la fuente del método de las apps.
 
 ## Bloques
 
-- [x] **0. La carpeta y el repo.** `zaius-dev-old` es la versión anterior, y
-  `zaius-dev`, un repo vacío con `AGENTS.md`, `CLAUDE.md`, `README.md`,
+- [x] **0. La carpeta y el repo.** Un repo con `AGENTS.md`, `CLAUDE.md`, `README.md`,
   `CHANGELOG.md`, este fichero y los de raíz (licencia, `.gitignore`,
   `.gitattributes`, `.yarnrc.yml`).
   *Está cuando:* una sesión nueva, sin contexto, sabe qué es el kit, qué está
   decidido y qué toca después, solo con estos ficheros.
-- [x] **1. El instalador.** `bin/` y `cli/` desde `zaius-dev-old`, con sus
-  tests, adaptados:
+- [x] **1. El instalador.** `bin/` y `cli/`, con sus tests:
   - la plantilla en `shared/`, `web/` y `app/` (las capas, por tipo);
   - las respuestas: `type` (web o app), `name`, `packageManager`, `i18n` y
     `languages`; en web, `server` («¿recibe mensajes?») y `content`
     («¿blog o noticias?»); en app, `api` y `mocks`; `privateArea`, solo con
     `change`, en una web;
-  - fuera `stack`, `rendering`, `adapter`, `backend`, `islands` y `po`;
-  - `existing` se queda: los proyectos existentes, desde la primera versión.
+  - `existing`: los proyectos existentes, desde la primera versión.
 
   *Está cuando:* `npm test` en verde, y `init --yes` deja una web y una app con
   una plantilla mínima de prueba.
@@ -49,7 +51,7 @@ persona.
   (`web/` y `app/` con un `AGENTS.md` y un `.gitignore`): `init` de una web y
   de una app, `change` que añade la zona privada (y con ella el servidor) y que
   no deja cambiar el tipo, `status`, y un proyecto Astro existente detectado
-  como web, con su servidor, su contenido y pnpm. Dos arreglos sobre lo traído:
+  como web, con su servidor, su contenido y pnpm. Dos arreglos:
   al elegir una app, la API y los mocks salen marcados con su valor por defecto;
   y un cambio de respuestas que no cambia ningún fichero también se apunta en
   `zaius-dev.json`.
@@ -80,8 +82,8 @@ persona.
   `form`, `permissions`, `languages` y `api`; y los apartados que piden los
   ficheros de `shared/`.
   *Está cuando:* las combinaciones de app pasan tipos, lint, tests y build.
-  *Hecho (2026-10-24):* el código base y la configuración de React traídos de
-  la 0.x, con sus tests en `templateTests/app/`; los documentos (`AGENTS.md`,
+  *Hecho (2026-10-24):* el código base y la configuración de React, con sus
+  tests en `templateTests/app/`; los documentos (`AGENTS.md`,
   el README, la normativa con «Qué se revisa» y «Traer un proyecto que ya
   existe», la nomenclatura con «Revisar los nombres», las guías, las normas
   D1–D13, el sistema de diseño, la API y las semillas del brief y del
@@ -91,7 +93,7 @@ persona.
   y los tests del código base dentro del proyecto; cinco combinaciones y un
   proyecto existente, sin enlaces rotos, anclas que falten ni nada sin
   resolver. Sin yarn ni bun en este equipo.
-- [ ] **4. El camino Webs (`web/`).** El código base de Astro desde
+- [x] **4. El camino Webs (`web/`).** El código base de Astro desde
   `stack-astro`, más simple (estático; servidor en Node solo con formulario;
   islas con React; contenido), su `AGENTS.md`, la normativa, la nomenclatura,
   las guías, D14 y el rendimiento; las plantillas del brief, del backlog con el
@@ -99,16 +101,34 @@ persona.
   `page`, `publish`, `form`, `service` y `languages`; y los apartados que piden
   los ficheros de `shared/`.
   *Está cuando:* las combinaciones de web pasan tipos, lint, tests y build.
-- [ ] **5. La zona privada de una web.** `change` le añade el servidor, la
+  *Hecho (2026-10-24):* el código base de Astro, con su configuración y sus
+  tests en `templateTests/web/`, separado en `server` (formularios), `backend`
+  (la API) y `privateArea` (la sesión y los permisos); los documentos
+  (`AGENTS.md`, el README, la normativa con «Qué se revisa», la nomenclatura
+  con «Revisar los nombres», las nueve guías, las normas D1–D6 y D10–D14, con
+  D7–D9 en la zona privada, el sistema de diseño con las piezas de web, y las
+  semillas del brief, del backlog y de `docs/pages/`), con Casa del Roble de
+  ejemplo; y las skills (`init`, `backlog`, `page`, `publish`, `form`,
+  `service`, `permissions` y `languages`). En el instalador: las respuestas
+  `backend` y `platform` de una web, solo con `change`; las condiciones con la
+  carpeta delante (`web/…`); zod solo donde se usa; y el `.gitignore` solo en
+  proyectos nuevos. Probado: seis combinaciones de web con npm y pnpm
+  (estática, con servidor, con blog y multiidioma, con API, con zona privada y
+  con Cloudflare) con tipos, lint, tests, build y los tests del código base en
+  verde; nueve instalaciones de web y de app sin enlaces rotos ni nada sin
+  resolver.
+- [x] **5. La zona privada de una web.** `change` le añade el servidor, la
   sesión, los permisos, el middleware y `zaius-permissions`.
   *Está cuando:* una web instalada pasa a tener zona privada con `change` y
   sigue en verde.
+  *Hecho (2026-10-24):* con el código base del bloque 4: una web con servidor
+  recibe con `change` la zona privada (la sesión, la API, sus datos de ejemplo
+  y los `.env`), sin `.kit-new`, y pasa tipos, lint, tests, build y los tests
+  del código base. Y una web con servidor cambia de plataforma (de Node a
+  Vercel) con `change`, sin `.kit-new` y en verde.
 - [ ] **6. Proyectos existentes.** La detección por tipo y `zaius-adopt`.
   *Está cuando:* `verify` trae un proyecto existente de cada tipo hasta el
   final.
-  *Por ver:* un proyecto de la 0.x tiene su `zaius-dev.json` (con `stack`), y
-  hoy `init` dice que ya tiene el kit y `change` y `update` piden la versión
-  0.x; tiene que traerse como existente.
 - [ ] **7. `verify` entero y los documentos del kit.** Todas las combinaciones,
   el README (instalar, usar, publicar una versión), `CLAUDE.md`, el
   `CHANGELOG` y la skill `contribute-to-kit`.
@@ -117,8 +137,8 @@ persona.
   de prueba: `init` → `backlog` → `page`/`spec` → `build` → `review` con
   Claude Code, cortando la sesión a mitad para retomarla sin contexto.
   *Está cuando:* las dos llegan a una unidad «hecha».
-- [ ] **9. Publicar.** La persona borra el repo viejo de GitHub; el nuevo se
-  sube con su etiqueta.
+- [ ] **9. Publicar.** El repo, en GitHub (`albertesc/zaius-dev`), con su
+  etiqueta.
   *Está cuando:* `npx github:albertesc/zaius-dev#v<versión> init` funciona
   desde otra carpeta.
 

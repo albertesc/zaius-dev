@@ -10,13 +10,17 @@ export const TYPES = ['web', 'app']
 
 export const DEFAULT_TYPE = 'web'
 
-const WEB_DEFAULTS = { server: false, content: false, privateArea: false }
+export const PLATFORMS = ['node', 'vercel', 'netlify', 'cloudflare']
+
+const DEFAULT_PLATFORM = 'node'
+
+const WEB_DEFAULTS = { server: false, content: false, privateArea: false, backend: false, platform: null }
 
 const APP_DEFAULTS = { api: true, mocks: true }
 
 export const TYPE_DEFAULTS = { web: WEB_DEFAULTS, app: APP_DEFAULTS }
 
-const WITHOUT_WEB = { server: null, content: null, privateArea: null }
+const WITHOUT_WEB = { server: null, content: null, privateArea: null, backend: null, platform: null }
 
 const WITHOUT_APP = { api: null, mocks: null }
 
@@ -66,7 +70,7 @@ export function validateLanguages (languages, i18n) {
  * Da las respuestas propias de un tipo, con las del otro a `null`.
  * @param type `web` o `app`.
  * @param read Las respuestas de ese tipo que se leen de un proyecto que ya existe, o `null`.
- * @returns Las de una web (`server`, `content`, `privateArea`) y las de una app (`api`, `mocks`): las del tipo, con sus valores por defecto; las del otro, a `null`.
+ * @returns Las de una web (`server`, `content`, `privateArea`, `backend`, `platform`) y las de una app (`api`, `mocks`): las del tipo, con sus valores por defecto; las del otro, a `null`.
  */
 function getTypeDefaults (type, read) {
   return type === 'web' ? { ...WEB_DEFAULTS, ...read, ...WITHOUT_APP } : { ...WITHOUT_WEB, ...APP_DEFAULTS, ...read }
@@ -116,7 +120,7 @@ function assertFlags (answers, names) {
 /**
  * Completa y comprueba las respuestas propias del tipo del proyecto.
  * @param answers Las respuestas, con las del tipo que falten a `null`.
- * @returns Las de una web y las de una app: las del tipo, completas; las del otro, a `null`. Una web con zona privada tiene servidor.
+ * @returns Las de una web y las de una app: las del tipo, completas; las del otro, a `null`. Una web con zona privada tiene servidor y API, y una con servidor, su plataforma (Node mientras no se elige otra); sin servidor, ninguna.
  * @throws {Error} si alguna no vale, con el motivo.
  */
 function normalizeTypeAnswers (answers) {
@@ -129,9 +133,13 @@ function normalizeTypeAnswers (answers) {
     server: answers.server ?? WEB_DEFAULTS.server,
     content: answers.content ?? WEB_DEFAULTS.content,
     privateArea: answers.privateArea ?? WEB_DEFAULTS.privateArea,
+    backend: answers.backend ?? WEB_DEFAULTS.backend,
   }
-  assertFlags(web, ['server', 'content', 'privateArea'])
-  return { ...web, server: web.server || web.privateArea, ...WITHOUT_APP }
+  assertFlags(web, ['server', 'content', 'privateArea', 'backend'])
+  const server = web.server || web.privateArea
+  const platform = server ? answers.platform ?? DEFAULT_PLATFORM : null
+  if (platform !== null) assertChoice('platform', platform, PLATFORMS)
+  return { ...web, server, backend: web.backend || web.privateArea, platform, ...WITHOUT_APP }
 }
 
 /**
@@ -166,7 +174,7 @@ export function normalizeAnswers (raw, defaults) {
 /**
  * Da las condiciones de la plantilla que salen de las respuestas.
  * @param answers Las respuestas de la instalación.
- * @returns `existing` e `i18n`; una por gestor de paquetes (`npm`…) y una por tipo (`web`, `app`), verdadera la del proyecto; las de una web (`server`, `content`, `privateArea`) y las de una app (`api`, `mocks`), falsas en el otro tipo.
+ * @returns `existing` e `i18n`; una por gestor de paquetes (`npm`…) y una por tipo (`web`, `app`), verdadera la del proyecto; las de una web (`server`, `content`, `privateArea` y una por plataforma, `adapterNode`…, verdadera la suya si tiene servidor), falsas en una app, y `api`, falsa en una web; `backend`, si los datos salen de otro sistema (siempre en una app; en una web, con su API), y `mocks`, la respuesta de una app o, en una web, con su API.
  */
 export function buildConditions (answers) {
   const web = answers.type === 'web'
@@ -178,8 +186,10 @@ export function buildConditions (answers) {
     server: web && answers.server === true,
     content: web && answers.content === true,
     privateArea: web && answers.privateArea === true,
+    backend: app || (web && answers.backend === true),
+    ...Object.fromEntries(PLATFORMS.map((name) => [`adapter${name[0].toUpperCase()}${name.slice(1)}`, web && answers.server === true && (answers.platform ?? DEFAULT_PLATFORM) === name])),
     api: app && answers.api === true,
-    mocks: app && answers.mocks === true,
+    mocks: app ? answers.mocks === true : web && answers.backend === true,
   }
 }
 

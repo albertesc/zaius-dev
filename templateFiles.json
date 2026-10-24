@@ -10,7 +10,10 @@
     "tsconfig*.json": "!existing",
     "eslint.config.js": "!existing",
     "index.html": "!existing",
-    "dot-env.*": "!existing",
+    "dot-env.*": [
+      "!existing",
+      "backend"
+    ],
     "dot-vscode/**": "!existing",
     "src/utils/apiMockUtils*": "mocks",
     "src/i18n/**": "i18n",
@@ -19,7 +22,25 @@
     "dot-claude/skills/zaius-api/**": "api",
     "dot-claude/skills/zaius-languages/**": "!i18n",
     "docs/api/**": "api",
-    "docs/api-requests.md": "api"
+    "docs/api-requests.md": "api",
+    "astro.config.ts": "!existing",
+    "vitest.config.ts": "!existing",
+    "src/utils/api*": "backend",
+    "src/types/api.ts": "backend",
+    "web/src/utils/apiSessionUtils*": "privateArea",
+    "docs/guides/add-a-service.md": "backend",
+    "docs/guides/load-and-save-data.md": "backend",
+    "docs/guides/add-content.md": "content",
+    "web/docs/guides/create-a-form.md": "server",
+    "web/docs/guides/apply-permissions.md": "privateArea",
+    "dot-claude/skills/zaius-service/**": "backend",
+    "web/dot-claude/skills/zaius-form/**": "server",
+    "web/dot-claude/skills/zaius-permissions/**": "privateArea",
+    "dot-gitignore": "!existing",
+    "wrangler.jsonc": [
+      "adapterCloudflare",
+      "!existing"
+    ]
   },
   "seeds": [
     "docs/next-steps.md",

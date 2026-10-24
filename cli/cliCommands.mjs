@@ -238,7 +238,7 @@ export async function chooseCommand ({ projectDir, prompts }) {
     message: 'Este proyecto ya tiene el kit. ¿Qué quieres hacer?',
     options: [
       { value: 'status', label: 'Ver el estado', hint: 'La versión, las respuestas y los ficheros cambiados' },
-      { value: 'change', label: 'Cambiar una respuesta', hint: manifest.answers.existing ? 'También para terminar la migración' : manifest.answers.type === 'web' ? 'La zona privada, el servidor, el blog o multiidioma' : 'Multiidioma, mocks o los documentos de la API' },
+      { value: 'change', label: 'Cambiar una respuesta', hint: manifest.answers.existing ? 'También para terminar la migración' : manifest.answers.type === 'web' ? 'La zona privada, la API, el servidor, el blog o multiidioma' : 'Multiidioma, mocks o los documentos de la API' },
       { value: 'update', label: 'Actualizar el kit', hint: 'A la versión instalada en el equipo, con las mismas respuestas' },
     ],
   })
