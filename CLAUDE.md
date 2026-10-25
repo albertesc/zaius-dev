@@ -55,11 +55,17 @@ camino:
    además por la zona privada. En `init`, un proyecto nuevo va en una carpeta
    nueva con su nombre (`slugifyName`), y no se instala si esa carpeta ya tiene
    ficheros que no son ocultos.
+   La respuesta de git (`git`) sale de lo que hay
+   ([cli/gitRepo.mjs](./cli/gitRepo.mjs)): una carpeta que ya está en un
+   repositorio lo tiene, sin preguntar; sin git instalado, no; si no, se
+   pregunta (sí, por defecto, en uno nuevo). `update` la toma siempre del
+   repositorio, y nunca inicia uno.
 3. [cli/installFlow.mjs](./cli/installFlow.mjs) llama a `installProject` dos
    veces: primero en seco (`dryRun`) para el resumen y la confirmación, y luego
-   de verdad. Después apunta los `.kit-new` en el `docs/next-steps.md` del
-   proyecto y, en un proyecto nuevo, instala las dependencias y pasa tipos,
-   lint y tests con el gestor del proyecto
+   de verdad. Después inicia el repositorio git si se ha pedido y no lo hay
+   (`git init`, sin ningún commit), apunta los `.kit-new` en el
+   `docs/next-steps.md` del proyecto y, en un proyecto nuevo, instala las
+   dependencias y pasa tipos, lint y tests con el gestor del proyecto
    ([cli/packageManagers.mjs](./cli/packageManagers.mjs)).
 4. [cli/projectInstall.mjs](./cli/projectInstall.mjs) (`installProject`):
    - la versión del kit sale de su `package.json`;

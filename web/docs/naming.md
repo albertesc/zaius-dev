@@ -11,20 +11,16 @@ la cumple.
 
 **En esta página:**
 
-- [Páginas y rutas](#páginas-y-rutas) · [Ficheros](#ficheros) · [Prefijo de origen](#prefijo-de-origen)
+- [Páginas y rutas](#páginas-y-rutas), [Ficheros](#ficheros), [Prefijo de origen](#prefijo-de-origen)
 <!-- kit:if server -->
-- [Componentes](#componentes) · [Funciones, tipos y constantes](#funciones-tipos-y-constantes) · [Actions y endpoints](#actions-y-endpoints)
+- [Componentes](#componentes), [Funciones, tipos y constantes](#funciones-tipos-y-constantes), [Actions y endpoints](#actions-y-endpoints)
 <!-- kit:else -->
-- [Componentes](#componentes) · [Funciones, tipos y constantes](#funciones-tipos-y-constantes)
+- [Componentes](#componentes), [Funciones, tipos y constantes](#funciones-tipos-y-constantes)
 <!-- kit:end -->
 <!-- kit:if backend -->
-- [Services, schemas y caché](#services-schemas-y-caché) · [Mocks](#mocks) · [El transporte](#el-transporte)
+- [Services, schemas y caché](#services-schemas-y-caché), [Mocks](#mocks), [El transporte](#el-transporte)
 <!-- kit:end -->
-<!-- kit:if i18n -->
-- [Textos (i18n)](#textos-i18n) · [JSDoc](#jsdoc)
-<!-- kit:else -->
-- [Textos](#textos) · [JSDoc](#jsdoc)
-<!-- kit:end -->
+- [Textos (i18n)](#textos-i18n), [JSDoc](#jsdoc)
 - [Revisar los nombres](#revisar-los-nombres)
 
 ## Páginas y rutas
@@ -71,12 +67,8 @@ la cumple.
     `/account/bookings/[id]` no es una ruta.
 <!-- kit:end -->
 
-<!-- kit:if i18n -->
   El prefijo es el de todo lo que solo usa esa página, y da el grupo de sus
   textos: `legalNotice`, `legal.notice.*` ([Textos (i18n)](#textos-i18n)).
-<!-- kit:else -->
-  El prefijo es el de todo lo que solo usa esa página.
-<!-- kit:end -->
 - **P4. El nombre de una página,** en el backlog y en su documento, es su
   prefijo en mayúsculas, con un guion entre palabras: `legalNotice` es
   LEGAL-NOTICE, y su documento, `docs/pages/LEGAL-NOTICE.md`
@@ -211,9 +203,7 @@ nombre:
   `RoomCard.test.ts` (de `RoomCard.astro`), `roomPriceUtils.test.ts`. Lo de
   `src/pages/` tiene su test en `src/tests/pages/`, con la misma ruta:
   `src/tests/pages/rooms.test.ts`, `src/tests/pages/legal/notice.test.ts`.
-<!-- kit:if i18n -->
 - **Los textos** van en `src/i18n/<idioma>.json`, uno por idioma (%%LANGUAGES%%).
-<!-- kit:end -->
 <!-- kit:if content -->
 - **Las colecciones de contenido** llevan el prefijo de quién las usa, y su
   carpeta se llama igual: `blogPosts`, en `src/content/blogPosts/`. Cada
@@ -245,18 +235,11 @@ Los objetos de `src/utils/`, uno por tema; cada uno nuevo se apunta aquí:
 | `apiSessionUtils` | La sesión de cada petición, para el transporte | `run`, `getToken`, `endOnError` |
 <!-- kit:end -->
 | `apiMockUtils` | Las respuestas de los mocks, con los `*Mocks.json` | `respond`, `upload`, `download` |
-<!-- kit:if i18n -->
 | `languageUtils` | El idioma de la web | `resolveAppLanguage` |
-<!-- kit:end -->
 <!-- kit:else -->
-<!-- kit:if i18n -->
 | Objeto | Qué reúne | Funciones |
 |---|---|---|
 | `languageUtils` | El idioma de la web | `resolveAppLanguage` |
-<!-- kit:else -->
-Todavía no hay ninguno: cada uno nuevo entra en una tabla con lo que reúne y
-sus funciones.
-<!-- kit:end -->
 <!-- kit:end -->
 
 `formatUtils`, el formato de los datos en pantalla
@@ -301,7 +284,7 @@ el prefijo es lo único que dice de quién es cada pieza:
   de diseño).
 - **Una pieza cambia de nombre cuando cambia quién la usa.** Si la portada
   empieza a usar `RoomsCard`, la tarjeta de ROOMS, pasa a ser `RoomCard`, en
-  el mismo commit.
+  el mismo cambio.
 - **No se repite lo que ya dice el prefijo.** En ROOMS, «Room» va implícito:
   `RoomsList`, no `RoomsRoomList`.
 - **Los nombres largos están bien.** Lo que no vale:
@@ -587,11 +570,11 @@ la web. Los lee el transporte, en el servidor, con `USE_MOCKS=true`:
 
 ```text
 services/bookings/
-├── bookingsService.ts
-├── bookingsAvailabilitySchema.ts
-├── bookingsSchema.ts
-├── bookingsMocks.json          "GET /booking/availability", "GET /booking/detail/:id"…
-└── bookingsListMocks.json      si el de la entidad crece, los de una zona, aparte
+    bookingsService.ts
+    bookingsAvailabilitySchema.ts
+    bookingsSchema.ts
+    bookingsMocks.json          "GET /booking/availability", "GET /booking/detail/:id"…
+    bookingsListMocks.json      si el de la entidad crece, los de una zona, aparte
 ```
 
 | Pieza | Nombre | Ejemplos |
@@ -648,7 +631,6 @@ en `src/types/api.ts`.
 <!-- kit:end -->
 
 <!-- kit:end -->
-<!-- kit:if i18n -->
 ## Textos (i18n)
 
 - **Un catálogo por idioma,** `src/i18n/<idioma>.json`, sin namespaces: las
@@ -693,22 +675,22 @@ Así quedan las claves de dos páginas, de una pieza compartida y de `common`:
 
 ```text
 home
-├── title, description                       «Inicio», «Una casa de piedra entre robles…»
-├── header.{title, lead, action}             «Casa del Roble», «Pide disponibilidad»
-└── rooms.title                              «Las habitaciones»
+    title, description                       «Inicio», «Una casa de piedra entre robles…»
+    header.{title, lead, action}             «Casa del Roble», «Pide disponibilidad»
+    rooms.title                              «Las habitaciones»
 rooms
-├── title, description                       «Habitaciones», «Tres habitaciones de piedra y madera…»
-├── cta                                      «Pide disponibilidad»
-└── search.{arrival, departure, guests, empty}  los textos de RoomsSearch, si la página la lleva
+    title, description                       «Habitaciones», «Tres habitaciones de piedra y madera…»
+    cta                                      «Pide disponibilidad»
+    search.{arrival, departure, guests, empty}  los textos de RoomsSearch, si la página la lleva
 room
-├── capacity_one, capacity_other             «{{count}} persona», «{{count}} personas»
-└── pricePerNight                            «{{value}} la noche»
+    capacity_one, capacity_other             «{{count}} persona», «{{count}} personas»
+    pricePerNight                            «{{value}} la noche»
 common
-├── actions.{send, close}                    «Envía», «Cierra»
-├── failure.{network, generic}
-├── formErrors.{required, email}
-├── nav.{home, rooms, area, contact, legalNotice, privacy, cookies}
-└── errorPages.{notFound, …}
+    actions.{send, close}                    «Envía», «Cierra»
+    failure.{network, generic}
+    formErrors.{required, email}
+    nav.{home, rooms, area, contact, legalNotice, privacy, cookies}
+    errorPages.{notFound, …}
 ```
 
 **Las claves de `common`** son las de toda la web, cada una en el bloque de
@@ -725,23 +707,6 @@ su pieza o de su tema:
   la página que no existe (`common.errorPages.*`).
 - **Una clave nueva de `common`** se crea solo si la usa una pieza de toda la
   web o la repiten varias páginas igual.
-<!-- kit:else -->
-## Textos
-
-Sin i18n no hay claves: los textos van escritos en el componente que los pinta
-([Textos](./standards.md#textos)). Lo que sí se mantiene:
-
-- **El texto de una pieza compartida va con ella:** en `RoomCard`, «85 € la
-  noche». El contenido de una página se queda en sus componentes.
-- **Lo que repite toda la web** (las acciones «Envía» y «Cierra», la
-  descripción de un fallo, el aviso de cambios sin enviar) lo escribe una
-  sola pieza de toda la web, y las páginas la usan en lugar de copiarlo.
-- **Las formas no cambian:** un número que concuerda tiene su forma en
-  singular y en plural; un fallo es «No se ha podido …»; un vacío,
-  «Todavía no hay …» ([D11](./ux-ui/rules.md#d11-textos-y-formato)).
-- **Para pasar a varios idiomas,** la skill `zaius-languages` lleva los
-  textos a catálogos, con sus claves.
-<!-- kit:end -->
 
 ## JSDoc
 
@@ -849,31 +814,29 @@ página, y cómo se mueve cada cosa en esta web sin romper nada.
 <!-- kit:end -->
    cada uno con su prefijo.
 4. **Las imágenes y las colecciones,** con el prefijo de quién las usa.
-<!-- kit:if i18n -->
 5. **Los textos:** las claves de cada página y las del menú
    ([Textos (i18n)](#textos-i18n)).
 6. **Los tests,** que se llaman como su fichero, y los de las páginas, en
    `src/tests/pages/` con su misma ruta.
-<!-- kit:else -->
-5. **Los tests,** que se llaman como su fichero, y los de las páginas, en
-   `src/tests/pages/` con su misma ruta.
-<!-- kit:end -->
 
 **Cómo se mueve cada cosa:**
 
+<!-- kit:if git -->
 - **Con `git mv`,** cada fichero, para conservar su historia; y con él, lo
   que exporta y cada import que lo usa, en todo `src/`, también en los
   tests.
+<!-- kit:else -->
+- **Cada fichero, con lo que exporta** y cada import que lo usa, en todo
+  `src/`, también en los tests.
+<!-- kit:end -->
 - **Una página solo se mueve si cambia su URL,** y eso nunca sin el OK de la
   persona (abajo). Si solo cambia el nombre de sus piezas, la página se
   queda y cambian sus imports.
 - **El menú y el pie:** la entrada de la página en
   `src/constants/appNavigation.ts`, con su `href`.
-<!-- kit:if i18n -->
 - **Los textos:** las claves de la página en cada catálogo, y cada `t()` que
   las usa; y las del menú (`common.nav.*`), en cada idioma.
-<!-- kit:end -->
-- **Sus documentos:** el de la página, en `docs/pages/`, su línea en el
+- **Sus documentos:** el de la página, en `docs/pages/`, su apartado en el
   [backlog](./backlog.md) y su fila en el
   [índice de páginas](./pages/README.md#índice).
 

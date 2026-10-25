@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { APP_DEFAULT_LANGUAGE, APP_LANGUAGES } from '@/constants/appLanguages'
+import { testUtils } from '@/tests/testUtils'
 import { buildI18nResources, getInitialAppLanguage, i18n } from './i18n'
 
 const [firstLanguage = APP_DEFAULT_LANGUAGE, secondLanguage = APP_DEFAULT_LANGUAGE] = APP_LANGUAGES
@@ -84,13 +85,14 @@ describe('i18n', () => {
   })
 
   it('cambia los textos y <html lang> al cambiar de idioma', async () => {
+    const secondTitle = secondLanguage === firstLanguage ? 'primero' : 'segundo'
     i18n.addResourceBundle(firstLanguage, 'test', { title: 'primero' })
-    i18n.addResourceBundle(secondLanguage, 'test', { title: 'segundo' })
+    i18n.addResourceBundle(secondLanguage, 'test', { title: secondTitle })
 
     await i18n.changeLanguage(secondLanguage)
 
     expect(document.documentElement.lang).toBe(secondLanguage)
-    expect(i18n.t('test:title')).toBe(secondLanguage === firstLanguage ? 'primero' : 'segundo')
+    expect(i18n.t('test:title')).toBe(secondTitle)
   })
 
   it('elige el singular o el plural con count', async () => {
@@ -99,5 +101,26 @@ describe('i18n', () => {
 
     expect(i18n.t('test:orders', { count: 1 })).toBe('1 pedido')
     expect(i18n.t('test:orders', { count: 2 })).toBe('2 pedidos')
+  })
+})
+
+describe('testUtils.translate', () => {
+  afterEach(() => {
+    i18n.removeResourceBundle(APP_DEFAULT_LANGUAGE, 'test')
+  })
+
+  it('da el texto del idioma por defecto, con sus valores y su plural', () => {
+    i18n.addResourceBundle(APP_DEFAULT_LANGUAGE, 'test', { title: 'Hola, {{name}}', orders_one: '{{count}} pedido', orders_other: '{{count}} pedidos' })
+
+    expect(testUtils.translate('test:title', { name: 'Marta' })).toBe('Hola, Marta')
+    expect(testUtils.translate('test:orders', { count: 1 })).toBe('1 pedido')
+    expect(testUtils.translate('test:orders', { count: 3 })).toBe('3 pedidos')
+  })
+
+  it('falla si falta la clave o su forma para ese número', () => {
+    i18n.addResourceBundle(APP_DEFAULT_LANGUAGE, 'test', { lines_other: '{{count}} líneas' })
+
+    expect(() => testUtils.translate('test:missing')).toThrow('Falta el texto «test:missing»')
+    expect(() => testUtils.translate('test:lines', { count: 1 })).toThrow('Falta el texto «test:lines»')
   })
 })

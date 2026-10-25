@@ -15,9 +15,9 @@ instalador y la IA preguntan por la web o la app, no por el código, con la
 opción recomendada primero, y la IA no hace nada sin el OK de la persona.
 Funciona con npm, pnpm, yarn y bun, en Windows, macOS y Linux.
 
-**En esta página:** [Lanzarlo](#lanzarlo) · [Usar](#usar) ·
-[Las preguntas](#las-preguntas) · [Después de instalar](#después-de-instalar) ·
-[Actualizar un proyecto](#actualizar-un-proyecto) · [Mejorar el kit](#mejorar-el-kit)
+**En esta página:** [Lanzarlo](#lanzarlo), [Usar](#usar),
+[Las preguntas](#las-preguntas), [Después de instalar](#después-de-instalar),
+[Actualizar un proyecto](#actualizar-un-proyecto), [Mejorar el kit](#mejorar-el-kit)
 
 ## Lanzarlo
 
@@ -69,14 +69,15 @@ camino. Lo que el código de un proyecto existente ya dice no se pregunta.
 | ¿Qué vas a construir? | Siempre | Una web (Astro) o una app (React). Si lo principal es entrar con una cuenta, es una app. |
 | ¿Cómo se llama el proyecto? | Siempre | La carpeta, `AGENTS.md`, el README y la pestaña del navegador. |
 | ¿Con qué gestor de paquetes? | Siempre | npm, pnpm, yarn o bun. |
-| ¿Va a estar en más de un idioma? | Siempre | i18next y un catálogo por idioma. |
+| ¿Guardamos el historial de cambios con git? | Si la carpeta no está ya en un repositorio y git está instalado | Sí: `git init`, sin ningún commit, y la skill `zaius-git`. Los commits y los push los hace la persona; la IA propone el mensaje y solo los hace si se lo piden. Se añade después con `change`; no se quita. |
+| ¿Va a estar en más de un idioma? | Siempre | Sus idiomas, cada uno con su catálogo y sus direcciones. Los textos van siempre en un catálogo, con i18next, también con un solo idioma. |
 | ¿La web recibe mensajes o datos? | Web | Un servidor para los formularios, en Node hasta que se elige dónde se publica. |
 | ¿Lleva blog, noticias o artículos? | Web | Las colecciones de contenido, en Markdown. |
 | ¿Muestra datos de otro sistema (una API)? | Web, con `change` | El transporte, los services y sus datos de ejemplo. |
 | ¿Tiene una zona privada? | Web, con `change` | El servidor, la API, la sesión y los permisos. |
 | ¿Dónde se va a publicar? | Web con servidor, con `change` | El adaptador de Node, Vercel, Netlify o Cloudflare. Lo pide `zaius-publish`. |
-| ¿Quieres apuntar cómo es la API? | App | `docs/api/` y las peticiones que la app necesita. |
-| ¿Quieres datos de ejemplo? | App | Respuestas inventadas para avanzar sin la API (mocks). |
+| ¿La app saca sus datos de una API? | App | Sí: el transporte, los services, la sesión y los permisos, y la API documentada siempre (`docs/api/` y lo que la app necesita que cambie). No: nada de eso, y lo que guarde la app se decide en `zaius-init`. Se añade después con `change`. |
+| ¿Quieres datos de ejemplo? | App con API | Respuestas inventadas para avanzar sin la API (mocks). |
 
 Todo proyecto lleva tests: cada fichero con código, el suyo.
 
@@ -87,9 +88,9 @@ tipos. Cada paso lo lanza la persona y termina esperando su OK:
 
 | Comando | En una web | En una app |
 |---|---|---|
-| `/zaius-init` | El brief y el sistema de diseño | La visión, el alcance y el sistema de diseño |
+| `/zaius-init` y de qué va | El brief, a partir de lo que cuenta la persona, y el sistema de diseño, con su identidad | La visión, el alcance (a partir de lo que cuenta la persona) y el sistema de diseño, con su identidad |
 | `/zaius-backlog` | Las páginas y el mapa del sitio | Las épicas y las historias |
-| `/zaius-page HOME` · `/zaius-spec ORD001` | El documento de una página, su boceto y sus tests | La historia refinada, sus pantallas, su boceto y sus tests |
+| `/zaius-page HOME` o `/zaius-spec ORD001` | El documento de una página, su boceto y sus tests | La historia refinada, sus pantallas, su boceto y sus tests |
 | `/zaius-build <unidad>` | La construye en pareja, test a test | Igual |
 | `/zaius-review <unidad>` | La revisa y, con el OK, la da por hecha | Igual |
 | `/zaius-publish` | Plataforma, dominio, analítica y buscadores | Plataforma y la API de producción |

@@ -55,6 +55,7 @@ especificación: `zaius-build` la construye de un test en uno.
 
 ## Pasos
 
+<!-- kit:if backend -->
 1. **Lo que falta saber,** en tandas de 1 a 3 preguntas, por la app: qué se
    ve, qué se puede hacer, qué pasa al pulsar cada cosa, de dónde sale cada
    dato y quién lo cambia, quién puede verlo o cambiarlo, y qué pasa si
@@ -62,6 +63,14 @@ especificación: `zaius-build` la construye de un test en uno.
    de diseño no se pregunta, y nunca se inventa un requisito. Cada respuesta
    va al fichero en el momento, y la pregunta abierta, a «Dónde estamos»,
    antes de hacerla.
+<!-- kit:else -->
+1. **Lo que falta saber,** en tandas de 1 a 3 preguntas, por la app: qué se
+   ve, qué se puede hacer, qué pasa al pulsar cada cosa, de dónde sale cada
+   dato y si se guarda, y qué pasa si falla o si no hay nada. Lo que ya
+   dicen el brief, las normas o el sistema de diseño no se pregunta, y nunca
+   se inventa un requisito. Cada respuesta va al fichero en el momento, y la
+   pregunta abierta, a «Dónde estamos», antes de hacerla.
+<!-- kit:end -->
 2. **Los criterios de aceptación:** de 2 a 3, «Dado / Cuando / Entonces»,
    cada uno con su casilla, que marca `zaius-review`. Solo lo que la persona
    ve o consigue, nunca cómo se hace: ni piezas, ni datos por dentro, ni
@@ -70,6 +79,7 @@ especificación: `zaius-build` la construye de un test en uno.
    «pendiente», con su fichero), y se sigue con la primera.
 3. **No incluye:** lo que se queda fuera a propósito, con la historia que lo
    trae, si la hay.
+<!-- kit:if backend -->
 4. **Las pantallas:** cada pantalla que toca, con el enlace a su documento,
    `docs/features/<familia>/<feature>.md`, creado o puesto al día con la
    plantilla de [Features](../../../docs/features/README.md): lo que hace,
@@ -79,17 +89,35 @@ especificación: `zaius-build` la construye de un test en uno.
    en su apartado «Historias», con su enlace. Lo técnico va ahí, no en la
    historia. Una pantalla nueva entra en el índice, con su familia, su nombre
    y su URL.
+<!-- kit:else -->
+4. **Las pantallas:** cada pantalla que toca, con el enlace a su documento,
+   `docs/features/<familia>/<feature>.md`, creado o puesto al día con la
+   plantilla de [Features](../../../docs/features/README.md): lo que hace,
+   sus rutas, sus zonas, sus datos y sus piezas. Es la especificación
+   funcional y técnica de la pantalla: dice cómo quedará con la historia,
+   escrito como si siempre hubiera sido así, y la historia sale en su
+   apartado «Historias», con su enlace. Lo técnico va ahí, no en la
+   historia. Una pantalla nueva entra en el índice, con su familia, su nombre
+   y su URL.
+<!-- kit:end -->
 <!-- kit:if api -->
    Cada dato, con su endpoint de `docs/api/`: si no está, se escribe antes
    con `zaius-api`, y lo que la API no da va a `docs/api-requests.md`.
 <!-- kit:else -->
-   Cada dato, con el endpoint que lo da: si no se sabe, se pregunta.
+   Cada dato dice de dónde sale: una constante, el store de la pantalla o lo
+   que guarda la app, que va donde dice el brief. Si es la primera historia
+   que guarda algo, montarlo va en el plan y se dice en el OK; si el brief
+   no dice dónde se guarda, para: primero, `/zaius-init`.
 <!-- kit:end -->
 5. **El plan:** 5 puntos como mucho, en el orden en que se construye, con
-   palabras de la app: sin código ni nombres de ficheros.
-6. **Los tests,** en su tabla, `Test | Nivel | ✓`:
+   palabras de la app: sin código ni nombres de ficheros. Solo lo que usa
+   esta historia: el menú, la miga de pan o una variante de una pieza entran
+   con la historia que los usa
+   ([Nace con el proyecto](../../../docs/standards.md#organización-de-src)).
+6. **Los tests,** en su tabla, `Test | Nivel | En verde`:
    - **cada criterio, con al menos un test,** en el nivel más alto que se
      pueda: la pantalla, antes que un hook o un util;
+<!-- kit:if backend -->
    - **los de cada fichero con código** que pide
      [Lo que se prueba](../../../docs/guides/write-tests.md#1-lo-que-se-prueba):
      el schema y el service de un dato nuevo, la regla de los permisos;
@@ -97,14 +125,22 @@ especificación: `zaius-build` la construye de un test en uno.
      de permisos…, o «verificación manual» para lo que no se automatiza bien
      (cómo se ve en el ancho mínimo, un correo de verdad), que se mira en
      `zaius-review`;
+<!-- kit:else -->
+   - **los de cada fichero con código** que pide
+     [Lo que se prueba](../../../docs/guides/write-tests.md#1-lo-que-se-prueba):
+     el schema de un formulario nuevo, un util, un store;
+   - **el nivel:** pantalla, componente, hook, util, schema, store…, o
+     «verificación manual» para lo que no se automatiza bien (cómo se ve en
+     el ancho mínimo), que se mira en `zaius-review`;
+<!-- kit:end -->
    - **cada test, con lo que comprueba,** en una frase, como se escribirá en
      el código («enseña los pedidos del almacén, los más urgentes
      primero»).
 
    La lista aprobada es la especificación: `zaius-build` escribe estos, en
    este orden, y uno nuevo, cambiado o quitado necesita el OK.
-7. **El boceto,** con `zaius-sketch`: `docs/ux-ui/mockups/<código>.html`, en
-   el nivel de «Bocetos» del sistema de diseño, con cada estado de sus
+7. **El boceto,** con `zaius-sketch`: `docs/ux-ui/mockups/<código>.html`,
+   con la identidad del sistema de diseño, con cada estado de sus
    pantallas, y su ruta en «Pantallas». Lo que necesita y las normas no
    dicen va antes con `zaius-design`, y esa parte espera a que se acepte.
 8. **Las sugerencias,** solo con una señal concreta en el código (el listado
@@ -122,21 +158,46 @@ especificación: `zaius-build` la construye de un test en uno.
     Se queda fuera: <lo de «No incluye»>
     Se comprobará: <los tests, con palabras de la app, en una o dos líneas>
     El boceto: docs/ux-ui/mockups/ORD001.html (se abre con doble clic)
-    ¿La doy por aprobada, o cambio algo?
+    ```
+
+    Y debajo, enteros y tal como han quedado en el fichero, los criterios de
+    aceptación, «No incluye» y la lista de tests: es lo que se aprueba.
+
+    Y al final, después de todo eso, lo siguiente, para que la persona sepa
+    qué hacer:
+
+    ```text
+    Lo siguiente:
+    - Si te encaja, dime «OK» y la doy por aprobada; después, la construimos
+      juntos o especificamos antes la historia siguiente.
+    - Si quieres cambiar algo, dime qué: lo cambio y te enseño solo lo que
+      cambie.
     ```
 
     Lo que pida se cambia en el fichero, en el documento de la pantalla y en
-    el boceto, y se enseña solo lo que ha cambiado, hasta su sí.
+    el boceto, y se enseña solo lo que ha cambiado, otra vez con lo
+    siguiente al final, hasta su sí.
 11. **Con el OK:** «aprobada» con la fecha, en el fichero y en el backlog; en
     «Dónde estamos», lo siguiente, `/zaius-build <código>`, que lanza la
-    persona. Para: no escribe código.
+    persona, o especificar antes la historia siguiente: la primera «pendiente»
+    del backlog. Díselo a ella con las dos salidas:
+
+    ```text
+    ORD001, aprobada. Lo siguiente, lo que prefieras:
+    - Construirla ahora, juntos: /zaius-build ORD001
+    - Especificar antes la siguiente, ORD002 <su título>: /zaius-spec ORD002
+    ```
+
+    Sin historias pendientes, solo la primera. Si esta requiere otra que aún
+    no está hecha, la primera salida es construir esa. Para: no escribe
+    código.
 
 ## La forma
 
 ```markdown
 # ORD001 Ver los pedidos del almacén
 
-Épica: Pedidos (ORD) · Estado: por aprobar el AAAA-MM-DD
+Épica: Pedidos (ORD). Estado: por aprobar el AAAA-MM-DD
 
 ## Historia
 
@@ -168,13 +229,17 @@ saber cuáles hay que preparar hoy.
 
 ## Tests
 
-| Test | Nivel | ✓ |
+| Test | Nivel | En verde |
 |---|---|---|
 | Enseña los pedidos del almacén, los más urgentes primero | pantalla | |
 | Enseña «Todavía no hay pedidos» si no hay ninguno | pantalla | |
 | Enseña el error y «Reintenta» si no se pueden cargar | pantalla | |
+<!-- kit:if backend -->
 | Acepta la respuesta de los pedidos y rechaza otra forma | schema | |
 | Devuelve los pedidos del almacén validados | service | |
+<!-- kit:else -->
+| Pone primero los pedidos con la entrega más cercana | util | |
+<!-- kit:end -->
 | Se lee entero en el ancho mínimo, sin scroll horizontal | verificación manual | |
 
 ## Decisiones
@@ -187,7 +252,7 @@ La rellena `zaius-review`.
 ```
 
 - **La cabecera:** «Requiere», solo si la historia lo lleva en el backlog
-  («Épica: Pedidos (ORD) · Requiere: ORD001 · Estado: …»).
+  («Épica: Pedidos (ORD). Requiere: ORD001. Estado: …»).
 - **Decisiones:** lo que se decide al construir, con su fecha, lo apunta
   `zaius-build` en cada parada («2026-11-03: los pedidos anulados no
   salen»), con su test en la lista si hace falta.
@@ -218,7 +283,8 @@ después en el código:
 - [ ] «No incluye», escrito.
 - [ ] Cada pantalla, con su documento creado o al día con la plantilla, la
       historia en su apartado «Historias», y en el índice.
-- [ ] El plan, en 5 puntos como mucho, sin código ni ficheros.
+- [ ] El plan, en 5 puntos como mucho, sin código ni ficheros, y nada «por si
+      acaso»: cada pieza y cada mecanismo nuevos los usa esta historia.
 - [ ] Cada criterio, con su test; cada test, con su nivel.
 - [ ] El boceto, con cada estado, en `docs/ux-ui/mockups/`.
 - [ ] Ningún requisito inventado y ningún fichero de código tocado.

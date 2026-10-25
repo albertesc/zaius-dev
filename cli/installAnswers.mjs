@@ -16,13 +16,13 @@ const DEFAULT_PLATFORM = 'node'
 
 const WEB_DEFAULTS = { server: false, content: false, privateArea: false, backend: false, platform: null }
 
-const APP_DEFAULTS = { api: true, mocks: true }
+const APP_DEFAULTS = { backend: true, mocks: true }
 
 export const TYPE_DEFAULTS = { web: WEB_DEFAULTS, app: APP_DEFAULTS }
 
-const WITHOUT_WEB = { server: null, content: null, privateArea: null, backend: null, platform: null }
+const WITHOUT_WEB = { server: null, content: null, privateArea: null, platform: null }
 
-const WITHOUT_APP = { api: null, mocks: null }
+const WITHOUT_APP = { mocks: null }
 
 const TYPE_VALUES = {
   web: { human: '4321', review: '4323', unit: 'página', units: 'páginas', unitExample: 'HOME', unitDocs: 'docs/pages', specSkill: 'zaius-page' },
@@ -31,7 +31,7 @@ const TYPE_VALUES = {
 
 const LANGUAGE_CODE = /^[a-z]{2,3}$/
 
-const ANSWER_FLAGS = ['existing', 'i18n']
+const ANSWER_FLAGS = ['existing', 'i18n', 'git']
 
 /**
  * Pasa el nombre del proyecto al de su paquete npm: minúsculas, sin acentos y con guiones.
@@ -70,7 +70,7 @@ export function validateLanguages (languages, i18n) {
  * Da las respuestas propias de un tipo, con las del otro a `null`.
  * @param type `web` o `app`.
  * @param read Las respuestas de ese tipo que se leen de un proyecto que ya existe, o `null`.
- * @returns Las de una web (`server`, `content`, `privateArea`, `backend`, `platform`) y las de una app (`api`, `mocks`): las del tipo, con sus valores por defecto; las del otro, a `null`.
+ * @returns Las de una web (`server`, `content`, `privateArea`, `backend`, `platform`) y las de una app (`backend`, `mocks`): las del tipo, con sus valores por defecto; las del otro, a `null`.
  */
 function getTypeDefaults (type, read) {
   return type === 'web' ? { ...WEB_DEFAULTS, ...read, ...WITHOUT_APP } : { ...WITHOUT_WEB, ...APP_DEFAULTS, ...read }
@@ -78,10 +78,10 @@ function getTypeDefaults (type, read) {
 
 /**
  * Da las respuestas por defecto de una instalación.
- * @param context `folderName`, el nombre de la carpeta; `hasPackageJson`, si ya hay un proyecto en ella; `packageManager` y `type`, los que usa, si se saben; `web`, las respuestas de una web que se leen de un proyecto Astro.
- * @returns Las respuestas que se marcan de entrada en cada pregunta. El nombre es el de la carpeta en un proyecto que ya existe; uno nuevo va en una carpeta propia, así que lleva uno genérico. Las de un tipo son `null` en el otro.
+ * @param context `folderName`, el nombre de la carpeta; `hasPackageJson`, si ya hay un proyecto en ella; `packageManager` y `type`, los que usa, si se saben; `web`, las respuestas de una web que se leen de un proyecto Astro; `git`, lo que se sabe de git (`installed`, `inRepo`), si se ha mirado.
+ * @returns Las respuestas que se marcan de entrada en cada pregunta. El nombre es el de la carpeta en un proyecto que ya existe; uno nuevo va en una carpeta propia, así que lleva uno genérico. Con git: sí si ya está en un repositorio y, en uno nuevo, si git está instalado. Las de un tipo son `null` en el otro.
  */
-export function getDefaultAnswers ({ folderName, hasPackageJson, packageManager = null, type = null, web = null }) {
+export function getDefaultAnswers ({ folderName, hasPackageJson, packageManager = null, type = null, web = null, git = null }) {
   const projectType = type ?? DEFAULT_TYPE
   return {
     existing: hasPackageJson,
@@ -90,6 +90,7 @@ export function getDefaultAnswers ({ folderName, hasPackageJson, packageManager 
     packageManager: packageManager ?? DEFAULT_PACKAGE_MANAGER,
     i18n: false,
     languages: [DEFAULT_LANGUAGE],
+    git: git !== null && (git.inRepo || (!hasPackageJson && git.installed)),
     ...getTypeDefaults(projectType, projectType === 'web' ? web : null),
   }
 }
@@ -120,14 +121,14 @@ function assertFlags (answers, names) {
 /**
  * Completa y comprueba las respuestas propias del tipo del proyecto.
  * @param answers Las respuestas, con las del tipo que falten a `null`.
- * @returns Las de una web y las de una app: las del tipo, completas; las del otro, a `null`. Una web con zona privada tiene servidor y API, y una con servidor, su plataforma (Node mientras no se elige otra); sin servidor, ninguna.
+ * @returns Las de una web y las de una app: las del tipo, completas; las del otro, a `null`. Una web con zona privada tiene servidor y API, y una con servidor, su plataforma (Node mientras no se elige otra); sin servidor, ninguna. Una app sin API no tiene mocks.
  * @throws {Error} si alguna no vale, con el motivo.
  */
 function normalizeTypeAnswers (answers) {
   if (answers.type === 'app') {
-    const app = { api: answers.api ?? APP_DEFAULTS.api, mocks: answers.mocks ?? APP_DEFAULTS.mocks }
-    assertFlags(app, ['api', 'mocks'])
-    return { ...WITHOUT_WEB, ...app }
+    const app = { backend: answers.backend ?? APP_DEFAULTS.backend, mocks: answers.mocks ?? APP_DEFAULTS.mocks }
+    assertFlags(app, ['backend', 'mocks'])
+    return { ...WITHOUT_WEB, backend: app.backend, mocks: app.backend && app.mocks }
   }
   const web = {
     server: answers.server ?? WEB_DEFAULTS.server,
@@ -145,7 +146,7 @@ function normalizeTypeAnswers (answers) {
 /**
  * Completa y comprueba unas respuestas que llegan de un fichero (`--config`) o de las preguntas.
  * @param raw Las respuestas, completas o en parte.
- * @param defaults Las respuestas por defecto, para lo que falte.
+ * @param defaults Las respuestas por defecto, para lo que falte; si el tipo cambia, las del tipo salen de las de por defecto del tipo nuevo.
  * @returns Las respuestas completas.
  * @throws {Error} si alguna no vale, con el motivo.
  */
@@ -159,7 +160,7 @@ export function normalizeAnswers (raw, defaults) {
   const fittedLanguages = answers.i18n || languages.length === 0 ? languages : languages.slice(0, 1)
   const problem = validateLanguages(fittedLanguages.length === 0 ? [DEFAULT_LANGUAGE] : fittedLanguages, answers.i18n)
   if (problem !== null) throw new Error(problem)
-  const typeAnswers = normalizeTypeAnswers(answers)
+  const typeAnswers = normalizeTypeAnswers(answers.type === defaults.type ? answers : { ...TYPE_DEFAULTS[answers.type], ...raw, type: answers.type })
   return {
     existing: answers.existing,
     type: answers.type,
@@ -167,6 +168,7 @@ export function normalizeAnswers (raw, defaults) {
     packageManager: answers.packageManager,
     i18n: answers.i18n,
     languages: fittedLanguages.length === 0 ? [DEFAULT_LANGUAGE] : fittedLanguages,
+    git: answers.git,
     ...typeAnswers,
   }
 }
@@ -174,7 +176,7 @@ export function normalizeAnswers (raw, defaults) {
 /**
  * Da las condiciones de la plantilla que salen de las respuestas.
  * @param answers Las respuestas de la instalación.
- * @returns `existing` e `i18n`; una por gestor de paquetes (`npm`…) y una por tipo (`web`, `app`), verdadera la del proyecto; las de una web (`server`, `content`, `privateArea` y una por plataforma, `adapterNode`…, verdadera la suya si tiene servidor), falsas en una app, y `api`, falsa en una web; `backend`, si los datos salen de otro sistema (siempre en una app; en una web, con su API), y `mocks`, la respuesta de una app o, en una web, con su API.
+ * @returns `existing`, `i18n` y `git`; una por gestor de paquetes (`npm`…) y una por tipo (`web`, `app`), verdadera la del proyecto; las de una web (`server`, `content`, `privateArea` y una por plataforma, `adapterNode`…, verdadera la suya si tiene servidor), falsas en una app; `backend`, si los datos salen de una API, en los dos tipos; `api`, los documentos de la API, en una app con API; y `mocks`, la respuesta de una app con API o, en una web, con su API.
  */
 export function buildConditions (answers) {
   const web = answers.type === 'web'
@@ -186,10 +188,10 @@ export function buildConditions (answers) {
     server: web && answers.server === true,
     content: web && answers.content === true,
     privateArea: web && answers.privateArea === true,
-    backend: app || (web && answers.backend === true),
+    backend: answers.backend === true,
     ...Object.fromEntries(PLATFORMS.map((name) => [`adapter${name[0].toUpperCase()}${name.slice(1)}`, web && answers.server === true && (answers.platform ?? DEFAULT_PLATFORM) === name])),
-    api: app && answers.api === true,
-    mocks: app ? answers.mocks === true : web && answers.backend === true,
+    api: app && answers.backend === true,
+    mocks: app ? answers.backend === true && answers.mocks === true : web && answers.backend === true,
   }
 }
 

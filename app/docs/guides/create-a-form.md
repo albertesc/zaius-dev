@@ -26,11 +26,11 @@ proyecto están en
 - [4. Enviar el formulario](#4-enviar-el-formulario)
 - [5. Los cambios sin guardar](#5-los-cambios-sin-guardar)
 - [El formulario terminado](#el-formulario-terminado)
-- **Editar un registro:** [1. El formulario único](#1-el-formulario-único) · [2. La barra de acciones](#2-la-barra-de-acciones) · [3. Las pestañas](#3-las-pestañas) · [4. Las secciones plegables](#4-las-secciones-plegables) · [5. Lo que actúa al momento](#5-lo-que-actúa-al-momento) · [6. La lectura](#6-la-lectura)
-- **Formularios en un modal:** [1. El modal con su formulario](#1-el-modal-con-su-formulario) · [2. El aviso al cerrar](#2-el-aviso-al-cerrar)
+- **Editar un registro:** [1. El formulario único](#1-el-formulario-único), [2. La barra de acciones](#2-la-barra-de-acciones), [3. Las pestañas](#3-las-pestañas), [4. Las secciones plegables](#4-las-secciones-plegables), [5. Lo que actúa al momento](#5-lo-que-actúa-al-momento), [6. La lectura](#6-la-lectura)
+- **Formularios en un modal:** [1. El modal con su formulario](#1-el-modal-con-su-formulario), [2. El aviso al cerrar](#2-el-aviso-al-cerrar)
 - **Formularios por partes:**
-  - **Editar filas de una tabla:** [1. Filas de un formulario que se guarda entero](#1-filas-de-un-formulario-que-se-guarda-entero) · [2. Filas que se guardan una a una](#2-filas-que-se-guardan-una-a-una) · [3. Filas que se editan en un modal](#3-filas-que-se-editan-en-un-modal)
-  - **Asistentes:** [1. Los pasos](#1-los-pasos) · [2. El estado y la validación](#2-el-estado-y-la-validación) · [3. La barra del asistente](#3-la-barra-del-asistente) · [4. La revisión y el final](#4-la-revisión-y-el-final)
+  - **Editar filas de una tabla:** [1. Filas de un formulario que se guarda entero](#1-filas-de-un-formulario-que-se-guarda-entero), [2. Filas que se guardan una a una](#2-filas-que-se-guardan-una-a-una), [3. Filas que se editan en un modal](#3-filas-que-se-editan-en-un-modal)
+  - **Asistentes:** [1. Los pasos](#1-los-pasos), [2. El estado y la validación](#2-el-estado-y-la-validación), [3. La barra del asistente](#3-la-barra-del-asistente), [4. La revisión y el final](#4-la-revisión-y-el-final)
 - [Errores comunes](#errores-comunes)
 
 ## 1. El schema
@@ -43,7 +43,6 @@ validaciones que se repiten (`requiredText`, `requiredId`, el correo, la
 contraseña) están en `src/schemas/commonSchema.ts`, cada una desde que la usa
 la primera feature:
 
-<!-- kit:if i18n -->
 ```ts
 import { z } from 'zod'
 
@@ -55,19 +54,6 @@ export const requiredId = z.string().min(1, REQUIRED)
 
 export const requiredPassword = z.string().min(1, REQUIRED)
 ```
-<!-- kit:else -->
-```ts
-import { z } from 'zod'
-
-const REQUIRED = { error: 'Este campo es obligatorio.', abort: true }
-
-export const requiredText = z.string().trim().min(1, REQUIRED)
-
-export const requiredId = z.string().min(1, REQUIRED)
-
-export const requiredPassword = z.string().min(1, REQUIRED)
-```
-<!-- kit:end -->
 
 - **Lo obligatorio corta las demás reglas** (`abort: true`): un campo vacío
   dice solo «Este campo es obligatorio.», y no también que no cumple la regla
@@ -85,7 +71,6 @@ export const requiredPassword = z.string().min(1, REQUIRED)
 El schema de un formulario junta las validaciones y añade las reglas entre
 campos. El de los datos de un pedido, con sus líneas:
 
-<!-- kit:if i18n -->
 ```ts
 import { z } from 'zod'
 import { requiredId, requiredText } from '@/schemas/commonSchema'
@@ -121,56 +106,35 @@ export type OrderFormValues = z.infer<typeof orderFormSchema>
   `errors` (`orders:errors.amount`). El campo las traduce al pintarlas. Cada
   mensaje es una frase completa, con punto: qué está mal y, si cabe, cómo
   tiene que ser. Los que se repiten van en `common:formErrors`.
-<!-- kit:else -->
-```ts
-import { z } from 'zod'
-import { requiredId, requiredText } from '@/schemas/commonSchema'
-import { ORDER_NOTES_MAX } from '../constants/orderForm'
-
-const AMOUNT = /^(\d+([.,]\d{1,2})?)?$/
-
-export const orderLineFormSchema = z.object({
-  productId: requiredId,
-  quantity: requiredText.regex(/^\d+$/, 'La cantidad tiene que ser un número entero.'),
-})
-
-export const orderFormSchema = z
-  .object({
-    customerId: requiredId,
-    carrierId: z.string(),
-    orderDate: requiredText,
-    deliveryDate: z.string(),
-    shippingCost: z.string().regex(AMOUNT, 'El importe tiene que ser un número con dos decimales como máximo.'),
-    notes: z.string().trim().max(ORDER_NOTES_MAX, `Como máximo ${ORDER_NOTES_MAX} caracteres.`),
-    lines: z.array(orderLineFormSchema),
-  })
-  .refine((order) => order.deliveryDate === '' || order.deliveryDate >= order.orderDate, {
-    path: ['deliveryDate'],
-    error: 'La fecha de entrega no puede ser anterior a la del pedido.',
-  })
-
-export type OrderFormValues = z.infer<typeof orderFormSchema>
-```
-
-- **Los mensajes de error** van escritos en el schema, que es quien sabe qué
-  está mal, y el campo los pinta tal cual. Cada mensaje es una frase
-  completa, con punto: qué está mal y, si cabe, cómo tiene que ser.
-<!-- kit:end -->
 - **Lo que escribe el formulario es texto:** un selector guarda el id como
   texto (por eso `requiredId` es un `string`), una fecha es el `aaaa-mm-dd`
   que da su campo y se compara como texto, y un importe se guarda como se
+<!-- kit:if backend -->
   escribe: el schema comprueba que es un importe y el util que monta la
   petición lo convierte a número.
+<!-- kit:else -->
+  escribe: el schema comprueba que es un importe y el util que arma los
+  cambios lo convierte a número.
+<!-- kit:end -->
 - **Las fechas:** una posterior no puede ser anterior a la que la precede (el
   mismo día vale: `>=`), y el error va en la posterior. Esos límites van
   también en el calendario del campo de fecha (`min` y `max`), para que no se
   puedan elegir; el schema los sigue comprobando.
+<!-- kit:if backend -->
 - **Los textos se recortan** (`trim()`), y el util que monta la petición
   manda `null` si un texto queda vacío.
 - **Todo texto libre tiene un máximo,** el que acepta la API. El máximo es una
   constante (`ORDER_NOTES_MAX`, en `constants/`), que usan el schema y el
   campo, para su contador. Nunca el `maxlength` del navegador, que corta sin
   avisar lo que se pega.
+<!-- kit:else -->
+- **Los textos se recortan** (`trim()`), y el util que arma los cambios pone
+  `null` si un texto queda vacío.
+- **Todo texto libre tiene un máximo.** El máximo es una constante
+  (`ORDER_NOTES_MAX`, en `constants/`), que usan el schema y el campo, para su
+  contador. Nunca el `maxlength` del navegador, que corta sin avisar lo que se
+  pega.
+<!-- kit:end -->
 
 Su test, al lado, comprueba que acepta un formulario bueno y que el error de
 uno malo sale en el campo que toca
@@ -217,15 +181,24 @@ const form = useForm<OrderFormValues>({
   ([Enviar el formulario](#4-enviar-el-formulario)).
 - **Los valores por defecto** van en `defaultValues`, así que no cuentan como
   cambio: un selector obligatorio con una sola opción viene elegido y una
+<!-- kit:if backend -->
   fecha que registra el momento de la acción parte de hoy. Si un valor sale
   de un catálogo, el formulario se monta cuando el catálogo ha llegado.
+<!-- kit:else -->
+  fecha que registra el momento de la acción parte de hoy.
+<!-- kit:end -->
 
 Una edición parte del registro guardado. Una función pura,
 `build<Feature><Qué>FormValues`, lo pasa a lo que escribe el formulario, y
+<!-- kit:if backend -->
 otra, `build<Feature><Qué>Request`, hace el camino contrario para la petición.
+<!-- kit:else -->
+otra, `build<Feature><Qué>Changes`, hace el camino contrario para guardarlo.
+<!-- kit:end -->
 Las dos van en el objeto de utils del tema
 ([Nomenclatura](../naming.md#ficheros)):
 
+<!-- kit:if backend -->
 ```ts
 import type { OrderDetail, UpdateOrderDetailRequest } from '@/services/orders/ordersEditSchema'
 import type { OrderFormValues } from '../../common/schemas/orderFormSchema'
@@ -282,6 +255,67 @@ más la reinicia:**
   no se usa `values`, que reinicia el formulario con cada dato nuevo y se
   lleva lo escrito, los errores e `isDirty`, también con
   `resetOptions: { keepDirtyValues: true }`.
+<!-- kit:else -->
+```ts
+import type { OrderFormValues } from '../../common/schemas/orderFormSchema'
+import type { OrderChanges, OrderRecord } from '../../common/stores/useOrderRecordsStore'
+
+/**
+ * Los valores iniciales del formulario de la gestión de un pedido.
+ * @param order El pedido guardado.
+ * @returns El pedido como lo escribe el formulario: los ids y las cifras, como texto, y `''` en lo vacío.
+ */
+function buildOrdersEditFormValues (order: OrderRecord): OrderFormValues {
+  return {
+    customerId: String(order.customerId),
+    carrierId: order.carrierId === null ? '' : String(order.carrierId),
+    orderDate: order.orderDate,
+    deliveryDate: order.deliveryDate ?? '',
+    shippingCost: order.shippingCost === null ? '' : String(order.shippingCost),
+    notes: order.notes ?? '',
+    lines: order.lines.map((line) => ({ productId: String(line.productId), quantity: String(line.quantity) })),
+  }
+}
+
+/**
+ * Los cambios que guardan el pedido con lo escrito en el formulario.
+ * @param values Los valores del formulario, ya validados.
+ * @returns Lo que recibe `updateOrder`: los ids y las cifras, como números, y `null` en lo vacío.
+ */
+function buildOrdersEditChanges (values: OrderFormValues): OrderChanges {
+  return {
+    customerId: Number(values.customerId),
+    carrierId: values.carrierId === '' ? null : Number(values.carrierId),
+    orderDate: values.orderDate,
+    deliveryDate: values.deliveryDate === '' ? null : values.deliveryDate,
+    shippingCost: values.shippingCost === '' ? null : Number(values.shippingCost.replace(',', '.')),
+    notes: values.notes === '' ? null : values.notes,
+    lines: values.lines.map((line) => ({ productId: Number(line.productId), quantity: Number(line.quantity) })),
+  }
+}
+
+export const ordersEditValueUtils = {
+  buildOrdersEditFormValues,
+  buildOrdersEditChanges,
+}
+```
+
+Los tipos (`OrderRecord`, el pedido como se guarda, y `OrderChanges`, lo que
+cambia el formulario) los da el sitio donde la app guarda sus pedidos: en el
+ejemplo, el store de la familia. Lo que la app guarda sin API se decide en
+`/zaius-init` y se monta con la primera historia que lo necesita.
+
+**Una edición parte del registro guardado al abrirse, después de su propio
+guardado y después de una acción inmediata que cambia sus datos; nada más la
+reinicia:**
+
+- **Al abrirse,** la página monta el formulario con el registro, y el
+  formulario parte de él con `defaultValues`.
+- **Que el registro cambie mientras se edita no lo toca:** lo escrito no se
+  pisa. Por eso no se usa `values`, que reinicia el formulario con cada dato
+  nuevo y se lleva lo escrito, los errores e `isDirty`, también con
+  `resetOptions: { keepDirtyValues: true }`.
+<!-- kit:end -->
 - **Tras su propio guardado,** el hook lo reinicia con `reset` y el registro
   guardado ([Enviar el formulario](#4-enviar-el-formulario)).
 - **Tras una acción inmediata que cambia sus datos** (el estado, un paso sobre
@@ -300,13 +334,8 @@ cómo se enlazan con el formulario:
   `<textarea>` nativos (texto, número, casilla) se enlazan con `register`.
   Los demás (un selector, una fecha, una elección múltiple) con `Controller`,
   pasando su `value`, su `onChange` y su `disabled`.
-<!-- kit:if i18n -->
 - **El error** es `error={t(mensaje)}`, con `{ max }` si el campo tiene
   máximo ([El schema](#1-el-schema)). Lo obligatorio lleva `required`.
-<!-- kit:else -->
-- **El error** es el mensaje del schema, tal cual (`error={mensaje}`). Lo
-  obligatorio lleva `required`.
-<!-- kit:end -->
 - **Un selector opcional** lleva primero la opción vacía (valor `''`), que lo
   vacía; uno obligatorio no la lleva. Sus opciones salen de su catálogo con
   una función de la raíz (`formUtils.buildSelectOptions`, que nace con el
@@ -315,17 +344,24 @@ cómo se enlazan con el formulario:
 - **Un valor guardado que ya no está en el catálogo** se enseña como «<nombre>
   (desactivado)»: se conserva mientras no se cambie y no se ofrece en la
   lista.
+<!-- kit:if backend -->
 - **Un selector que busca en el servidor** empieza desde 2 letras, a los
   400 ms de dejar de escribir, y solo cuenta la última respuesta: el texto va
   en la clave de la consulta.
+<!-- kit:end -->
 - **Lo que no se edita se enseña como lectura,** nunca como un campo
   `disabled`. `disabled` queda para lo que se activará en la misma pantalla y
   para lo que se bloquea mientras se guarda
   ([6. La lectura](#6-la-lectura)).
 - **Un campo que depende de otro** aparece justo después del que lo activa.
   Oculto, no se valida (la regla del schema mira el campo que lo activa) ni se
+<!-- kit:if backend -->
   envía (el util de la petición no lo manda), pero lo escrito se conserva
   mientras la pantalla está abierta: no se desregistra.
+<!-- kit:else -->
+  guarda (el util que arma los cambios lo deja fuera), pero lo escrito se
+  conserva mientras la pantalla está abierta: no se desregistra.
+<!-- kit:end -->
 - **Unos campos que comparten dos formularios** (el motivo y la fecha de
   cierre, en el modal de cerrar y en la gestión) leen el formulario con
   `useFormContext`, con el tipo de su parte, y quien los monta envuelve su
@@ -347,7 +383,6 @@ cómo se enlazan con el formulario:
 
 La entrega de un pedido lleva un selector y un importe:
 
-<!-- kit:if i18n -->
 ```tsx
 type OrderDeliveryFieldsProps = {
   form: UseFormReturn<OrderFormValues>
@@ -384,51 +419,19 @@ export function OrderDeliveryFields ({ form, carrierOptions }: OrderDeliveryFiel
   )
 }
 ```
-<!-- kit:else -->
-```tsx
-type OrderDeliveryFieldsProps = {
-  form: UseFormReturn<OrderFormValues>
-  carrierOptions: Array<{ value: string, label: string }>
-}
-
-export function OrderDeliveryFields ({ form, carrierOptions }: OrderDeliveryFieldsProps) {
-  const { register, control, formState } = form
-
-  return (
-    <>
-      <Controller
-        name='carrierId'
-        control={control}
-        render={({ field, fieldState }) => (
-          <Select
-            label='Transportista'
-            options={carrierOptions}
-            value={field.value}
-            disabled={field.disabled}
-            onChange={field.onChange}
-            error={fieldState.error?.message}
-          />
-        )}
-      />
-      <TextInput
-        label='Gastos de envío'
-        suffix='€'
-        error={formState.errors.shippingCost?.message}
-        {...register('shippingCost')}
-      />
-    </>
-  )
-}
-```
-<!-- kit:end -->
 
 ## 4. Enviar el formulario
 
 `form.handleSubmit` solo llama a su función si el schema da los valores por
 buenos; si no, deja el error en cada campo y lleva el foco al primero. La
+<!-- kit:if backend -->
 función llama a la mutación con `mutate`, no con `mutateAsync`: `mutate` no
 lanza, y el fallo queda en el error de la mutación, de donde el hook saca el
 aviso ([El fallo del guardado](./load-and-save-data.md#2-el-fallo-del-guardado)).
+<!-- kit:else -->
+función pasa los valores, ya validados, a lo que decidió la historia para
+guardarlos: en el ejemplo, la acción `updateOrder` del store de los pedidos.
+<!-- kit:end -->
 
 **Cuándo se valida** ([D6](../ux-ui/rules.md#d6-formularios)):
 
@@ -443,7 +446,6 @@ aviso ([El fallo del guardado](./load-and-save-data.md#2-el-fallo-del-guardado))
   error declara al otro en `deps`. Al cambiar la fecha del pedido, se revalida
   la de entrega:
 
-<!-- kit:if i18n -->
 ```tsx
 <Controller
   name='orderDate'
@@ -460,28 +462,12 @@ aviso ([El fallo del guardado](./load-and-save-data.md#2-el-fallo-del-guardado))
   )}
 />
 ```
-<!-- kit:else -->
-```tsx
-<Controller
-  name='orderDate'
-  control={control}
-  rules={{ deps: ['deliveryDate'] }}
-  render={({ field, fieldState }) => (
-    <DateInput
-      label='Fecha del pedido'
-      value={field.value}
-      disabled={field.disabled}
-      onChange={field.onChange}
-      error={fieldState.error?.message}
-    />
-  )}
-/>
-```
-<!-- kit:end -->
 
+<!-- kit:if backend -->
 - **Lo que solo comprueba la API** se ve al enviar. Si es de un campo (un
   número de pedido repetido), el hook lo pone en ese campo con
   `form.setError`, como un error de zod; si no, va en el aviso de fallo.
+<!-- kit:end -->
 - **«Hay N campos por revisar»** sale en la barra de toda pantalla de
   formulario (una edición, un asistente, un alta de un paso) después de un
   intento con errores. Se actualiza al corregir y desaparece al llegar a cero.
@@ -489,19 +475,28 @@ aviso ([El fallo del guardado](./load-and-save-data.md#2-el-fallo-del-guardado))
   recuento (`reviewCount`) solo después de un intento, con una función de la
   raíz que cuenta los errores (`formUtils.countErrors`).
 
+<!-- kit:if backend -->
 **Mientras se guarda,** el primario lleva `loading` y los campos y las
 acciones del formulario se desactivan ([D5](../ux-ui/rules.md#d5-acciones)):
 `disabled` en `useForm` desactiva todos los campos (un `Controller` lo recibe
 en `field.disabled`), y las demás acciones (la salida de la barra, añadir y
 quitar filas) reciben `disabled={saving}`. Así nada de lo que se escriba se
 pierde al llegar la respuesta.
+<!-- kit:else -->
+**Si guardar lleva un tiempo** (según dónde guarde la app), mientras dura, el
+primario lleva `loading` y los campos y las acciones del formulario se
+desactivan ([D5](../ux-ui/rules.md#d5-acciones)): `disabled` en `useForm`
+desactiva todos los campos (un `Controller` lo recibe en `field.disabled`), y
+las demás acciones (la salida de la barra, añadir y quitar filas) reciben el
+mismo `disabled`. Así nada de lo que se escriba se pierde al acabar.
+<!-- kit:end -->
 
 **Enter no envía** una edición, un asistente ni un formulario en línea: el
 `<form>` no guarda en su `onSubmit`, y el primario llama al envío al pulsarlo.
 
 El de la gestión de un pedido:
 
-<!-- kit:if i18n -->
+<!-- kit:if backend -->
 ```ts
 import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm } from 'react-hook-form'
@@ -552,57 +547,6 @@ export function useOrdersEditForm (id: number, order: OrderDetail) {
 
 `useEphemeralNotice` es, por su papel, el aviso efímero del sistema de
 diseño.
-<!-- kit:else -->
-```ts
-import { zodResolver } from '@hookform/resolvers/zod'
-import { useForm } from 'react-hook-form'
-import type { OrderDetail } from '@/services/orders/ordersEditSchema'
-import { ORDER_ERROR_CODE } from '@/services/orders/ordersSchema'
-import { apiErrorUtils } from '@/utils/apiErrorUtils'
-import { formUtils } from '@/utils/formUtils'
-import { orderFormSchema } from '../../common/schemas/orderFormSchema'
-import type { OrderFormValues } from '../../common/schemas/orderFormSchema'
-import { ordersEditValueUtils } from '../utils/ordersEditValueUtils'
-import { useOrdersEditUpdate } from './useOrdersEditUpdate'
-
-/**
- * El formulario de la gestión de un pedido y su guardado.
- * @param id Id del pedido.
- * @param order El pedido, recién pedido al servidor.
- * @param onSaved Se llama con el pedido ya guardado y el formulario limpio, para dar el aviso.
- * @returns `form`, `save` (el envío), `saving`, `reviewCount` y `failure`, el motivo del último fallo o `null`.
- */
-export function useOrdersEditForm (id: number, order: OrderDetail, onSaved: () => void) {
-  const update = useOrdersEditUpdate(id)
-  const form = useForm<OrderFormValues>({
-    resolver: zodResolver(orderFormSchema),
-    mode: 'onSubmit',
-    reValidateMode: 'onChange',
-    defaultValues: ordersEditValueUtils.buildOrdersEditFormValues(order),
-    disabled: update.isPending,
-  })
-
-  const save = form.handleSubmit((values) => {
-    update.mutate(ordersEditValueUtils.buildOrdersEditRequest(values), {
-      onSuccess: (saved) => {
-        form.reset(ordersEditValueUtils.buildOrdersEditFormValues(saved))
-        onSaved()
-      },
-    })
-  })
-
-  const isShipped = apiErrorUtils.isApiError(update.error) && update.error.code === ORDER_ERROR_CODE.alreadyShipped
-  const failure = isShipped ? 'alreadyShipped' : apiErrorUtils.getRequestFailure(update.error)
-  const reviewCount = form.formState.submitCount > 0 ? formUtils.countErrors(form.formState.errors) : 0
-
-  return { form, save, saving: update.isPending, reviewCount, failure: update.isError ? failure : null }
-}
-```
-
-El hook no lleva textos: el aviso de «Se han guardado los cambios» lo da la
-página, que lo pinta, en `onSaved`, con el aviso efímero del sistema de
-diseño, y el motivo del fallo lo convierte en texto el componente del aviso.
-<!-- kit:end -->
 
 - **Tras guardar, el formulario parte del registro guardado:** la mutación
   devuelve el pedido pedido de nuevo al servidor
@@ -616,6 +560,55 @@ diseño, y el motivo del fallo lo convierte en texto el componente del aviso.
   pedido»), y la descripción que da el hook: la de un código concreto de la
   API (`alreadyShipped`) o la común, sin conexión o cualquier otro fallo
   ([El fallo del guardado](./load-and-save-data.md#2-el-fallo-del-guardado)).
+<!-- kit:else -->
+```ts
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { useTranslation } from 'react-i18next'
+import { formUtils } from '@/utils/formUtils'
+import { orderFormSchema } from '../../common/schemas/orderFormSchema'
+import type { OrderFormValues } from '../../common/schemas/orderFormSchema'
+import { useOrderRecordsStore } from '../../common/stores/useOrderRecordsStore'
+import type { OrderRecord } from '../../common/stores/useOrderRecordsStore'
+import { ordersEditValueUtils } from '../utils/ordersEditValueUtils'
+
+/**
+ * El formulario de la gestión de un pedido y su guardado.
+ * @param order El pedido guardado.
+ * @returns `form`, `save` (el envío) y `reviewCount`.
+ */
+export function useOrdersEditForm (order: OrderRecord) {
+  const { t } = useTranslation()
+  const { showNotice } = useEphemeralNotice()
+  const updateOrder = useOrderRecordsStore((state) => state.updateOrder)
+  const form = useForm<OrderFormValues>({
+    resolver: zodResolver(orderFormSchema),
+    mode: 'onSubmit',
+    reValidateMode: 'onChange',
+    defaultValues: ordersEditValueUtils.buildOrdersEditFormValues(order),
+  })
+
+  const save = form.handleSubmit((values) => {
+    const saved = updateOrder(order.id, ordersEditValueUtils.buildOrdersEditChanges(values))
+    form.reset(ordersEditValueUtils.buildOrdersEditFormValues(saved))
+    showNotice({ title: t('ordersEdit:saved') })
+  })
+
+  const reviewCount = form.formState.submitCount > 0 ? formUtils.countErrors(form.formState.errors) : 0
+
+  return { form, save, reviewCount }
+}
+```
+
+`useEphemeralNotice` es, por su papel, el aviso efímero del sistema de
+diseño.
+
+- **Tras guardar, el formulario parte del registro guardado:** `updateOrder`
+  devuelve el pedido como ha quedado, y `reset` lo pone como punto de
+  partida. El formulario vuelve a estar sin cambios (`isDirty` es `false`) y
+  sin intentos, así que nada se valida hasta el siguiente.
+- **El aviso efímero** sale después, con el formulario ya limpio.
+<!-- kit:end -->
 
 ## 5. Los cambios sin guardar
 
@@ -674,8 +667,10 @@ cambios». La usan también los modales con formulario
   ruta.
 - **Si se cierra o se recarga la pestaña del navegador,** avisa el navegador,
   con su propio texto (`beforeunload`).
+<!-- kit:if backend -->
 - **Si la sesión caduca,** la app va a la entrada sin preguntar: el bloqueo
   deja pasar esa navegación.
+<!-- kit:end -->
 - **La salida de una fila, un formulario en línea o un modal** cierra sin
   preguntar: pulsarla ya es una decisión.
 - **Lo escrito no se guarda en el navegador** (no hay borradores), y recargar
@@ -695,9 +690,15 @@ Con las piezas que nombra esta guía, un formulario queda repartido así:
 |---|---|
 | El schema | `schemas/<feature>FormSchema.ts` (o el `common` de la familia, `orderFormSchema.ts`), con las validaciones de `src/schemas/commonSchema.ts` |
 | Los máximos de los textos | `constants/` (`ORDER_NOTES_MAX`) |
+<!-- kit:if backend -->
 | Los valores iniciales y la petición | Dos funciones puras del objeto de utils del tema (`ordersEditValueUtils`): `build<Feature><Qué>FormValues` y `build<Feature><Qué>Request` |
 | El formulario y su envío | Un hook de la feature, como `useOrdersEditForm` |
 | La mutación | Su propio hook (`useOrdersEditUpdate`), como en [El guardado](./load-and-save-data.md#1-el-guardado) |
+<!-- kit:else -->
+| Los valores iniciales y los cambios que se guardan | Dos funciones puras del objeto de utils del tema (`ordersEditValueUtils`): `build<Feature><Qué>FormValues` y `build<Feature><Qué>Changes` |
+| El formulario y su envío | Un hook de la feature, como `useOrdersEditForm` |
+| Dónde se guarda | Lo que decidió la historia; en el ejemplo, la acción `updateOrder` del store de los pedidos (`useOrderRecordsStore`) |
+<!-- kit:end -->
 | Los campos | Componentes de la feature o, si los comparten varias, de su `common`, como `OrderDeliveryFields` |
 | El aviso de cambios sin guardar | `UnsavedChangesGuard` en la página |
 
@@ -706,8 +707,13 @@ Con las piezas que nombra esta guía, un formulario queda repartido así:
 Esta parte monta el formulario de la gestión de un registro, su única
 pantalla: `<familia>Edit` en `/<familia>/:id/edit` (`ordersEdit`,
 [Nomenclatura](../naming.md#familias-y-features)). Se llega a ella con
+<!-- kit:if backend -->
 «Gestiona», desde su fila, también sin permiso para editar: entonces se abre
 en lectura ([6. La lectura](#6-la-lectura)). Cómo es la pantalla lo dice
+<!-- kit:else -->
+«Gestiona», desde su fila, también si su estado no deja editarlo: entonces se
+abre en lectura ([6. La lectura](#6-la-lectura)). Cómo es la pantalla lo dice
+<!-- kit:end -->
 [D7](../ux-ui/rules.md#d7-un-registro-una-pantalla); lo propio del
 formulario viene en estos pasos.
 
@@ -722,7 +728,11 @@ las dos ([D6](../ux-ui/rules.md#d6-formularios)).
 - **Las pestañas** van en `?tab=`, y la primera no lleva parámetro
   ([3. Las pestañas](#3-las-pestañas)): un enlace desde otra pantalla abre la
   que toca.
+<!-- kit:if backend -->
 - **El formulario parte del registro recién pedido** y solo se reinicia tras
+<!-- kit:else -->
+- **El formulario parte del registro guardado** y solo se reinicia tras
+<!-- kit:end -->
   su propio guardado o tras una acción inmediata que cambia sus datos
   ([El formulario](#2-el-formulario)).
 - **Lo guardado que ya no cumple las reglas** se marca al abrir: el hook
@@ -732,8 +742,13 @@ las dos ([D6](../ux-ui/rules.md#d6-formularios)).
 - **Lo que actúa al momento** (el estado, los pasos sobre el registro, sus
   documentos) no es parte del formulario
   ([5. Lo que actúa al momento](#5-lo-que-actúa-al-momento)).
+<!-- kit:if backend -->
 - **Lo que el permiso o el estado no deja editar** se enseña como lectura
   ([6. La lectura](#6-la-lectura)).
+<!-- kit:else -->
+- **Lo que el estado no deja editar** se enseña como lectura
+  ([6. La lectura](#6-la-lectura)).
+<!-- kit:end -->
 
 ### 2. La barra de acciones
 
@@ -752,12 +767,12 @@ izquierda a derecha:
   guardar, con la causa a la vista. Al pulsarlo llama a `save`, porque el
   `<form>` no envía con Enter.
 
+<!-- kit:if backend -->
 Mientras guarda, «Guarda» lleva `loading` y la salida se desactiva. El aviso
 de fallo sale encima de la barra y se sigue en la gestión, con el foco en
 «Guarda» y el formulario partiendo de lo guardado. Sin permiso para editar no
 hay nada que guardar, así que tampoco hay barra:
 
-<!-- kit:if i18n -->
 ```tsx
 const hasReview = reviewCount > 0
 const isDirty = form.formState.isDirty
@@ -781,32 +796,23 @@ const hint = hasReview ? t('common:form.review', { count: reviewCount }) : isDir
 <UnsavedChangesGuard when={isDirty} />
 ```
 <!-- kit:else -->
+Al guardar, se sigue en la gestión, con el foco en «Guarda» y el formulario
+partiendo de lo guardado. Si el estado del registro no deja editar nada
+(`canEdit` es `false`), no hay nada que guardar, así que tampoco hay barra:
+
 ```tsx
 const hasReview = reviewCount > 0
 const isDirty = form.formState.isDirty
-const hasFailure = failure !== null
-const isOffline = failure === 'network'
-const isShipped = failure === 'alreadyShipped'
-const reviewText = reviewCount === 1 ? 'Hay 1 campo por revisar' : `Hay ${reviewCount} campos por revisar`
-const hint = hasReview ? reviewText : isDirty ? 'Hay cambios sin guardar' : undefined
+const hint = hasReview ? t('common:form.review', { count: reviewCount }) : isDirty ? t('common:form.unsaved') : undefined
 
 <form noValidate onSubmit={(event) => event.preventDefault()}>
   <OrdersEditTabs form={form} />
   {canEdit
     ? (
-      <>
-        {hasFailure
-          ? (
-            <PageAlert tone='error' title='No se ha podido guardar el pedido'>
-              {isShipped ? 'El pedido ya ha salido del almacén.' : isOffline ? 'Comprueba la conexión y vuelve a intentarlo.' : 'Vuelve a intentarlo dentro de un rato.'}
-            </PageAlert>
-            )
-          : null}
-        <ActionBar hint={hint}>
-          <Button variant='quiet' href={back.to} disabled={saving}>{back.label}</Button>
-          <Button loading={saving} disabled={!isDirty || saveBlocked} onClick={save}>Guarda</Button>
-        </ActionBar>
-      </>
+      <ActionBar hint={hint}>
+        <Button variant='quiet' href={back.to}>{back.label}</Button>
+        <Button disabled={!isDirty || saveBlocked} onClick={save}>{t('common:actions.save')}</Button>
+      </ActionBar>
       )
     : null}
 </form>
@@ -821,8 +827,12 @@ no deja guardar (otra edición abierta).
 
 Una función de la raíz, `useTabs` (`src/hooks/`, que nace con la primera
 gestión con pestañas), guarda la pestaña abierta en `?tab=`, con `replace`: la
+<!-- kit:if backend -->
 primera no lleva parámetro, y una `?tab=` que no existe, o que la persona no
 puede ver, abre la primera
+<!-- kit:else -->
+primera no lleva parámetro, y una `?tab=` que no existe abre la primera
+<!-- kit:end -->
 ([Normativa](../standards.md#rutas-permisos-y-navegación)). Como el formulario
 es uno solo para todas, `handleSubmit` recibe también qué hacer con los
 errores: abre la primera pestaña que los tiene, y el foco va a su primer
@@ -862,19 +872,11 @@ const save = form.handleSubmit(submit, (errors) => {
 })
 ```
 
-<!-- kit:if i18n -->
 ```tsx
 <Card collapsible {...sections.cardProps('delivery')} title={t('orders:delivery.title')}>
   <OrderDeliveryFields form={form} carrierOptions={carrierOptions} />
 </Card>
 ```
-<!-- kit:else -->
-```tsx
-<Card collapsible {...sections.cardProps('delivery')} title='Entrega'>
-  <OrderDeliveryFields form={form} carrierOptions={carrierOptions} />
-</Card>
-```
-<!-- kit:end -->
 
 `cardProps` da a la tarjeta `open` y `onOpenChange`. Los campos de la
 entrega son `OrderDeliveryFields`, de la familia, los mismos en el alta
@@ -886,7 +888,11 @@ Lo que actúa al momento no espera a «Guarda» ni pasa por el formulario
 ([D7](../ux-ui/rules.md#d7-un-registro-una-pantalla)): el estado del
 registro, los pasos sobre él (cerrar o cancelar un pedido) y sus documentos.
 
+<!-- kit:if backend -->
 - **Cada uno es su propia mutación,** con su modal si pide datos o una
+<!-- kit:else -->
+- **Cada uno se guarda por su cuenta,** con su modal si pide datos o una
+<!-- kit:end -->
   confirmación ([Formularios en un modal](#formularios-en-un-modal)). Si
   falla una acción sin modal, el aviso va donde dice
   [D4](../ux-ui/rules.md#d4-avisos-y-fallos), nombrando el registro.
@@ -907,10 +913,12 @@ Cuando no se puede editar, la gestión se abre igual, y lo dice un aviso bajo
 la cabecera que no se cierra
 ([D7](../ux-ui/rules.md#d7-un-registro-una-pantalla)):
 
+<!-- kit:if backend -->
 - **Sin permiso** (puede ver, pero no editar): todo va en lectura, con el
   aviso «No puedes editar este pedido», con «Tienes permiso para consultarlo,
   pero no para editarlo.». Lo decide la regla `canEdit` de la feature
   ([Aplicar permisos](./apply-permissions.md#6-las-zonas-de-la-pantalla)).
+<!-- kit:end -->
 - **Por el estado:** el aviso dice qué se puede hacer («Este pedido ya ha
   salido del almacén», con «Solo se puede editar la fecha de entrega.»). Lo
   que el estado deja editar sigue en el formulario, y lo demás va en lectura.
@@ -918,8 +926,12 @@ la cabecera que no se cierra
   tarjetas, nunca con campos `disabled` ([Los campos](#3-los-campos)).
 - **Sin nada que guardar no hay barra:** se vuelve con la vuelta encima del
   título, con el mismo destino que tendría la salida de la barra.
+<!-- kit:if backend -->
 - **Lo inmediato que el permiso o el estado deja** sigue: descargar un
   documento.
+<!-- kit:else -->
+- **Lo inmediato que el estado deja** sigue: descargar un documento.
+<!-- kit:end -->
 
 ## Formularios en un modal
 
@@ -935,24 +947,36 @@ sus campos y sus acciones ([D9](../ux-ui/rules.md#d9-modales)):
 
 - **El título:** en una confirmación, la pregunta («¿Quieres cancelar el
   pedido?»); en un formulario que pide datos, la acción («Añade una línea»).
+<!-- kit:if backend -->
 - **El botón principal dice lo que hace:** «Guarda» solo si guarda en el
   servidor. Si devuelve lo escrito a un formulario, que se guarda luego con
+<!-- kit:else -->
+- **El botón principal dice lo que hace:** «Guarda» solo si lo deja
+  guardado. Si devuelve lo escrito a un formulario, que se guarda luego con
+<!-- kit:end -->
   su «Guarda», es «Añade …» o «Aplica …»
   ([Filas que se editan en un modal](#3-filas-que-se-editan-en-un-modal)).
 - **La salida** es «Cancela». Si la acción ya empieza por «Cancela» («Cancela
   el pedido»), la salida es «Mantén el pedido», para que dos botones no digan
   lo mismo.
+<!-- kit:if backend -->
 - **Si necesita cargar algo** (los motivos), se abre ya con la carga dentro y,
   si falla, con el estado de error y su reintento. No se cambia por otro
   modal.
-- **Mientras su acción está en curso,** `busy` bloquea el modal entero (la ×
-  y Escape), el botón lleva `loading`, la salida se desactiva y los campos
-  también (`disabled` en `useForm`).
+- **Mientras su acción está en curso,** `busy` bloquea el modal entero (su botón
+  de cerrar y Escape), el botón lleva `loading`, la salida se desactiva y los
+  campos también (`disabled` en `useForm`).
+<!-- kit:else -->
+- **Si su acción lleva un tiempo,** mientras dura, `busy` bloquea el modal
+  entero (su botón de cerrar y Escape), el botón lleva `loading`, la salida se
+  desactiva y los campos también (`disabled` en `useForm`).
+<!-- kit:end -->
 - **Si su acción falla,** el aviso va al final del cuerpo, encima del pie, y
   el modal sigue abierto con lo escrito.
 - **Enter** envía con el botón principal: el cuerpo es un `<form noValidate>`
   con el mismo envío que el botón. Al cerrarse, el foco vuelve al botón que lo
   abrió ([D12](../ux-ui/rules.md#d12-accesibilidad)).
+<!-- kit:if backend -->
 - **Si el formulario parte de lo que carga** (el de cerrar, del pedido recién
   pedido), no se puede montar con sus `defaultValues` al abrirse. El hook
   guarda una foto de los valores iniciales la primera vez que llega todo y se
@@ -964,11 +988,12 @@ const [initialValues, setInitialValues] = useState<OrderCloseFormValues>()
 if (initialValues === undefined && data !== undefined) setInitialValues(orderCloseUtils.buildOrderCloseFormValues(data.order))
 const form = useForm<OrderCloseFormValues>({ resolver, mode: 'onSubmit', reValidateMode: 'onChange', values: initialValues, disabled: close.isPending })
 ```
+<!-- kit:end -->
 
 El de cancelar un pedido es de la familia (`orders/common`), porque lo abren
 la gestión del pedido y el listado:
 
-<!-- kit:if i18n -->
+<!-- kit:if backend -->
 ```tsx
 export function OrderCancelModal ({ id, onClose }: OrderCancelModalProps) {
   const { t } = useTranslation()
@@ -995,34 +1020,6 @@ export function OrderCancelModal ({ id, onClose }: OrderCancelModalProps) {
   )
 }
 ```
-<!-- kit:else -->
-```tsx
-export function OrderCancelModal ({ id, onClose }: OrderCancelModalProps) {
-  const { reasonOptions, form, submit, cancelling, failure } = useOrderCancelForm(id, onClose)
-  const isLoadingReasons = reasonOptions === undefined
-  const hasFailure = failure !== null
-  const isOffline = failure === 'network'
-
-  return (
-    <Modal
-      open
-      busy={cancelling}
-      title='¿Quieres cancelar el pedido?'
-      onClose={onClose}
-      actions={[
-        { label: 'Mantén el pedido', variant: 'quiet', onClick: onClose },
-        { label: 'Cancela el pedido', variant: 'danger', loading: cancelling, disabled: isLoadingReasons, onClick: submit },
-      ]}
-    >
-      <form noValidate onSubmit={submit}>
-        {isLoadingReasons ? <LoadingSkeleton /> : <OrderCancelReasonField form={form} options={reasonOptions} />}
-        {hasFailure ? <PageAlert tone='error' title='No se ha podido cancelar el pedido'>{isOffline ? 'Comprueba la conexión y vuelve a intentarlo.' : 'Vuelve a intentarlo dentro de un rato.'}</PageAlert> : null}
-      </form>
-    </Modal>
-  )
-}
-```
-<!-- kit:end -->
 
 - **Se monta solo mientras está abierto:** quien lo abre lo pinta con el
   registro elegido (`{isCancelling ? <OrderCancelModal id={cancelling} onClose={…} /> : null}`),
@@ -1032,16 +1029,51 @@ export function OrderCancelModal ({ id, onClose }: OrderCancelModalProps) {
   preguntar, aunque se haya elegido un motivo. Cerrarla ya es la respuesta.
 - **El aviso efímero** sale al cerrarse bien, en el `onSuccess` de `mutate`
   ([D4](../ux-ui/rules.md#d4-avisos-y-fallos)).
+<!-- kit:else -->
+```tsx
+export function OrderCancelModal ({ id, onClose }: OrderCancelModalProps) {
+  const { t } = useTranslation()
+  const { reasonOptions, form, submit } = useOrderCancelForm(id, onClose)
+
+  return (
+    <Modal
+      open
+      title={t('orders:cancel.title')}
+      onClose={onClose}
+      actions={[
+        { label: t('orders:cancel.keep'), variant: 'quiet', onClick: onClose },
+        { label: t('orders:cancel.confirm'), variant: 'danger', onClick: submit },
+      ]}
+    >
+      <form noValidate onSubmit={submit}>
+        <OrderCancelReasonField form={form} options={reasonOptions} />
+      </form>
+    </Modal>
+  )
+}
+```
+
+- **Los motivos son un dato fijo:** una constante de `orders/common`
+  (`ORDER_CANCEL_REASONS`, en `constants/`), así que el modal los tiene al
+  abrirse.
+- **Se monta solo mientras está abierto:** quien lo abre lo pinta con el
+  registro elegido (`{isCancelling ? <OrderCancelModal id={cancelling} onClose={…} /> : null}`),
+  y el modal va siempre `open`. Así empieza limpio cada vez.
+- **Es una confirmación** (su título es «¿Quieres…?»): se cierra sin
+  preguntar, aunque se haya elegido un motivo. Cerrarla ya es la respuesta.
+- **El aviso efímero** sale al cerrarse bien, después de guardar
+  ([D4](../ux-ui/rules.md#d4-avisos-y-fallos)).
+<!-- kit:end -->
 
 ### 2. El aviso al cerrar
 
-Un modal no navega, así que avisa él mismo. Una confirmación no pregunta
-nunca. Un modal con un formulario que no es una confirmación (el de añadir
-una línea) pregunta con `UnsavedChangesPromptModal` solo si se cierra con
-cambios por la ×, Escape o pulsando fuera; su «Cancela» es una decisión y
-cierra sin preguntar ([D9](../ux-ui/rules.md#d9-modales)). Por eso el
-`onClose` del modal (la ×, Escape y fuera) pasa a ser `handleClose`, y
-«Cancela» llama a `onClose` directamente:
+Un modal no navega, así que avisa él mismo. Una confirmación no pregunta nunca.
+Un modal con un formulario que no es una confirmación (el de añadir una línea)
+pregunta con `UnsavedChangesPromptModal` solo si se cierra con cambios por su
+botón de cerrar, Escape o pulsando fuera; su «Cancela» es una decisión y cierra
+sin preguntar ([D9](../ux-ui/rules.md#d9-modales)). Por eso el `onClose` del
+modal (su botón de cerrar, Escape y fuera) pasa a ser `handleClose`, y «Cancela»
+llama a `onClose` directamente:
 
 ```tsx
 const [asking, setAsking] = useState(false)
@@ -1097,7 +1129,6 @@ Las líneas de un pedido, en el hook que prepara su tabla. La clave de cada
 fila es la que pone `useFieldArray` (`keyName`), y cada celda enlaza su campo
 por su posición:
 
-<!-- kit:if i18n -->
 ```tsx
 const { t } = useTranslation()
 const { fields, append, remove } = useFieldArray({ control: form.control, name: 'lines', keyName: 'key' })
@@ -1125,42 +1156,26 @@ return {
   add: { label: t('orders:lines.add'), disabled: saving, onClick: () => append({ productId: '', quantity: '1' }) },
 }
 ```
-<!-- kit:else -->
-```tsx
-const { fields, append, remove } = useFieldArray({ control: form.control, name: 'lines', keyName: 'key' })
-
-<Table
-  rows={fields}
-  rowKey={(line) => line.key}
-  columns={[
-    {
-      key: 'quantity',
-      header: 'Cantidad',
-      render: (line) => <TextInput aria-label={`Cantidad de la línea ${fields.indexOf(line) + 1}`} {...form.register(`lines.${fields.indexOf(line)}.quantity`)} />,
-    },
-  ]}
-  rowActions={(line) => [
-    { label: 'Quita', ariaLabel: `Quita la línea ${fields.indexOf(line) + 1}`, disabled: saving, onClick: () => remove(fields.indexOf(line)) },
-  ]}
-  add={{ label: 'Añade una línea', disabled: saving, onClick: () => append({ productId: '', quantity: '1' }) }}
-/>
-```
-
-Las columnas y las acciones llevan textos, así que van en el componente de la
-tabla, que los pinta.
-<!-- kit:end -->
 
 #### 2. Filas que se guardan una a una
 
+<!-- kit:if backend -->
 Si cada fila se guarda sola en el servidor, la tabla marca la fila que se
 edita:
+<!-- kit:else -->
+Si cada fila se guarda sola, la tabla marca la fila que se edita:
+<!-- kit:end -->
 
 - cada fila lleva «Edita» en sus acciones; quitar una fila guardada es una
   baja, con su confirmación ([D9](../ux-ui/rules.md#d9-modales));
 - añadir una fila va en la cabecera de la tabla, como arriba;
 - la fila que se edita pinta sus campos, y «Cancela» y «Guarda» ocupan el
+<!-- kit:if backend -->
   sitio de sus acciones. Aquí sí es «Guarda», porque guarda la fila en el
   servidor;
+<!-- kit:else -->
+  sitio de sus acciones. Aquí sí es «Guarda», porque guarda la fila;
+<!-- kit:end -->
 - lo que se escribe en la fila es un formulario propio de la fila, con su
   schema, no el de la pantalla: valida al pulsar «Guarda» y, mientras guarda,
   sus campos se desactivan ([Enviar el formulario](#4-enviar-el-formulario));
@@ -1307,7 +1322,6 @@ cualquier util.
 El paso del cliente es el primero, así que su barra lleva «Cancela» y el
 primario, y la ayuda con los campos por revisar:
 
-<!-- kit:if i18n -->
 ```tsx
 const hasReview = reviewCount > 0
 
@@ -1316,17 +1330,6 @@ const hasReview = reviewCount > 0
   <Button onClick={onContinue}>{t('common:wizard.next')}</Button>
 </ActionBar>
 ```
-<!-- kit:else -->
-```tsx
-const hasReview = reviewCount > 0
-const reviewText = reviewCount === 1 ? 'Hay 1 campo por revisar' : `Hay ${reviewCount} campos por revisar`
-
-<ActionBar hint={hasReview ? reviewText : undefined}>
-  <Button variant='quiet' onClick={onCancel}>Cancela</Button>
-  <Button onClick={onContinue}>Continúa</Button>
-</ActionBar>
-```
-<!-- kit:end -->
 
 #### 4. La revisión y el final
 
@@ -1344,24 +1347,33 @@ const reviewText = reviewCount === 1 ? 'Hay 1 campo por revisar' : `Hay ${review
 
 | Síntoma | Causa |
 |---|---|
-<!-- kit:if i18n -->
 | El error sale como una clave (`orders:errors.…`) | El campo no traduce el mensaje con `t()`, o falta la clave en el catálogo. |
-<!-- kit:end -->
 | Un selector no guarda su valor | El campo se conectó con `register` en lugar de `Controller`. |
 | «Guarda» está activo sin cambios | Falta desactivarlo con `!formState.isDirty`. |
 | Los errores salen mientras se escribe, antes de guardar | `mode` no es `onSubmit`. |
 | Tras guardar con errores, el error no se va al corregir el campo | `reValidateMode` no es `onChange`. En un asistente, falta revalidar el paso tras «Continúa» (`watch` y `trigger`). |
 | Al cambiar la fecha del pedido, el error de la de entrega no se va | Falta `deps` en el campo que no lleva el error. |
+<!-- kit:if backend -->
 | Tras guardar, el formulario sigue con cambios | El hook no reinicia el formulario con el registro guardado: falta `reset` en el `onSuccess` de `mutate`. |
 | Lo escrito se pierde al llegar una recarga | El formulario usa `values`, que lo reinicia con cada dato nuevo: parte de `defaultValues` y solo se reinicia tras su propio guardado o tras una acción inmediata que cambia sus datos. |
 | La gestión se abre con datos viejos | Monta el formulario con lo que había en la caché: la página espera al registro recién pedido. |
+<!-- kit:else -->
+| Tras guardar, el formulario sigue con cambios | El hook no reinicia el formulario con el registro guardado: falta `reset` después de guardar. |
+| Lo escrito se pierde cuando cambia el registro | El formulario usa `values`, que lo reinicia con cada dato nuevo: parte de `defaultValues` y solo se reinicia tras su propio guardado o tras una acción inmediata que cambia sus datos. |
+<!-- kit:end -->
 | Mientras guarda se puede seguir escribiendo | Falta `disabled` en `useForm`, o un `Controller` no pasa `field.disabled` a su campo. |
 | Enter guarda una edición | El `<form>` guarda en su `onSubmit`: «Guarda» llama al envío al pulsarlo. |
+<!-- kit:if backend -->
 | Al guardar con un fallo, la consola dice «Uncaught (in promise)» | El envío usa `mutateAsync` sin `try/catch`: se usa `mutate`. |
+<!-- kit:end -->
 | No avisa al salir con cambios | Falta `UnsavedChangesGuard` en la pantalla, o su `when` no cuenta todos los cambios. |
 | El test de una pantalla con el aviso falla con un error de `useBlocker` | Se montó con `testUtils.renderWithProviders`: `useBlocker` necesita el router de datos de `testUtils.renderPage`. |
-| «Cancela» de un modal pregunta si se quiere salir sin guardar | Llama a `handleClose` en lugar de a `onClose`: solo la ×, Escape y pulsar fuera preguntan. |
+| «Cancela» de un modal pregunta si se quiere salir sin guardar | Llama a `handleClose` en lugar de a `onClose`: solo su botón de cerrar, Escape y pulsar fuera preguntan. |
 | Un texto largo se corta al pegarlo | El campo usa el `maxlength` del navegador: el máximo va en el schema. |
+<!-- kit:if backend -->
 | Sin permiso para editar, la gestión enseña campos desactivados | En lectura, los datos van como texto, sin barra: nunca campos `disabled`. |
+<!-- kit:else -->
+| En lectura, la gestión enseña campos desactivados | Los datos van como texto, sin barra: nunca campos `disabled`. |
+<!-- kit:end -->
 | Al quitar una fila, las demás cambian de valor | `rowKey` no devuelve la clave de `useFieldArray` (la que lleva `keyName`). |
 | «Continúa» deja pasar un paso con errores | `trigger` no recibe los campos del paso: valida otra cosa. |

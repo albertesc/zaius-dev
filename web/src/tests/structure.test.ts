@@ -1,7 +1,5 @@
 import { describe, expect, it } from 'vitest'
-// kit:if i18n
 import { APP_DEFAULT_LANGUAGE, APP_LANGUAGES } from '@/constants/appLanguages'
-// kit:end
 
 const sources = import.meta.glob<string>('/src/**/*.{ts,tsx,astro}', { query: '?raw', import: 'default', eager: true })
 
@@ -87,7 +85,7 @@ describe('quién llama a la API', () => {
     const forbidden = imports
       .filter(([file]) => !API_CALLERS.some((pattern) => pattern.test(file)))
   // kit:end
-      .flatMap(([file, imported]) => imported.filter((path) => API.test(path)).map((path) => `${file} → ${path}`))
+      .flatMap(([file, imported]) => imported.filter((path) => API.test(path)).map((path) => `${file} importa ${path}`))
 
     expect(forbidden).toEqual([])
   })
@@ -128,9 +126,9 @@ describe('un test por fichero', () => {
     expect(missing).toEqual([])
   })
 })
-// kit:if i18n
 
 const catalogs = import.meta.glob<Record<string, unknown>>('/src/i18n/*.json', { import: 'default', eager: true })
+const AI_SIGNS = /[·→←⇒—–≈≥≤×─│├└✓✔✅❌✖⚠]|\u20E3|(?![©®™])\p{Extended_Pictographic}/u
 const languages: readonly string[] = APP_LANGUAGES
 
 /**
@@ -143,6 +141,18 @@ function getKeys (catalog: Record<string, unknown>, prefix = ''): string[] {
   return Object.entries(catalog).flatMap(([key, value]) => typeof value === 'object' && value !== null
     ? getKeys(value as Record<string, unknown>, `${prefix}${key}.`)
     : [`${prefix}${key}`])
+}
+
+/**
+ * Da los textos de un catálogo, cada uno con su clave completa.
+ * @param catalog El catálogo o uno de sus grupos.
+ * @param prefix El grupo del que cuelga, con el punto final.
+ * @returns Los pares de clave y texto (`['rooms.index.title', 'Las habitaciones']`).
+ */
+function getTexts (catalog: Record<string, unknown>, prefix = ''): Array<[string, string]> {
+  return Object.entries(catalog).flatMap(([key, value]): Array<[string, string]> => typeof value === 'object' && value !== null
+    ? getTexts(value as Record<string, unknown>, `${prefix}${key}.`)
+    : [[`${prefix}${key}`, String(value)]])
 }
 
 describe('paridad de idiomas', () => {
@@ -168,4 +178,13 @@ describe('paridad de idiomas', () => {
     expect(different).toEqual([])
   })
 })
-// kit:end
+
+describe('los textos', () => {
+  it('ningún texto lleva los signos que delatan a la IA («Escribir como una persona», en docs/process.md)', () => {
+    const marked = Object.entries(catalogs).flatMap(([file, catalog]) => getTexts(catalog)
+      .filter(([, text]) => AI_SIGNS.test(text))
+      .map(([key, text]) => `${file}, ${key}: «${text}»`))
+
+    expect(marked).toEqual([])
+  })
+})

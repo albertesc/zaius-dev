@@ -6,7 +6,7 @@ reglas imprescindibles resumidas están en [AGENTS.md](./AGENTS.md); los
 documentos las desarrollan, con ejemplos que se pueden copiar. Cada tema está
 en un solo sitio.
 
-**En esta página:** [Primeros pasos](#primeros-pasos) · [Arrancar la app](#arrancar-la-app) · [Comprobar](#comprobar) · [Publicar](#publicar) · [Documentación](#documentación) · [El kit zaius-dev](#el-kit-zaius-dev)
+**En esta página:** [Primeros pasos](#primeros-pasos), [Contar de qué va](#contar-de-qué-va), [Arrancar la app](#arrancar-la-app), [Comprobar](#comprobar), [Publicar](#publicar), [Documentación](#documentación), [El kit zaius-dev](#el-kit-zaius-dev)
 
 ## Primeros pasos
 
@@ -17,12 +17,14 @@ para al terminarlo y te dice cuál sigue.
 
 <!-- kit:if !existing -->
 1. Abre la IA en esta carpeta (claude u opencode).
-2. Escribe `/zaius-init` (en opencode: «usa la skill zaius-init»). La IA te
-   preguntará para qué es la app, quién la usa, qué entra y qué no, y cómo se
-   verá (las piezas de las pantallas, los colores, la tipografía, dónde se
-   usa), y lo dejará escrito en el brief y en el sistema de diseño, con una
-   guía visual que se abre en el navegador. Hasta que lo hagas, la IA no
-   empezará ninguna otra tarea.
+2. Escribe `/zaius-init` y, detrás, de qué va la app, con tus palabras
+   ([Contar de qué va](#contar-de-qué-va)); en opencode, «usa la skill
+   zaius-init» y lo mismo. La IA parte de lo que cuentes y te pregunta lo que
+   falte: para qué es, quién la usa y qué entra y qué no. Después te propondrá
+   tres identidades distintas (la idea, el logo, los colores y la letra), en un
+   boceto que se abre en el navegador, para que elijas una, y lo dejará escrito
+   en el brief y en el sistema de diseño, con una guía visual. Hasta que lo
+   hagas, la IA no empezará ninguna otra tarea.
 3. `/zaius-backlog`: la IA propone las épicas (los temas grandes de la app) y
    sus historias (cada cosa que alguien podrá hacer con ella), en orden, y las
    deja en el backlog con tu OK. Cada historia tiene su código: `ORD001`.
@@ -39,11 +41,12 @@ para al terminarlo y te dice cuál sigue.
    espera tu OK antes de subir nada.
 <!-- kit:else -->
 1. Abre la IA en esta carpeta (claude u opencode).
-2. Escribe `/zaius-init` (en opencode: «usa la skill zaius-init»). La IA te
-   hará unas preguntas para escribir el brief de la app y definir el sistema
-   de diseño, y después analizará el proyecto y propondrá cómo traerlo a las
-   reglas del kit, por bloques. Hasta que lo hagas, la IA no empezará ninguna
-   otra tarea.
+2. Escribe `/zaius-init` y, detrás, de qué va la app, con tus palabras
+   ([Contar de qué va](#contar-de-qué-va)); en opencode, «usa la skill
+   zaius-init» y lo mismo. La IA te hará unas preguntas para escribir el brief
+   de la app y definir el sistema de diseño, y después analizará el proyecto y
+   propondrá cómo traerlo a las reglas del kit, por bloques. Hasta que lo hagas,
+   la IA no empezará ninguna otra tarea.
 3. Revisa con la IA los ficheros `.kit-new`: son las versiones del kit de
    ficheros que el proyecto ya tenía.
 4. Al terminar de traerlo, `%%KIT_RUN%% change`, con Sí a «¿Ha terminado ya
@@ -60,6 +63,46 @@ nueva de la IA. Lo demás (las llamadas a la API, los formularios, los
 permisos) lo lanza la IA cuando hace falta. Cómo se trabaja con ella está en
 [Cómo se trabaja con la IA](./docs/process.md), y todas las skills, las tuyas
 y las suyas, en [AGENTS.md](./AGENTS.md#skills-del-proyecto).
+<!-- kit:if git -->
+
+**Guardar el trabajo:** el proyecto guarda su historial con git, y los commits
+y los push los haces tú: al cerrar cada historia, la IA te propone el mensaje.
+Si quieres que los haga ella, pídeselo («haz el commit y súbelo»): te dirá qué
+ha entrado, en qué rama y dónde está. `/zaius-git` conecta el repositorio de
+GitHub (o de GitLab, Bitbucket), apunta cómo se trabaja con ramas y, si lo
+pides, monta el CI. Las reglas, en [Git](./AGENTS.md#git).
+<!-- kit:end -->
+
+## Contar de qué va
+
+Lo primero que necesita la IA es que le cuentes de qué va la app, con tus
+palabras. Copia esto detrás de `/zaius-init`, rellena lo que sepas y borra lo
+que no:
+
+```text
+/zaius-init
+Qué es: <la empresa o el proyecto, y el problema que resuelve la app>
+Quién la usa: <cada tipo de persona y lo que hace con ella>
+Lo que tiene que hacer: <lo primero que tiene que poder hacerse con ella>
+Sus datos: <de dónde salen hoy y qué tiene que guardar la app>
+Lo que ya hay: <logo, colores, la herramienta o la hoja de cálculo que se usa hoy>
+Lo que no sé: <lo que quieres decidir con la IA>
+```
+
+Un ejemplo:
+
+```text
+/zaius-init
+Qué es: una cooperativa de huertos que reparte cestas de verdura cada semana.
+Quién la usa: quien prepara las cestas y quien las reparte.
+Lo que tiene que hacer: ver las cestas de la semana y marcar las entregadas.
+Sus datos: hoy están en una hoja de cálculo.
+Lo que ya hay: el logo.
+Lo que no sé: si quien reparte la usará sin conexión.
+```
+
+Lo que no cuentes, te lo pregunta. Si prefieres contarlo a tu manera, también
+vale: lo importante es qué es, quién la usa y qué tiene que hacer.
 
 ## Arrancar la app
 
@@ -73,10 +116,15 @@ y las suyas, en [AGENTS.md](./AGENTS.md#skills-del-proyecto).
 <!-- kit:if mocks -->
 | Trabajar con los mocks, sin la API | `%%PM%% run dev` | El puerto que diga Vite: el %%HUMAN_PORT%%, o el siguiente libre |
 <!-- kit:else -->
+<!-- kit:if backend -->
 | Trabajar contra la API | `%%PM%% run dev` | El puerto que diga Vite: el %%HUMAN_PORT%%, o el siguiente libre |
+<!-- kit:else -->
+| Trabajar en la app | `%%PM%% run dev` | El puerto que diga Vite: el %%HUMAN_PORT%%, o el siguiente libre |
+<!-- kit:end -->
 <!-- kit:end -->
 | El build de producción | `%%PM%% run build` | En `dist/` |
 
+<!-- kit:if backend -->
 Cada modo lee su `.env.<modo>` (`.env.development`, `.env.production` y
 `.env.test`):
 
@@ -86,6 +134,7 @@ Cada modo lee su `.env.<modo>` (`.env.development`, `.env.production` y
   mocks de su service (`src/services/<entidad>/<entidad>Mocks.json`), sin la
   API; con `false`, va a `VITE_API_URL`. `%%PM%% run dev` va con los mocks.
   Los tests, también.
+<!-- kit:end -->
 <!-- kit:end -->
 
 Un `.env.<modo>.local`, que no se versiona, pisa lo de su modo en tu máquina
@@ -155,9 +204,17 @@ publicar.
 <!-- kit:if mocks -->
 | Cómo se llama cada cosa | [Nomenclatura](./docs/naming.md) | Features, ficheros, componentes, funciones, services, mocks, textos y JSDoc. |
 <!-- kit:else -->
+<!-- kit:if backend -->
 | Cómo se llama cada cosa | [Nomenclatura](./docs/naming.md) | Features, ficheros, componentes, funciones, services, textos y JSDoc. |
+<!-- kit:else -->
+| Cómo se llama cada cosa | [Nomenclatura](./docs/naming.md) | Features, ficheros, componentes, funciones, stores, textos y JSDoc. |
 <!-- kit:end -->
+<!-- kit:end -->
+<!-- kit:if backend -->
 | Cómo se construye | `docs/guides/` | Un paso a paso por tarea: [crear una feature](./docs/guides/create-a-feature.md), [añadir un servicio](./docs/guides/add-a-service.md), [cargar y guardar datos](./docs/guides/load-and-save-data.md), [crear un formulario](./docs/guides/create-a-form.md), [aplicar permisos](./docs/guides/apply-permissions.md) y [escribir tests](./docs/guides/write-tests.md). |
+<!-- kit:else -->
+| Cómo se construye | `docs/guides/` | Un paso a paso por tarea: [crear una feature](./docs/guides/create-a-feature.md), [crear un formulario](./docs/guides/create-a-form.md) y [escribir tests](./docs/guides/write-tests.md). |
+<!-- kit:end -->
 | El diseño | [ux-ui/](./docs/ux-ui/README.md) | [El sistema de diseño](./docs/ux-ui/design-system.md), [las normas](./docs/ux-ui/rules.md) y las propuestas de cambio. |
 | Las pantallas | [features/](./docs/features/README.md) | El índice de las pantallas y un documento por cada una, que dice lo que hace hoy, en una carpeta por familia. |
 | Por dónde va el trabajo | [Próximos pasos](./docs/next-steps.md) | «Dónde estamos»: lo hecho, lo que está en curso, lo siguiente y las decisiones pendientes. |
@@ -188,12 +245,9 @@ publicar.
 | Comprobar un cambio antes de darlo por hecho | [Comprobar](#comprobar) |
 | Montar una pantalla nueva | [Crear una feature](./docs/guides/create-a-feature.md) |
 | Añadir una página, un componente o un hook a una feature | [La página](./docs/guides/create-a-feature.md#4-la-página) |
-<!-- kit:if i18n -->
 | Añadir un texto en todos los idiomas | [Los textos](./docs/guides/create-a-feature.md#5-los-textos) |
-<!-- kit:else -->
-| Escribir los textos de una pantalla | [Los textos](./docs/guides/create-a-feature.md#5-los-textos) |
-<!-- kit:end -->
 | Añadir una entrada al menú | [El menú](./docs/guides/create-a-feature.md#6-el-menú) |
+<!-- kit:if backend -->
 | Mostrar u ocultar algo según los permisos | [Aplicar permisos](./docs/guides/apply-permissions.md) |
 | Añadir una llamada a la API | [Añadir un servicio](./docs/guides/add-a-service.md) |
 <!-- kit:if mocks -->
@@ -203,6 +257,9 @@ publicar.
 | Guardar un dato y recargar lo que cambia | [Guardar](./docs/guides/load-and-save-data.md#guardar) |
 | Pintar la carga, el error y el vacío | [Carga, error y vacío](./docs/guides/load-and-save-data.md#3-carga-error-y-vacío) |
 | Guardar lo que sobrevive a salir de la pantalla | [El store de una pantalla](./docs/guides/load-and-save-data.md#6-el-store-de-una-pantalla) |
+<!-- kit:else -->
+| Saber qué guarda la app y dónde | [Decisiones caras](./docs/brief.md#decisiones-caras), en el brief |
+<!-- kit:end -->
 | Hacer un formulario | [Crear un formulario](./docs/guides/create-a-form.md) |
 | Corregir las filas de una tabla o hacer un asistente | [Formularios por partes](./docs/guides/create-a-form.md#formularios-por-partes) |
 | Usar un dominio o añadirle una pieza | [Dominios](./docs/standards.md#dominios) |
@@ -216,6 +273,9 @@ publicar.
 <!-- kit:if api -->
 | Saber cómo responde un endpoint de la API | [API](./docs/api/README.md) |
 | Saber qué se le pide a la API | [Peticiones a la API](./docs/api-requests.md) |
+<!-- kit:end -->
+<!-- kit:if git -->
+| Guardar el trabajo o subirlo a GitHub | [Git](./AGENTS.md#git) |
 <!-- kit:end -->
 | Cambiar una respuesta del kit o actualizarlo | [El kit zaius-dev](#el-kit-zaius-dev) |
 

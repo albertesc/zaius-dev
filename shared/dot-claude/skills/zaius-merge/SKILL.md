@@ -24,8 +24,13 @@ disable-model-invocation: true
    entradas de las versiones que el proyecto no tenía y que tocan cada
    fichero.
 3. **Por cada fichero,** uno a uno:
+<!-- kit:if git -->
    1. compara la versión del proyecto con su `.kit-new` (por ejemplo, con
       `git diff --no-index <fichero> <fichero>.kit-new`);
+<!-- kit:else -->
+   1. compara la versión del proyecto con su `.kit-new`, leyendo los dos,
+      parte a parte;
+<!-- kit:end -->
    2. separa lo que el proyecto cambió a propósito (sus reglas, sus
       decisiones, «Qué es», sus %%UNITS%%) de lo que trae el kit, según el
       `CHANGELOG.md`;

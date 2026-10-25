@@ -50,11 +50,11 @@ export function buildStatusReport (manifest, status, kit) {
   return [
     `Kit en el proyecto: ${manifest.kitVersion}${versionNote}`,
     `Carpeta del kit: ${kit.dir}`,
-    `Proyecto: ${answers.name} · ${answers.existing ? 'existente, en migración' : 'nuevo'} · gestor de paquetes: ${answers.packageManager}`,
+    `Proyecto: ${answers.name} (${answers.existing ? 'existente, en migración' : 'nuevo'}). Gestor de paquetes: ${answers.packageManager}. Git: ${yesNo(answers.git)}.`,
     answers.type === 'web'
-      ? `Tipo: web (Astro) · servidor: ${answers.server ? `sí, en ${answers.platform ?? 'node'}` : 'no'} · blog: ${yesNo(answers.content)} · API: ${yesNo(answers.backend)} · zona privada: ${yesNo(answers.privateArea)}`
-      : `Tipo: app (React) · API: ${yesNo(answers.api)} · mocks: ${yesNo(answers.mocks)}`,
-    `Idiomas: ${answers.languages.join(', ')} · multiidioma: ${yesNo(answers.i18n)}`,
+      ? `Tipo: web (Astro). Servidor: ${answers.server ? `sí, en ${answers.platform ?? 'node'}` : 'no'}. Blog: ${yesNo(answers.content)}. API: ${yesNo(answers.backend)}. Zona privada: ${yesNo(answers.privateArea)}.`
+      : `Tipo: app (React). API: ${yesNo(answers.backend)}. Mocks: ${yesNo(answers.mocks)}.`,
+    `Idiomas: ${answers.languages.join(', ')}. Multiidioma: ${yesNo(answers.i18n)}.`,
     '',
     'Ficheros del kit que el proyecto ha cambiado:',
     ...list(status.changed),

@@ -22,6 +22,16 @@ sabido de una conversación anterior
 2. Cuenta a la persona dónde se está y propón el comando que sigue, sin
    lanzarlo: cada etapa la lanza ella.
 
+<!-- kit:if git -->
+Todo lo que se escribe (a la persona, en los documentos, en los commits y en
+la %%KIND%%) va
+<!-- kit:else -->
+Todo lo que se escribe (a la persona, en los documentos y en la %%KIND%%) va
+<!-- kit:end -->
+[como lo escribiría una persona](./docs/process.md#escribir-como-una-persona):
+sin «·», «→», «—», «✓» ni emojis, sin las aperturas de un chatbot ni las
+frases de la IA.
+
 Mientras el [brief](./docs/brief.md) no esté aprobado (su cabecera dice
 «Estado: pendiente» o «por aprobar»), lo que sigue es `/zaius-init` (en
 opencode, «usa la skill zaius-init»): sin el brief y el sistema de diseño no
@@ -70,14 +80,9 @@ se descartan.
 <!-- kit:if content -->
 - Las colecciones de contenido de Astro, en Markdown o MDX.
 <!-- kit:end -->
-<!-- kit:if i18n -->
-- i18next, con los idiomas %%LANGUAGES%%; el primero, `%%DEFAULT_LANGUAGE%%`,
+- i18next: los textos van siempre en su catálogo, aunque la web tenga un
+  solo idioma. Los idiomas, %%LANGUAGES%%; el primero, `%%DEFAULT_LANGUAGE%%`,
   es el de por defecto.
-<!-- kit:else -->
-- Un solo idioma, `%%DEFAULT_LANGUAGE%%`: los textos van escritos en el
-  componente que los pinta. La skill `zaius-languages` pasa la web a
-  varios.
-<!-- kit:end -->
 - Sin islas al empezar: la primera, con React, llega cuando hace falta
   ([Islas](./docs/standards.md#islas)).
 - El sistema de diseño, en `docs/ux-ui/design-system.md`.
@@ -148,13 +153,11 @@ falla.
 <!-- kit:end -->
 | `styles/` | Los tokens propios del sistema de diseño (`tokens.css`), si los tiene, y los estilos globales, que importa una vez `BaseLayout.astro`. |
 | `assets/` | Las imágenes que optimiza Astro (`<Image>`), con el prefijo de su página (`homeHeader.jpg`). Lo que se sirve tal cual (el icono de la pestaña, las imágenes para compartir) va en `public/`, fuera de `src/`. |
-<!-- kit:if i18n -->
 | `i18n/` | La configuración de i18next (`i18n.ts`, con `getI18nT`) y un catálogo por idioma (`<idioma>.json`). |
-<!-- kit:end -->
 <!-- kit:if server -->
-| `tests/` | La comprobación de la estructura (`structure.test.ts`, `docs/standards.md#comprobar-la-estructura`), la configuración de Vitest (`setup.ts`), los ayudantes de los tests (`testUtils.ts`: `renderAstro` y `callAction`) y los tests de las páginas, en `tests/pages/`, con la ruta de su página. |
+| `tests/` | La comprobación de la estructura (`structure.test.ts`, `docs/standards.md#comprobar-la-estructura`), la configuración de Vitest (`setup.ts`), los ayudantes de los tests (`testUtils.ts`: `renderAstro`, `callAction` y, con varios idiomas, `translate`) y los tests de las páginas, en `tests/pages/`, con la ruta de su página. |
 <!-- kit:else -->
-| `tests/` | La comprobación de la estructura (`structure.test.ts`, `docs/standards.md#comprobar-la-estructura`), la configuración de Vitest (`setup.ts`), los ayudantes de los tests (`testUtils.ts`: `renderAstro`) y los tests de las páginas, en `tests/pages/`, con la ruta de su página. |
+| `tests/` | La comprobación de la estructura (`structure.test.ts`, `docs/standards.md#comprobar-la-estructura`), la configuración de Vitest (`setup.ts`), los ayudantes de los tests (`testUtils.ts`: `renderAstro` y, con varios idiomas, `translate`) y los tests de las páginas, en `tests/pages/`, con la ruta de su página. |
 <!-- kit:end -->
 
 Solo existen las carpetas que hacen falta: ninguna se crea hasta que una pieza
@@ -287,23 +290,28 @@ Es lo más importante del proyecto. Los listados completos están en
 <!-- kit:if backend -->
   Solo el transporte (`apiUtils` y los suyos) habla con la red.
 <!-- kit:end -->
-- Todo fichero con código lleva su test al lado, con el mismo nombre
-  (`RoomCard.astro` → `RoomCard.test.ts`). Solo se libran los que únicamente
-  declaran (tipos, constantes y configuración) y el código base que trae el
-  kit, que lo prueba el propio kit. Las páginas
+- Todo fichero con código lleva su test al lado, con el mismo nombre (el de
+  `RoomCard.astro` es `RoomCard.test.ts`). Solo se libran los que únicamente
+  declaran (tipos, constantes y configuración) y el código base que trae el kit,
+  que lo prueba el propio kit. Las páginas
 <!-- kit:if server -->
   y los endpoints
 <!-- kit:end -->
   llevan el suyo en `src/tests/pages/`, con su misma ruta: Astro convierte en
   ruta cualquier fichero de `src/pages/`. Lo mira la comprobación de la
   estructura.
+- Un test no se manipula para que pase: si falla, se arregla el código, y si
+  el test está mal, se pregunta
+  (`docs/guides/write-tests.md#un-test-no-se-manipula`).
+  Sus textos salen del catálogo, con `testUtils.translate`, nunca escritos a
+  mano.
 - `components/` es plana, sin subcarpetas: el prefijo ya agrupa las piezas. No
   hay carpetas por tipo de fichero.
 - Se extrae solo lo que es igual, y cuando aparece la segunda copia o el
   documento de la página ya dice que la habrá. Nada de componentes genéricos
   llenos de huecos.
-- Nada «por si acaso»: ni dependencias, ni abstracciones, ni ficheros que la
-  página no pida.
+- Nada «por si acaso»: ni dependencias, ni abstracciones, ni ficheros, ni
+  props, variantes o estados que la página no use.
 - Tamaño orientativo: ~150 líneas por fichero y ~100 por componente. Si se pasa,
   se divide por significado, nunca por tipo técnico.
 
@@ -337,19 +345,13 @@ Es lo más importante del proyecto. Los listados completos están en
 <!-- kit:end -->
 - Lo que tiene que durar (la página de una lista, una pestaña) va en la URL,
   nunca en el `sessionStorage`.
-<!-- kit:if i18n -->
 - i18n: ningún texto de usuario en el código; los textos salen de
   `const t = getI18nT(Astro.currentLocale)`, en el frontmatter, con las claves
   de un solo catálogo por idioma, agrupadas por página (`rooms.title`,
   `common.actions.send`). Todos los idiomas llevan las mismas claves.
-<!-- kit:else -->
-- Textos: van escritos en el componente que los pinta, en
-  `%%DEFAULT_LANGUAGE%%`, sin catálogos. Un mismo dato se llama igual en todas
-  las páginas.
-<!-- kit:end -->
 - JSDoc en toda función que no es componente, siempre con la misma forma: qué
-  hace (1–2 líneas), un `@param` por parámetro, `@returns` y `@throws` si
-  tocan, cada uno en una línea; 6–8 líneas como máximo.
+  hace (una o dos líneas), un `@param` por parámetro, `@returns` y `@throws` si
+  tocan, cada uno en una línea; de 6 a 8 líneas como mucho.
 <!-- kit:if backend -->
   En los services, la descripción empieza por el endpoint.
 <!-- kit:end -->
@@ -400,23 +402,35 @@ página, la tarjeta de contenido), y cuál es cada una en este proyecto lo dice
 <!-- kit:end -->
 - **D10. Navegación.** Lo que lleva a otra página es un enlace; el menú y el
   pie son los mismos en toda la web y marcan dónde se está; la pestaña dice
-  «<título> · %%APP_NAME%%».
+  «<título> - %%APP_NAME%%».
 - **D11. Textos y formato.** Se trata de tú; las acciones, en imperativo, con
   verbo y objeto («Pide disponibilidad»). Fechas, cifras y precios, siempre
-  con las funciones de formato de la raíz; lo que falta es «-».
+  con las funciones de formato de la raíz; lo que falta es «-». Sin los
+  signos ni las frases de la IA («·», «→», «—», «✓», emojis).
 - **D12. Accesibilidad.** Los botones de icono llevan `aria-label`, cada imagen
   su `alt`, el foco siempre se ve, todo se hace con teclado, nada que se pulse
   mide menos de 24 px y el contraste sale de los tokens. Cada página se prueba
   con el teclado, con un lector de pantalla y con el zoom al 200 %.
 - **D13. Movimiento.** Lo que se mueve explica qué ha cambiado, corto y con
-  los tokens de «Movimiento»; con «reducir movimiento», como mucho un
-  fundido; nada se queda escondido esperando una animación, y lo que se mueve
-  solo se puede parar.
+  los tokens de «Movimiento»; lo que se pulsa responde al pasar por encima y
+  con el foco; con «reducir movimiento», como mucho un fundido; nada se
+  queda escondido esperando una animación, y lo que se mueve solo se puede
+  parar.
 - **D14. Buscadores y compartir.** Cada página pública tiene su título, su
   descripción y su imagen para compartir (por las props de `BaseLayout`); la
   web, su dirección final (`site`), su mapa y su `robots.txt`; lo que no es
   público lleva `noindex`. Se aplica siempre, como la accesibilidad: solo se
   pregunta el contenido.
+- **D15. Jerarquía, espacios y columnas.** Lo que más importa, primero y
+  más grande, con pocos niveles bien distintos. Lo que va junto, cerca, y lo
+  que no, separado, con el mismo token para la misma relación. Una rejilla
+  para toda la página: la cabecera, las secciones y el pie, con el mismo
+  ancho y los mismos márgenes; el pie, en columnas; en el móvil, una
+  columna.
+- **D16. Lo que no se hace.** Salvo que la persona lo pida, ni un borde de
+  color a la izquierda ni lo que delata un diseño hecho por IA (la etiqueta
+  en mayúsculas sobre cada título, la flecha en los enlaces, las tarjetas
+  iguales con sombra gris…).
 
 - **Sistema de diseño:** pendiente de definir (lo escribe `zaius-init`).
 
@@ -425,19 +439,20 @@ Una norma nueva o cambiada llega por una propuesta aceptada, con
 
 ## Skills del proyecto
 
-Están en `.claude/skills/<nombre>/SKILL.md`, todas con el prefijo `zaius-`
-para encontrarlas juntas, y detrás una palabra. En Claude Code se lanzan con
-`/<nombre>`; en opencode, con «usa la skill <nombre>». Cada etapa la lanza la
-persona, y ninguna skill lanza la siguiente
-([El flujo](./docs/process.md#el-flujo)).
+Están en `.claude/skills/<nombre>/SKILL.md`. Las del kit llevan el prefijo
+`zaius-`, para encontrarlas juntas, y detrás una palabra; una del proyecto
+(como una skill de diseño propia) va con su nombre, y con su línea al final
+de esta lista. En Claude Code se lanzan con `/<nombre>`; en opencode, con
+«usa la skill <nombre>». Cada etapa la lanza la persona, y ninguna skill
+lanza la siguiente ([El flujo](./docs/process.md#el-flujo)).
 
 **Las que lanza la persona,** en el orden del trabajo:
 
 - `zaius-init`: la primera; el brief (`docs/brief.md`) y el sistema de
   diseño, con su guía visual. Se vuelve a lanzar para cambiar el brief.
-- `zaius-backlog`: las páginas y el mapa del sitio (`docs/backlog.md`), con
-  el fichero de cada página en `docs/pages/`; también para añadir, cambiar,
-  partir, ordenar o quitar.
+- `zaius-backlog`: las páginas, cada una con su historia, y el mapa del
+  sitio (`docs/backlog.md`), con el fichero de cada página en `docs/pages/`;
+  también para añadir, cambiar, partir, ordenar o quitar.
 - `zaius-page`: especifica una página (`/zaius-page ROOMS`): su documento,
   sus secciones, su contenido, sus datos, su lista de tests y su boceto.
   Espera el OK. También cambia una que aún no está hecha.
@@ -451,15 +466,21 @@ persona, y ninguna skill lanza la siguiente
   publicar.
 - `zaius-refactor`: propone mejorar lo que ya está hecho, sin cambiar lo que
   se puede hacer; con el OK, se construye y se cierra como una página.
-- `zaius-sketch`: un boceto en HTML de una página o de una idea, en baja,
-  media o alta fidelidad, para verlo antes de construirlo.
+- `zaius-brand`: la identidad de la web (su idea, su logo, sus colores, su
+  letra, sus fotos y su firma), en tres direcciones para elegir una.
+- `zaius-sketch`: un boceto en HTML de una página o de una idea, con la
+  identidad de la web, para verlo antes de construirlo.
 - `zaius-design`: una propuesta de diseño, sin tocar el código.
 - `zaius-rename`: alinea los nombres del proyecto con la nomenclatura, por
   bloques y con el OK.
 - `zaius-merge`: fusiona los `.kit-new` del kit, con el OK.
-<!-- kit:if !i18n -->
-- `zaius-languages`: pasa la web a varios idiomas.
+<!-- kit:if git -->
+- `zaius-git`: el repositorio git: conecta el remoto, apunta cómo se trabaja
+  con ramas, monta el CI y, si se le pide, hace el commit, el push o el pull
+  request.
 <!-- kit:end -->
+- `zaius-languages`: añade un idioma a la web: lo apunta, traduce su
+  catálogo y le da sus direcciones.
 <!-- kit:if server -->
 
 **Las que usa la IA** dentro de las anteriores (quien programa también las
@@ -570,3 +591,31 @@ están en `docs/guides/`.
   [Dónde estamos](./docs/next-steps.md#dónde-estamos), al día.
 
 Los dos puertos, `%%HUMAN_PORT%%` y `%%REVIEW_PORT%%`, se cambian aquí.
+<!-- kit:if git -->
+
+## Git
+
+El historial de %%APP_NAME%% se guarda con git.
+
+- **Los commits y los push los hace la persona.** Al cerrar cada %%UNIT%%,
+  `zaius-review` le propone el mensaje. La IA lee lo que necesita
+  (`git status`, `git diff`, `git log`), pero no hace un commit, un push, una
+  rama ni un pull request si la persona no se lo pide expresamente, y lo
+  pedido vale para esa vez. Cuando se lo pide, lo hace como dice
+  `zaius-git`, y contesta con lo que ha hecho.
+- **Nunca** reescribe el historial (`--force`, `rebase`, `reset --hard`, un
+  `--amend` de algo ya subido) ni sube contraseñas o claves (`.env*.local`).
+- **El mensaje del commit:** una primera línea, de hasta 72 caracteres, con
+  lo que cambia para quien usa la %%KIND%%, y el código de la %%UNIT%%
+  delante si es una (`%%UNIT_EXAMPLE%% <título>: <lo que cambia>`); si hace
+  falta, una línea en blanco y el detalle, en puntos.
+- **La IA no firma:** ni un commit ni un pull request lleva líneas suyas
+  (`Co-Authored-By`, «Generated with…», un enlace a la sesión). En Claude
+  Code lo apaga `.claude/settings.json` (`attribution`), y la regla vale
+  igual con cualquier IA.
+- **Cómo trabaja este proyecto,** lo apunta `zaius-git` con lo que decide la
+  persona:
+  - el repositorio remoto: ninguno todavía;
+  - las ramas: sin decidir; mientras, todo en la rama en la que se está;
+  - el CI: ninguno.
+<!-- kit:end -->

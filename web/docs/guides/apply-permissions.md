@@ -26,7 +26,7 @@ proyecto están en
 - [5. Las actions](#5-las-actions)
 - [6. El menú](#6-el-menú)
 - [7. Los tests de la regla](#7-los-tests-de-la-regla)
-- **Casos especiales:** [Varios permisos](#varios-permisos) · [Un permiso nuevo](#un-permiso-nuevo)
+- **Casos especiales:** [Varios permisos](#varios-permisos), [Un permiso nuevo](#un-permiso-nuevo)
 - [Errores comunes](#errores-comunes)
 
 ## 1. La regla
@@ -139,18 +139,14 @@ reserva, sin sus estados de error y de registro que no existe:
 ```astro
 ---
 import AccountBookingsEditForm from '@/components/AccountBookingsEditForm.astro'
-<!-- kit:if i18n -->
 import { getI18nT } from '@/i18n/i18n'
-<!-- kit:end -->
 import AppLayout from '@/layouts/AppLayout.astro'
 import { bookingsService } from '@/services/bookings/bookingsService'
 import { bookingPermissionUtils } from '@/utils/bookingPermissionUtils'
 
 export const prerender = false
 
-<!-- kit:if i18n -->
 const t = getI18nT(Astro.currentLocale)
-<!-- kit:end -->
 const { canView, canEdit, canCancel } = bookingPermissionUtils.getAccountBookingsEditPermissions(Astro.locals.session?.permissions ?? [])
 const booking = canView ? await bookingsService.getBookingDetail(Number(Astro.params.id)) : null
 const hasNoAccess = booking === null
@@ -158,19 +154,11 @@ const hasNoAccess = booking === null
 if (hasNoAccess) Astro.response.status = 403
 ---
 
-<!-- kit:if i18n -->
 <AppLayout title={t('account.bookingsEdit.documentTitle', { id: Astro.params.id })} noindex>
   {hasNoAccess
     ? <EmptyState title={t('common.errorPages.forbidden.title')} />
     : <AccountBookingsEditForm booking={booking} … />}
 </AppLayout>
-<!-- kit:else -->
-<AppLayout title={`Reserva #${Astro.params.id}`} noindex>
-  {hasNoAccess
-    ? <EmptyState title='No tienes acceso a esta página' />
-    : <AccountBookingsEditForm booking={booking} … />}
-</AppLayout>
-<!-- kit:end -->
 ```
 
 - **Antes de pedir nada:** sin permiso, la página no llama a ningún service,
@@ -227,7 +215,6 @@ sin él, los mismos datos como texto, con el aviso de que no se puede cambiar
 bajo la cabecera, que no se cierra
 ([D7](../ux-ui/rules.md#d7-un-registro-una-pantalla)):
 
-<!-- kit:if i18n -->
 ```astro
 {canEdit
   ? <AccountBookingsEditForm booking={booking} … />
@@ -238,18 +225,6 @@ bajo la cabecera, que no se cierra
     </>
     )}
 ```
-<!-- kit:else -->
-```astro
-{canEdit
-  ? <AccountBookingsEditForm booking={booking} … />
-  : (
-    <>
-      <PageAlert title='No puedes cambiar esta reserva'>Puedes consultarla, pero no cambiarla.</PageAlert>
-      <AccountBookingsEditDetailsCard booking={booking} />
-    </>
-    )}
-```
-<!-- kit:end -->
 
 - **En lectura no hay campos desactivados:** los datos van como texto, sin
   `<form>` ni barra ([Editar un registro](./create-a-form.md#editar-un-registro)).
@@ -311,15 +286,9 @@ La entrada de la zona privada, «Mis reservas», va en
 `navigationUtils.filterNavMenu` deja lo que ve la persona, y `AppLayout.astro`
 lo pinta:
 
-<!-- kit:if i18n -->
 ```ts
 { href: '/account/bookings', labelKey: 'common.nav.accountBookings', permission: 'BOOKINGS.VIEW' }
 ```
-<!-- kit:else -->
-```ts
-{ href: '/account/bookings', label: 'Mis reservas', permission: 'BOOKINGS.VIEW' }
-```
-<!-- kit:end -->
 
 - **En la zona privada, una entrada sin permiso no se ve:** sus páginas se
   pintan en cada petición, y el marco filtra el menú con los permisos de la

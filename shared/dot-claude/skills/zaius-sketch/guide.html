@@ -1,0 +1,369 @@
+<!doctype html>
+<!-- Plantilla de la guía visual (zaius-sketch). Arranque: los tokens del sistema de diseño en :root (y los del tema oscuro, si lo hay); la letra, con su <link>; el logo y el nombre, arriba del menú; en el menú, un enlace por sección, por grupos; y una sección por cada una, con su id. Con un solo tema, se quita su selector. El menú, la página y su script son los de la plantilla, y no se cambian: toman de los --doc-… los colores, la letra y las esquinas del sistema de diseño. -->
+<!-- Fotos de muestra: https://unsplash.com/photos/a-stone-building-with-a-tree-in-front-of-it-uzQPblEd7_c -->
+<html lang="%%DEFAULT_LANGUAGE%%" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- La letra de la identidad, de Google Fonts: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=<Familia>:wght@400;700&display=swap"> -->
+  <title>Sistema de diseño - %%APP_NAME%%</title>
+  <style>
+    :root {
+      --brand: #1d4ed8;
+      --brand-strong: #1e3a8a;
+      --brand-text: #ffffff;
+      --text: #1f2937;
+      --text-muted: #6b7280;
+      --surface: #ffffff;
+      --surface-alt: #f3f4f6;
+      --border: #d1d5db;
+      --danger: #b42318;
+      --success: #2f6b3e;
+      --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-display: var(--font);
+      --font-display-weight: 700;
+      --radius: 6px;
+      --space: 8px;
+      --motion-fast: 200ms;
+      --motion-slow: 600ms;
+      --motion-ease: cubic-bezier(0.2, 0, 0, 1);
+      --width-mobile: 360px;
+      --width-desktop: 1280px;
+      --doc-accent: var(--brand);
+      --doc-accent-text: var(--brand-text);
+      --doc-text: var(--text);
+      --doc-muted: var(--text-muted);
+      --doc-surface: var(--surface);
+      --doc-panel: var(--surface-alt);
+      --doc-border: var(--border);
+      --doc-font: var(--font);
+      --doc-font-display: var(--font-display);
+      --doc-radius: min(var(--radius), 12px);
+      --doc-sidebar: 272px;
+    }
+    [data-theme='dark'] { --text: #f3f4f6; --text-muted: #9ca3af; --surface: #111827; --surface-alt: #1f2937; --border: #374151; }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body { margin: 0; display: grid; grid-template-columns: var(--doc-sidebar) minmax(0, 1fr); min-height: 100vh; background: var(--doc-surface); color: var(--doc-text); font: 16px/1.6 var(--doc-font); }
+    .doc-sidebar { position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 24px; padding: 28px 16px; border-right: 1px solid var(--doc-border); background: color-mix(in srgb, var(--doc-panel) 50%, var(--doc-surface)); }
+    .doc-brand { display: flex; align-items: center; gap: 12px; padding: 0 8px; color: inherit; text-decoration: none; }
+    .doc-brand svg { flex: none; width: 36px; height: 36px; fill: var(--doc-accent); }
+    .doc-brand strong { display: block; font-family: var(--doc-font-display); font-size: 18px; font-weight: var(--font-display-weight); line-height: 1.2; }
+    .doc-brand span { color: var(--doc-muted); font-size: 13px; }
+    .doc-menu-button { display: none; }
+    .doc-nav { display: flex; flex-direction: column; gap: 2px; }
+    .doc-nav-group { margin: 18px 0 4px; padding: 0 8px; color: var(--doc-muted); font-size: 13px; font-weight: 600; }
+    .doc-nav-group:first-child { margin-top: 0; }
+    .doc-nav a { padding: 6px 8px; border-radius: var(--doc-radius); color: var(--doc-muted); font-size: 14px; text-decoration: none; transition: background-color var(--motion-fast), color var(--motion-fast); }
+    .doc-nav a:hover { background: var(--doc-panel); color: var(--doc-text); }
+    .doc-nav a[aria-current='true'] { background: color-mix(in srgb, var(--doc-accent) 12%, transparent); color: var(--doc-text); font-weight: 600; }
+    .doc-foot { display: flex; flex-direction: column; gap: 12px; margin-top: auto; padding: 0 8px; color: var(--doc-muted); font-size: 13px; }
+    .segmented { display: flex; align-self: flex-start; gap: 2px; padding: 3px; border-radius: calc(var(--doc-radius) + 3px); background: var(--doc-panel); }
+    .segmented label { position: relative; }
+    .segmented input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+    .segmented span { display: block; padding: 4px 10px; border-radius: var(--doc-radius); color: var(--doc-muted); }
+    .segmented input:checked + span { background: var(--doc-accent); color: var(--doc-accent-text); }
+    .segmented input:focus-visible + span { outline: 2px solid var(--doc-accent); outline-offset: 2px; }
+    .doc-main { min-width: 0; padding: 64px clamp(16px, 5vw, 72px) 120px; }
+    .doc-content { max-width: 960px; }
+    .doc-hero h1 { margin: 0 0 12px; font-family: var(--doc-font-display); font-size: clamp(36px, 5vw, 56px); font-weight: var(--font-display-weight); line-height: 1.05; }
+    .doc-hero p { max-width: 60ch; margin: 0; color: var(--doc-muted); font-size: 18px; }
+    .doc-section { margin-top: 64px; padding-top: 56px; border-top: 1px solid var(--doc-border); scroll-margin-top: 16px; }
+    .doc-section h2 { margin: 0 0 8px; font-family: var(--doc-font-display); font-size: 30px; font-weight: var(--font-display-weight); line-height: 1.15; }
+    .doc-section h3 { margin: 32px 0 12px; font-size: 18px; }
+    .doc-lead { max-width: 65ch; margin: 0 0 24px; color: var(--doc-muted); }
+    .specimen { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 24px 32px; padding: 32px; border: 1px solid var(--doc-border); border-radius: calc(var(--doc-radius) * 2); background: var(--surface); overflow-x: auto; }
+    .specimen figure { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-width: 0; max-width: 100%; margin: 0; }
+    .specimen .wide { flex: 1; }
+    .specimen .photo { width: 100%; }
+    .specimen figcaption { color: var(--doc-muted); font-size: 13px; }
+    .notes { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 8px 24px; margin: 20px 0 0; font-size: 15px; }
+    .notes dt { color: var(--doc-muted); }
+    .notes dd { margin: 0; }
+    .rule { display: inline-block; margin-right: 6px; padding: 0 6px; border-radius: 4px; background: var(--doc-panel); font-size: 13px; font-weight: 600; }
+    code { padding: 1px 5px; border-radius: 4px; background: var(--doc-panel); font: 0.88em/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .do-dont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 20px; }
+    .do-dont > div { padding: 16px 20px; border-top: 3px solid var(--success); border-radius: var(--doc-radius); background: var(--doc-panel); }
+    .do-dont > .dont { border-top-color: var(--danger); }
+    .do-dont strong { display: block; margin-bottom: 4px; }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(168px, 1fr)); gap: 16px; }
+    .swatch { overflow: hidden; border: 1px solid var(--doc-border); border-radius: calc(var(--doc-radius) * 2); }
+    .swatch-color { height: 96px; }
+    .swatch-color--brand { background: var(--brand); }
+    .swatch-color--text { background: var(--text); }
+    .swatch-color--surface-alt { background: var(--surface-alt); }
+    .swatch-info { display: flex; flex-direction: column; gap: 2px; padding: 12px 14px; font-size: 13px; }
+    .swatch-info span { color: var(--doc-muted); }
+    .type-row { display: grid; grid-template-columns: 120px minmax(0, 1fr); align-items: baseline; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--doc-border); }
+    .type-row span { color: var(--doc-muted); font-size: 13px; }
+    .type-row p { margin: 0; line-height: 1.2; }
+    .type-row .type-title { font-family: var(--font-display); font-size: 48px; font-weight: var(--font-display-weight); }
+    .type-row .type-section { font-family: var(--font-display); font-size: 28px; font-weight: var(--font-display-weight); }
+    .type-row .type-text { font-family: var(--font); font-size: 16px; line-height: 1.6; }
+    .photos { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 16px; }
+    .photo { aspect-ratio: 3 / 2; overflow: hidden; border-radius: calc(var(--doc-radius) * 2); background: color-mix(in srgb, var(--doc-text) 12%, var(--doc-surface)); }
+    .photo img { display: block; width: 100%; height: 100%; object-fit: cover; color: var(--doc-muted); font-size: 13px; }
+    .scale { display: flex; flex-direction: column; gap: 10px; }
+    .scale div { display: grid; grid-template-columns: 120px 80px minmax(0, 1fr); align-items: center; gap: 16px; font-size: 13px; color: var(--doc-muted); }
+    .scale i { display: block; width: calc(var(--space) * var(--step)); height: 12px; border-radius: 3px; background: var(--doc-accent); }
+    .scale-1 { --step: 1; }
+    .scale-2 { --step: 2; }
+    .scale-4 { --step: 4; }
+    .scale-8 { --step: 8; }
+    .frame { overflow: hidden; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .frame--mobile { width: min(var(--width-mobile), 100%); }
+    .frame--desktop { width: 100%; min-width: 640px; }
+    .site-header { display: flex; align-items: center; justify-content: space-between; gap: calc(var(--space) * 2); padding: calc(var(--space) * 2); font-family: var(--font); }
+    .site-header nav { display: flex; gap: calc(var(--space) * 3); }
+    .site-header a { color: var(--text); text-decoration: none; }
+    .frame--mobile .site-header nav { display: none; }
+    .logo { display: flex; align-items: center; gap: var(--space); font-family: var(--font-display); font-size: 20px; font-weight: var(--font-display-weight); color: var(--text); }
+    .logo svg { width: 28px; height: 28px; fill: var(--brand); }
+    .logo--48 svg { width: 48px; height: 48px; }
+    .logo--24 svg { width: 24px; height: 24px; }
+    .button { display: inline-flex; align-items: center; gap: var(--space); padding: calc(var(--space) * 1.5) calc(var(--space) * 3); border: 1px solid var(--brand); border-radius: var(--radius); background: var(--brand); color: var(--brand-text); font: 600 16px/1.2 var(--font); cursor: pointer; }
+    .button--secondary { background: transparent; color: var(--brand); }
+    .button--quiet { border-color: transparent; background: transparent; color: var(--text); text-decoration: underline; }
+    .button.is-hover { background: var(--brand-strong); border-color: var(--brand-strong); }
+    .button.is-focus { outline: 2px solid var(--brand); outline-offset: 3px; }
+    .button:disabled { opacity: 0.45; cursor: not-allowed; }
+    .field { display: flex; flex-direction: column; gap: 6px; width: 260px; font-family: var(--font); }
+    .field label { font-weight: 600; font-size: 15px; }
+    .field input { padding: 10px 12px; border: 1px solid var(--text-muted); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+    .field.is-error input { border-color: var(--danger); }
+    .field small { color: var(--text-muted); font-size: 14px; }
+    .field.is-error small { color: var(--danger); }
+    .rules { margin: 0; padding: 0; list-style: none; }
+    .rules li { display: grid; grid-template-columns: 48px minmax(0, 1fr); gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--doc-border); }
+    .rules li strong { font-family: var(--doc-font-display); font-weight: var(--font-display-weight); }
+    table { width: 100%; border-collapse: collapse; font-size: 15px; }
+    th, td { padding: 10px 12px 10px 0; border-bottom: 1px solid var(--doc-border); text-align: left; vertical-align: top; }
+    th { color: var(--doc-muted); font-weight: 600; }
+    a { color: var(--doc-accent); }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--doc-accent); outline-offset: 2px; }
+    @media (max-width: 900px) {
+      body { grid-template-columns: minmax(0, 1fr); }
+      .doc-sidebar { z-index: 10; height: auto; max-height: 100vh; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 16px; border-right: 0; border-bottom: 1px solid var(--doc-border); background: color-mix(in srgb, var(--doc-surface) 92%, transparent); backdrop-filter: blur(12px); }
+      .doc-brand { padding: 0; }
+      .doc-brand svg { width: 28px; height: 28px; }
+      .doc-menu-button { display: inline-flex; margin-left: auto; padding: 8px 14px; border: 1px solid var(--doc-border); border-radius: var(--doc-radius); background: var(--doc-surface); color: var(--doc-text); font: 600 14px/1 var(--doc-font); }
+      .doc-nav, .doc-foot { display: none; flex-basis: 100%; }
+      .doc-sidebar[data-open] .doc-nav, .doc-sidebar[data-open] .doc-foot { display: flex; }
+      .doc-sidebar[data-open] .doc-nav { max-height: 60vh; overflow-y: auto; }
+      .doc-main { padding: 40px 16px 80px; }
+      .doc-section { scroll-margin-top: 72px; }
+      .notes, .do-dont, .photos { grid-template-columns: minmax(0, 1fr); }
+      .type-row { grid-template-columns: 80px minmax(0, 1fr); }
+      .scale div { grid-template-columns: 56px 72px minmax(0, 1fr); }
+      .specimen { padding: 20px; }
+      .frame--desktop { zoom: 0.5; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      html { scroll-behavior: auto; }
+      .doc-nav a { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="doc-sidebar">
+    <a class="doc-brand" href="#inicio">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.4 0 8 2.9 8 6.5H4C4 5.9 7.6 3 12 3Z"/><path d="M5.5 11h13c0 5.5-3 10-6.5 10s-6.5-4.5-6.5-10Z" opacity=".6"/></svg>
+      <div><strong>%%APP_NAME%%</strong><span>Sistema de diseño</span></div>
+    </a>
+    <button class="doc-menu-button" type="button" aria-expanded="false" aria-controls="doc-nav">Menú</button>
+    <nav class="doc-nav" id="doc-nav" aria-label="Secciones">
+      <p class="doc-nav-group">Identidad</p>
+      <a href="#idea">La idea</a>
+      <a href="#logo">Logo</a>
+      <a href="#colores">Colores</a>
+      <a href="#letra">Letra</a>
+      <a href="#fotos">Fotos</a>
+      <p class="doc-nav-group">Fundamentos</p>
+      <a href="#espacios">Espacios y esquinas</a>
+      <a href="#movimiento">Movimiento</a>
+      <p class="doc-nav-group">Piezas</p>
+      <a href="#marco">El marco</a>
+      <a href="#botones">Botones</a>
+      <a href="#campos">Campos</a>
+      <p class="doc-nav-group">Para seguir</p>
+      <a href="#normas">Normas</a>
+      <a href="#cambios">Cambios</a>
+    </nav>
+    <div class="doc-foot">
+      <div class="segmented" role="radiogroup" aria-label="Tema">
+        <label><input type="radio" name="theme" value="light"><span>Claro</span></label>
+        <label><input type="radio" name="theme" value="dark"><span>Oscuro</span></label>
+      </div>
+      <p>Aprobada el 2026-10-24.</p>
+    </div>
+  </aside>
+  <main class="doc-main">
+    <div class="doc-content">
+      <header class="doc-hero" id="inicio">
+        <h1>Sistema de diseño</h1>
+        <p>Una casa de piedra entre robles: tranquila, de madera y de luz de tarde. Cada pieza de la %%KIND%% sale de aquí, con sus estados y sus normas.</p>
+      </header>
+
+      <section class="doc-section" id="idea">
+        <h2>La idea</h2>
+        <p class="doc-lead">Lo que tiene que sentir quien la abre, y lo único que recordará: la foto de la casa, a sangre, cortada por la curva de una hoja.</p>
+        <div class="specimen">
+          <figure class="wide"><div class="photo"><img src="https://images.unsplash.com/photo-1637600425561-018a24d55095?w=1200&q=80&auto=format&fit=crop" width="1200" height="800" alt="El muro de piedra de la casa, entre las hojas de un árbol"></div><figcaption>La firma, dibujada como se verá</figcaption></figure>
+        </div>
+        <div class="do-dont">
+          <div><strong>Así sí</strong>Fotos de luz natural, con la piedra y la madera a la vista.</div>
+          <div class="dont"><strong>Así no</strong>Tarjetas iguales con sombra gris, o un degradado de adorno.</div>
+        </div>
+      </section>
+
+      <section class="doc-section" id="logo">
+        <h2>Logo</h2>
+        <p class="doc-lead">Una bellota, dibujada con dos formas: se lee a 24 px y en un solo color. El nombre va al lado, con la letra de los títulos.</p>
+        <div class="specimen">
+          <figure><span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.4 0 8 2.9 8 6.5H4C4 5.9 7.6 3 12 3Z"/><path d="M5.5 11h13c0 5.5-3 10-6.5 10s-6.5-4.5-6.5-10Z" opacity=".6"/></svg>%%APP_NAME%%</span><figcaption>Con el nombre</figcaption></figure>
+          <figure><span class="logo logo--48"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.4 0 8 2.9 8 6.5H4C4 5.9 7.6 3 12 3Z"/><path d="M5.5 11h13c0 5.5-3 10-6.5 10s-6.5-4.5-6.5-10Z" opacity=".6"/></svg></span><figcaption>El símbolo, a 48 px</figcaption></figure>
+          <figure><span class="logo logo--24"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.4 0 8 2.9 8 6.5H4C4 5.9 7.6 3 12 3Z"/><path d="M5.5 11h13c0 5.5-3 10-6.5 10s-6.5-4.5-6.5-10Z" opacity=".6"/></svg></span><figcaption>El mínimo, 24 px</figcaption></figure>
+        </div>
+        <dl class="notes">
+          <dt>En el código</dt><dd><code>src/assets/logo.svg</code>, provisional hasta el sí de la persona.</dd>
+        </dl>
+      </section>
+
+      <section class="doc-section" id="colores">
+        <h2>Colores</h2>
+        <p class="doc-lead">Uno manda y otro acompaña. Cada pareja de texto y fondo, con su contraste.</p>
+        <div class="swatches">
+          <div class="swatch"><div class="swatch-color swatch-color--brand"></div><div class="swatch-info"><strong>Marca</strong><code>--brand</code><span>Los botones primarios y los enlaces. Con su texto, 7,2:1.</span></div></div>
+          <div class="swatch"><div class="swatch-color swatch-color--text"></div><div class="swatch-info"><strong>Texto</strong><code>--text</code><span>Sobre el fondo, 14:1.</span></div></div>
+          <div class="swatch"><div class="swatch-color swatch-color--surface-alt"></div><div class="swatch-info"><strong>Fondo alterno</strong><code>--surface-alt</code><span>Las secciones que se alternan.</span></div></div>
+        </div>
+      </section>
+
+      <section class="doc-section" id="letra">
+        <h2>Letra</h2>
+        <p class="doc-lead">La de los títulos lleva la personalidad; la del texto se lee sin esfuerzo.</p>
+        <div class="type-row"><span>Título, 48 px</span><p class="type-title">Una casa entre robles</p></div>
+        <div class="type-row"><span>Sección, 28 px</span><p class="type-section">Las habitaciones</p></div>
+        <div class="type-row"><span>Texto, 16 px</span><p class="type-text">Cuatro habitaciones con chimenea, a una hora de la ciudad.</p></div>
+      </section>
+
+      <section class="doc-section" id="fotos">
+        <h2>Fotos</h2>
+        <p class="doc-lead">Luz de tarde, la piedra y la madera de cerca, sin gente posando. De muestra hasta que lleguen las de la casa.</p>
+        <div class="photos">
+          <div class="photo"><img src="https://images.unsplash.com/photo-1637600425561-018a24d55095?w=1200&q=80&auto=format&fit=crop" width="1200" height="800" alt="El muro de piedra de la casa, entre las hojas de un árbol"></div>
+        </div>
+      </section>
+
+      <section class="doc-section" id="espacios">
+        <h2>Espacios y esquinas</h2>
+        <p class="doc-lead">Todo sale de una base de 8 px. Cada relación tiene su espacio, siempre el mismo: lo que va junto, cerca; lo que no, separado.</p>
+        <div class="scale">
+          <div><span>8 px</span><i class="scale-1"></i>Una etiqueta y su campo; un título y su texto</div>
+          <div><span>16 px</span><i class="scale-2"></i>Dentro de un grupo: dos campos, dos tarjetas</div>
+          <div><span>32 px</span><i class="scale-4"></i>Entre grupos</div>
+          <div><span>64 px</span><i class="scale-8"></i>Entre secciones</div>
+        </div>
+      </section>
+
+      <section class="doc-section" id="movimiento">
+        <h2>Movimiento</h2>
+        <p class="doc-lead">Lo justo: lo que se mueve explica qué ha pasado. Con «reducir movimiento», solo un fundido.</p>
+        <dl class="notes">
+          <dt>Corto</dt><dd><code>--motion-fast</code>, 200 ms: el ratón encima, abrir un menú.</dd>
+          <dt>Largo</dt><dd><code>--motion-slow</code>, 600 ms: la portada al entrar, una vez.</dd>
+        </dl>
+      </section>
+
+      <section class="doc-section" id="marco">
+        <h2>El marco</h2>
+        <p class="doc-lead">La cabecera, con el logo y el menú; en el móvil, el menú va en su botón.</p>
+        <div class="specimen">
+          <figure><div class="frame frame--mobile"><header class="site-header"><span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.4 0 8 2.9 8 6.5H4C4 5.9 7.6 3 12 3Z"/><path d="M5.5 11h13c0 5.5-3 10-6.5 10s-6.5-4.5-6.5-10Z" opacity=".6"/></svg>%%APP_NAME%%</span><button class="button button--secondary" type="button">Menú</button></header></div><figcaption>Móvil</figcaption></figure>
+          <figure class="wide"><div class="frame frame--desktop"><header class="site-header"><span class="logo"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.4 0 8 2.9 8 6.5H4C4 5.9 7.6 3 12 3Z"/><path d="M5.5 11h13c0 5.5-3 10-6.5 10s-6.5-4.5-6.5-10Z" opacity=".6"/></svg>%%APP_NAME%%</span><nav aria-label="Menú"><a href="#marco">Habitaciones</a><a href="#marco">El entorno</a><a href="#marco">Contacto</a></nav></header></div><figcaption>Ordenador</figcaption></figure>
+        </div>
+        <dl class="notes">
+          <dt>Normas</dt><dd><span class="rule">D10</span>El menú dice dónde se está; cada enlace, con su <code>href</code>.</dd>
+          <dt>En el código</dt><dd><code>SiteHeader</code>, que se crea con la primera %%UNIT%% que lo pida.</dd>
+        </dl>
+      </section>
+
+      <section class="doc-section" id="botones">
+        <h2>Botones</h2>
+        <p class="doc-lead">El primario es lo que más importa hacer en una zona: uno, y el último.</p>
+        <div class="specimen">
+          <figure><button class="button" type="button">Reserva tus fechas</button><figcaption>Primario</figcaption></figure>
+          <figure><button class="button is-hover" type="button">Reserva tus fechas</button><figcaption>Con el ratón encima</figcaption></figure>
+          <figure><button class="button is-focus" type="button">Reserva tus fechas</button><figcaption>Con el foco</figcaption></figure>
+          <figure><button class="button" type="button" disabled>Reserva tus fechas</button><figcaption>Desactivado</figcaption></figure>
+          <figure><button class="button button--secondary" type="button">Mira las fotos</button><figcaption>Secundario</figcaption></figure>
+          <figure><button class="button button--quiet" type="button">Vuelve</button><figcaption>Discreto</figcaption></figure>
+        </div>
+        <dl class="notes">
+          <dt>Cuándo</dt><dd>El primario, para la acción principal de la zona; el secundario, para otra que también se hace; el discreto, para salir.</dd>
+          <dt>Normas</dt><dd><span class="rule">D5</span>Un primario por zona, el último; el texto dice qué pasa al pulsarlo.</dd>
+          <dt>En el código</dt><dd><code>Button</code>, con <code>variant</code>: <code>primary</code>, <code>secondary</code> o <code>quiet</code>.</dd>
+        </dl>
+      </section>
+
+      <section class="doc-section" id="campos">
+        <h2>Campos</h2>
+        <p class="doc-lead">Cada campo con su etiqueta encima y su ayuda o su error debajo.</p>
+        <div class="specimen">
+          <figure><div class="field"><label for="example-name">Tu nombre</label><input id="example-name" value="Marta Puig"><small>Como quieres que te llamemos.</small></div><figcaption>Normal</figcaption></figure>
+          <figure><div class="field is-error"><label for="example-phone">Teléfono</label><input id="example-phone" value="612 34" aria-invalid="true"><small>Escribe los 9 números del teléfono.</small></div><figcaption>Con error</figcaption></figure>
+        </div>
+        <dl class="notes">
+          <dt>Normas</dt><dd><span class="rule">D6</span>El error, debajo del campo, al salir de él, y dice cómo arreglarlo.</dd>
+          <dt>En el código</dt><dd><code>TextField</code>.</dd>
+        </dl>
+      </section>
+
+      <section class="doc-section" id="normas">
+        <h2>Normas</h2>
+        <p class="doc-lead">Cómo se comporta cada pantalla, sea cual sea la pieza. Enteras, con sus ejemplos, en <code>docs/ux-ui/rules.md</code>.</p>
+        <ol class="rules">
+          <li><strong>D1</strong><span>El sistema de diseño primero: lo que falta se pide aquí, no se rehace en cada sitio.</span></li>
+          <li><strong>D5</strong><span>Acciones: un primario por zona, el último, y cada botón dice qué hace.</span></li>
+        </ol>
+      </section>
+
+      <section class="doc-section" id="cambios">
+        <h2>Cambios</h2>
+        <p class="doc-lead">Cada cambio aceptado del sistema de diseño, con su propuesta.</p>
+        <table>
+          <thead><tr><th>Fecha</th><th>Qué cambió</th><th>Propuesta</th></tr></thead>
+          <tbody><tr><td>2026-10-24</td><td>La guía, aprobada.</td><td>Con <code>zaius-init</code></td></tr></tbody>
+        </table>
+      </section>
+    </div>
+  </main>
+  <script>
+    const root = document.documentElement
+    const sidebar = document.querySelector('.doc-sidebar')
+    const menuButton = document.querySelector('.doc-menu-button')
+    const links = [...document.querySelectorAll('.doc-nav a')]
+    const sections = links.map((link) => document.querySelector(link.hash)).filter(Boolean)
+    const markCurrent = (id) => links.forEach((link) => {
+      if (link.hash === `#${id}`) link.setAttribute('aria-current', 'true')
+      else link.removeAttribute('aria-current')
+    })
+    const setOpen = (open) => {
+      sidebar.toggleAttribute('data-open', open)
+      menuButton.setAttribute('aria-expanded', String(open))
+    }
+    const observer = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) markCurrent(entry.target.id)
+      }
+    }, { rootMargin: '-10% 0px -80% 0px' })
+    sections.forEach((section) => observer.observe(section))
+    menuButton.addEventListener('click', () => setOpen(!sidebar.hasAttribute('data-open')))
+    links.forEach((link) => link.addEventListener('click', () => setOpen(false)))
+    for (const input of document.querySelectorAll('[name="theme"]')) {
+      input.checked = input.value === root.dataset.theme
+      input.addEventListener('change', () => { root.dataset.theme = input.value })
+    }
+  </script>
+</body>
+</html>

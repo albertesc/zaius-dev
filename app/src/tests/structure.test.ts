@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest'
-// kit:if i18n
 import { APP_DEFAULT_LANGUAGE, APP_LANGUAGES } from '@/constants/appLanguages'
-// kit:end
 
+// kit:if backend
 const SHELL_DOMAINS: readonly string[] = ['session']
+// kit:else
+const SHELL_DOMAINS: readonly string[] = []
+// kit:end
 
 const sources = import.meta.glob<string>('/src/**/*.{ts,tsx}', { query: '?raw', import: 'default', eager: true })
 
@@ -52,7 +54,11 @@ function getImports (file: string, source: string): string[] {
 /**
  * Busca la carpeta privada de una ruta: su feature o el `common` de su familia.
  * @param path La ruta de un fichero desde la raíz del proyecto (`/src/…`).
+// kit:if backend
  * @returns La carpeta, con la barra final, o `null` si es de la raíz, de `services/` o de un dominio.
+// kit:else
+ * @returns La carpeta, con la barra final, o `null` si es de la raíz o de un dominio.
+// kit:end
  */
 function getPrivateRoot (path: string): string | null {
   const match = FEATURES_PATH.exec(path)
@@ -66,7 +72,11 @@ function getPrivateRoot (path: string): string | null {
 /**
  * Devuelve el dominio de una ruta de `src/`.
  * @param path La ruta del fichero desde la raíz del proyecto (`/src/…`).
+// kit:if backend
  * @returns El nombre del dominio (`session`), o `null` si la ruta no es de `domains/`.
+// kit:else
+ * @returns El nombre del dominio (`products`), o `null` si la ruta no es de `domains/`.
+// kit:end
  */
 function getDomain (path: string): string | null {
   return DOMAIN.exec(path)?.[1] ?? null
@@ -75,7 +85,7 @@ function getDomain (path: string): string | null {
 /**
  * Busca los ciclos entre los dominios a partir de lo que importa cada uno.
  * @param graph Los dominios que usa cada dominio.
- * @returns Cada ciclo como el camino que vuelve al dominio de partida («a → b → a»).
+ * @returns Cada ciclo como el camino que vuelve al dominio de partida («a, b, a»).
  */
 function getDomainCycles (graph: Map<string, Set<string>>): string[] {
   const cycles = new Set<string>()
@@ -84,7 +94,7 @@ function getDomainCycles (graph: Map<string, Set<string>>): string[] {
       const cycle = path.slice(path.indexOf(domain))
       const start = cycle.indexOf([...cycle].sort()[0] ?? domain)
       const ordered = [...cycle.slice(start), ...cycle.slice(0, start)]
-      cycles.add([...ordered, ordered[0]].join(' → '))
+      cycles.add([...ordered, ordered[0]].join(', '))
       return
     }
     for (const next of graph.get(domain) ?? []) visit(next, [...path, domain])
@@ -104,7 +114,7 @@ describe('independencia', () => {
         const isRouterRoutes = ROUTER_ROUTES.test(file) && path.endsWith('Routes.tsx')
         return root !== null && !isOwn && !isRouterRoutes
       })
-      .map((path) => `${file} → ${path}`))
+      .map((path) => `${file} importa ${path}`))
 
     expect(forbidden).toEqual([])
   })
@@ -117,7 +127,7 @@ describe('independencia', () => {
           const domain = getDomain(path)
           return domain !== null && !SHELL_DOMAINS.includes(domain)
         })
-        .map((path) => `${file} → ${path}`))
+        .map((path) => `${file} importa ${path}`))
 
     expect(forbidden).toEqual([])
   })
@@ -179,9 +189,9 @@ describe('un test por fichero', () => {
     expect(missing).toEqual([])
   })
 })
-// kit:if i18n
 
 const catalogs = import.meta.glob<Record<string, unknown>>('/src/**/i18n/*.json', { import: 'default', eager: true })
+const AI_SIGNS = /[·→←⇒—–≈≥≤×─│├└✓✔✅❌✖⚠]|\u20E3|(?![©®™])\p{Extended_Pictographic}/u
 const catalogFolders = [...new Set(Object.keys(catalogs).map((file) => file.slice(0, file.lastIndexOf('/') + 1)))]
 const languages: readonly string[] = APP_LANGUAGES
 
@@ -207,6 +217,18 @@ function getNamespace (folder: string): string {
   const owner = segments.at(-3) ?? ''
   if (owner === 'src') return 'common'
   return owner === 'common' ? segments.at(-4) ?? owner : owner
+}
+
+/**
+ * Da los textos de un catálogo, cada uno con su clave completa.
+ * @param catalog El catálogo o uno de sus grupos.
+ * @param prefix El grupo del que cuelga, con el punto final.
+ * @returns Los pares de clave y texto (`['rooms.index.title', 'Las habitaciones']`).
+ */
+function getTexts (catalog: Record<string, unknown>, prefix = ''): Array<[string, string]> {
+  return Object.entries(catalog).flatMap(([key, value]): Array<[string, string]> => typeof value === 'object' && value !== null
+    ? getTexts(value as Record<string, unknown>, `${prefix}${key}.`)
+    : [[`${prefix}${key}`, String(value)]])
 }
 
 describe('paridad de idiomas', () => {
@@ -248,4 +270,13 @@ describe('paridad de idiomas', () => {
     expect(repeated).toEqual([])
   })
 })
-// kit:end
+
+describe('los textos', () => {
+  it('ningún texto lleva los signos que delatan a la IA («Escribir como una persona», en docs/process.md)', () => {
+    const marked = Object.entries(catalogs).flatMap(([file, catalog]) => getTexts(catalog)
+      .filter(([, text]) => AI_SIGNS.test(text))
+      .map(([key, text]) => `${file}, ${key}: «${text}»`))
+
+    expect(marked).toEqual([])
+  })
+})

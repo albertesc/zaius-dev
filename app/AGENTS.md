@@ -22,6 +22,16 @@ sabido de una conversación anterior
 2. Cuenta a la persona dónde se está y propón el comando que sigue, sin
    lanzarlo: cada etapa la lanza ella.
 
+<!-- kit:if git -->
+Todo lo que se escribe (a la persona, en los documentos, en los commits y en
+la %%KIND%%) va
+<!-- kit:else -->
+Todo lo que se escribe (a la persona, en los documentos y en la %%KIND%%) va
+<!-- kit:end -->
+[como lo escribiría una persona](./docs/process.md#escribir-como-una-persona):
+sin «·», «→», «—», «✓» ni emojis, sin las aperturas de un chatbot ni las
+frases de la IA.
+
 Mientras el [brief](./docs/brief.md) no esté aprobado (su cabecera dice
 «Estado: pendiente» o «por aprobar»), lo que sigue es `/zaius-init` (en
 opencode, «usa la skill zaius-init»): sin el brief y el sistema de diseño no
@@ -50,17 +60,16 @@ se descartan.
 ## Stack y comandos
 
 - React 19 + TypeScript (estricto), Vite y React Router.
+<!-- kit:if backend -->
 - TanStack Query para los datos del servidor; Zustand solo para el estado que
   sobrevive a la pantalla.
-- Zod para validar; react-hook-form para los formularios.
-<!-- kit:if i18n -->
-- i18next, con los idiomas %%LANGUAGES%%; el primero, `%%DEFAULT_LANGUAGE%%`,
-  es el de por defecto.
 <!-- kit:else -->
-- Un solo idioma, `%%DEFAULT_LANGUAGE%%`: los textos van escritos en el
-  componente que los pinta. La skill `zaius-languages` pasa la app a
-  varios.
+- Zustand solo para el estado que sobrevive a la pantalla.
 <!-- kit:end -->
+- Zod para validar; react-hook-form para los formularios.
+- i18next: los textos van siempre en su catálogo, aunque la app tenga un
+  solo idioma. Los idiomas, %%LANGUAGES%%; el primero, `%%DEFAULT_LANGUAGE%%`,
+  es el de por defecto.
 - El sistema de diseño, en `docs/ux-ui/design-system.md`.
 - CSS Modules; Vitest + Testing Library; ESLint.
 
@@ -69,7 +78,11 @@ se descartan.
 <!-- kit:if mocks -->
 | `%%PM%% run dev` | Arranca Vite con los mocks (`VITE_USE_MOCKS=true`, en `.env.development`). |
 <!-- kit:else -->
+<!-- kit:if backend -->
 | `%%PM%% run dev` | Arranca Vite contra la API de `VITE_API_URL` (`.env.development`). |
+<!-- kit:else -->
+| `%%PM%% run dev` | Arranca Vite en el %%HUMAN_PORT%%. |
+<!-- kit:end -->
 <!-- kit:end -->
 | `%%PM%% run dev:review` | Arranca otro servidor en el %%REVIEW_PORT%%, para la revisión visual de la IA. |
 | `%%PM%% run typecheck` | Type-check (`tsc -b`). |
@@ -96,6 +109,7 @@ falla.
 
 | Carpeta | Qué va |
 |---|---|
+<!-- kit:if backend -->
 | `main.tsx`, `queryClient.config.ts` | Sueltos en `src/`: el arranque de la app y la configuración del `QueryClient`, junto al arranque, que es quien la usa. |
 <!-- kit:if mocks -->
 | `services/<entidad>/` | El service de la entidad, los schemas de sus respuestas y sus mocks: un JSON al lado del service, `<entidad>Mocks.json`, con la respuesta de cada endpoint. |
@@ -104,31 +118,44 @@ falla.
 <!-- kit:end -->
 | `schemas/` | Los schemas que comparten varias entidades o features. |
 | `features/` | Todas las pantallas: las features de cada familia, en su carpeta (`features/<familia>/<feature>/`, con lo que comparten en `features/<familia>/common/`), y las que no tienen familia, directas (`features/profile/`). Si hay login, la entrada es la familia `auth` (`authLogin`, `authRecover`, `authRestore`), fuera del marco de la app. |
+<!-- kit:else -->
+| `main.tsx` | Suelto en `src/`: el arranque de la app. |
+| `schemas/` | Los schemas que comparten varias features. |
+| `features/` | Todas las pantallas: las features de cada familia, en su carpeta (`features/<familia>/<feature>/`, con lo que comparten en `features/<familia>/common/`), y las que no tienen familia, directas (`features/profile/`). |
+<!-- kit:end -->
 | `domains/` | Los temas de negocio que usan varias familias, sin pantallas (`docs/standards.md#dominios`). Cada dominio nuevo añade su fila al índice de dominios de la normativa. La raíz solo usa los del marco de la app, los de `SHELL_DOMAINS` (arriba de `src/tests/structure.test.ts`). |
-| `router/` | La composición de rutas, guardas y layouts, con las rutas de la entrada (`rootRoutes.tsx`), las rutas de la app, que juntan las de sus features (`appRoutes.tsx`), y el menú (`navigation.config.ts`: entradas sueltas y un grupo por familia, sin enlace, con sus entradas en este orden: añadir, análisis, gestión y lo propio de la familia; una familia de una sola pantalla, como `incidents` con `incidents`, es una entrada directa). |
-| `layouts/` | Las rutas con `Outlet` (`RootLayout`, la raíz de todas; `AppLayout`, el marco de la app; y, si hay login, `AuthLayout`, el de la entrada). |
+<!-- kit:if backend -->
+| `router/` | La composición de rutas, guardas y layouts, con las rutas de la entrada (`rootRoutes.tsx`), las rutas de la app, que juntan las de sus features (`appRoutes.tsx`), y el menú, cuando hay dos pantallas que se abren desde él (`navigation.config.ts`: entradas sueltas y un grupo por familia, sin enlace, con sus entradas en este orden: añadir, análisis, gestión y lo propio de la familia; una familia de una sola pantalla, como `incidents` con `incidents`, es una entrada directa). |
+| `layouts/` | Las rutas con `Outlet` (`AppLayout`, el marco de la app; `RootLayout`, la raíz de todas, desde la segunda pantalla; y, si hay login, `AuthLayout`, el de la entrada). |
 | `components/`, `hooks/`, `utils/`, `types/`, `constants/` | Lo compartido de la raíz: piezas sin dominio, hooks genéricos, funciones puras (en un objeto por tema, como un service: `formatUtils.formatDate`), tipos y constantes (`appLanguages.ts`, los idiomas de la app). |
 <!-- kit:if mocks -->
 | `utils/api*Utils.ts`, `types/api.ts` | El transporte, lo único que habla con la API: `apiUtils.request`, `upload` y `download`; el fallo de una llamada (`apiErrorUtils`: `isNotFound`, `getRequestFailure`…); su conexión con la sesión (`apiSessionUtils.connect`); y `apiMockUtils`, que responde con los `*Mocks.json` cuando `VITE_USE_MOCKS=true`. |
 <!-- kit:else -->
 | `utils/api*Utils.ts`, `types/api.ts` | El transporte, lo único que habla con la API: `apiUtils.request`, `upload` y `download`; el fallo de una llamada (`apiErrorUtils`: `isNotFound`, `getRequestFailure`…); y su conexión con la sesión (`apiSessionUtils.connect`). |
 <!-- kit:end -->
-| `styles/` | Los tokens propios del sistema de diseño (`tokens.css`), si los tiene, importados en `main.tsx`. |
-<!-- kit:if i18n -->
-| `i18n/` | La configuración de i18next y los textos de la raíz (`common`). |
+<!-- kit:else -->
+| `router/` | La composición de rutas y layouts, con las rutas de la entrada (`rootRoutes.tsx`), las rutas de la app, que juntan las de sus features (`appRoutes.tsx`), y el menú, cuando hay dos pantallas que se abren desde él (`navigation.config.ts`: entradas sueltas y un grupo por familia, sin enlace, con sus entradas en este orden: añadir, análisis, gestión y lo propio de la familia; una familia de una sola pantalla, como `incidents` con `incidents`, es una entrada directa). |
+| `layouts/` | Las rutas con `Outlet` (`AppLayout`, el marco de la app, y, desde la segunda pantalla, `RootLayout`, la raíz de todas). |
+| `components/`, `hooks/`, `utils/`, `types/`, `constants/` | Lo compartido de la raíz: piezas sin dominio, hooks genéricos, funciones puras (en un objeto por tema: `formatUtils.formatDate`), tipos y constantes: `appLanguages.ts`, los idiomas de la app, y los datos fijos que usan varias features. |
 <!-- kit:end -->
+| `styles/` | Los tokens propios del sistema de diseño (`tokens.css`), si los tiene, importados en `main.tsx`. |
+| `i18n/` | La configuración de i18next y los textos de la raíz (`common`). |
 | `pages/` | Las páginas genéricas: 404 y error. |
-| `tests/` | La comprobación de la estructura (`structure.test.ts`, `docs/standards.md#comprobar-la-estructura`), la configuración de Vitest (`setup.ts`) y los ayudantes de los tests (`testUtils.tsx`: `renderPage`, `renderWithProviders`, `setViewportWidth`). |
+| `tests/` | La comprobación de la estructura (`structure.test.ts`, `docs/standards.md#comprobar-la-estructura`), la configuración de Vitest (`setup.ts`) y los ayudantes de los tests (`testUtils.tsx`: `renderPage`, `renderWithProviders`, `setViewportWidth` y, con varios idiomas, `translate`). |
 
 Una feature por dentro: `pages/`, `components/<zona>/`, `hooks/`, `utils/`,
 `constants/`, `types/`, `schemas/`, `stores/`,
-<!-- kit:if i18n -->
+<!-- kit:if backend -->
 `i18n/<idioma>.json` (uno por idioma),
-<!-- kit:end -->
 `<feature>Routes.tsx` y, a su lado, `<feature>Permissions.ts`, la regla de
 permisos que decide la ruta y los botones (no es un util). Las columnas de una
 tabla, si solo declaran, van en `constants/<feature>Columns.ts`. Solo existen
 las carpetas que hacen falta.
+<!-- kit:else -->
+`i18n/<idioma>.json` (uno por idioma) y `<feature>Routes.tsx`. Las columnas
+de una tabla, si solo declaran, van en `constants/<feature>Columns.ts`. Solo
+existen las carpetas que hacen falta.
+<!-- kit:end -->
 
 ## Imprescindible: cada feature es un miniproyecto
 
@@ -142,8 +169,10 @@ las carpetas que hacen falta.
   es genérico. Recibe por props lo que necesita y no sabe nada de ellas. Lo que
   solo se parece no se comparte. Una familia que se llama como un dominio
   (`customers`, `incidents`) no tiene `common`: lo suyo va al dominio.
+<!-- kit:if backend -->
 - Dos features que piden el mismo dato comparten la caché usando la misma clave
   de consulta, sin importarse.
+<!-- kit:end -->
 - La comprobación de la estructura (`src/tests/structure.test.ts`) lo mira.
 
 ## Nomenclatura
@@ -197,6 +226,7 @@ Es lo más importante del proyecto. Los listados completos están en
   por fichero. Utils: un objeto por tema, `<prefijo><Tema>Utils`
   (`orderCloseUtils`), con los métodos con su nombre entero. Props de función
   `onX`; handlers locales `handleX`.
+<!-- kit:if backend -->
 - **Services:** uno por entidad, con métodos `<verbo><Entidad><Zona?><Qué>`:
   la entidad del service va siempre detrás del verbo, en singular si el método
   trata un registro (su gestión, una acción sobre él, las opciones de uno de
@@ -213,6 +243,7 @@ Es lo más importante del proyecto. Los listados completos están en
   El schema y el tipo de la respuesta se llaman como el método
   (`ordersFiltersSchema`, `OrdersFilters`).
 - **Claves de consulta:** `[service, método, ...parámetros]`.
+<!-- kit:end -->
 <!-- kit:if mocks -->
 - **Mocks:** un JSON al lado de su service, `<entidad>Mocks.json`
   (`ordersMocks.json`), con una clave `"<MÉTODO> /ruta"` por endpoint
@@ -221,9 +252,13 @@ Es lo más importante del proyecto. Los listados completos están en
   `docs/naming.md#mocks`.
 <!-- kit:end -->
 - Nombres largos sí; abreviaturas y nombres genéricos (`data`, `items`,
+<!-- kit:if backend -->
   `handlers`), no. Tampoco las palabras del backend cuando la app llama a la
   entidad de otra forma: si la API dice `purchase` y la app «pedido», el código
   dice `order`.
+<!-- kit:else -->
+  `handlers`), no.
+<!-- kit:end -->
 
 ## Sencillez y tamaño
 
@@ -240,23 +275,29 @@ Es lo más importante del proyecto. Los listados completos están en
   está en él es privado. Se llama `<prefijo><Tema>Utils`, sin carpetas de
   tema, y lo mira la comprobación de la estructura. Las constantes que se
   exportan van a `constants/`, y los tipos compartidos, a `types/`.
+<!-- kit:if backend -->
   Solo el transporte (`apiUtils` y los suyos) habla con la red.
+<!-- kit:end -->
 - Todo fichero con código lleva su `.test` al lado, con el mismo nombre. Solo se
   libran los que únicamente declaran (tipos, constantes, configuración y rutas)
   y el código base que trae el kit, que lo prueba el propio kit. Lo mira la
   comprobación de la estructura.
+- Un test no se manipula para que pase: si falla, se arregla el código, y si
+  el test está mal, se pregunta
+  (`docs/guides/write-tests.md#un-test-no-se-manipula`).
+  Sus textos salen del catálogo, con `testUtils.translate`, nunca escritos a
+  mano.
 - Las carpetas solo agrupan varias piezas de una zona (`components/lines/`);
   no hay carpetas por tipo de fichero.
-<!-- kit:if i18n -->
 - Una feature pequeña puede ser solo su página, sus rutas y su i18n.
-<!-- kit:else -->
-- Una feature pequeña puede ser solo su página y sus rutas.
-<!-- kit:end -->
 - Se extrae solo lo que es igual, y cuando aparece la segunda copia o el
   documento de la feature ya dice que la habrá. Nada de componentes genéricos
   llenos de huecos.
-- Nada «por si acaso»: ni dependencias, ni abstracciones, ni ficheros que la
-  historia no pida.
+- Nada «por si acaso»: ni dependencias, ni abstracciones, ni ficheros, ni
+  props, variantes o estados que la historia no use. Lo que una norma
+  describe para un caso (el menú, la miga de pan, la carga con `lazy`) nace
+  con el primer caso que lo pide, nunca antes
+  (`docs/standards.md#organización-de-src`).
 - Tamaño orientativo: ~150 líneas por fichero y ~100 por componente. Si se pasa,
   se divide por significado, nunca por tipo técnico.
 
@@ -271,32 +312,38 @@ Es lo más importante del proyecto. Los listados completos están en
   vale si cada condición es una de esas constantes. Un booleano que ya tiene
   nombre (una prop, un `canX`, un `isError`) ya lo es.
 - Un componente pinta: recibe el dato listo. Las transformaciones van en
+<!-- kit:if backend -->
   `utils/` si son puras, o en un hook si necesitan otro hook (un dato del
   servidor, un store).
-<!-- kit:if i18n -->
+<!-- kit:else -->
+  `utils/` si son puras, o en un hook si necesitan otro hook (un store).
+<!-- kit:end -->
   Las que necesitan `t` o el locale también van en un hook; en el cuerpo del
   componente solo se arman las etiquetas con `t()`.
-<!-- kit:end -->
+<!-- kit:if backend -->
 - Los datos del servidor se piden en hooks con `useQuery` y se guardan con
   `useMutation`; un componente nunca llama a un service.
 - Las respuestas de la API se validan con zod en el transporte; los tipos salen
   de los schemas con `z.infer`.
 - Zustand solo para lo que sobrevive a salir de la pantalla (sesión, filtros
   aplicados, página de una lista); lo demás es `useState`.
-<!-- kit:if i18n -->
+<!-- kit:else -->
+- Los datos fijos (las opciones de un selector, unas tarifas) van en
+  `constants/`. Lo que la app guarda sin API se decide en `/zaius-init` y se
+  monta con la primera historia que lo necesita, con el OK de la persona.
+- Zustand solo para lo que sobrevive a salir de la pantalla (filtros
+  aplicados, página de una lista); lo demás es `useState`.
+<!-- kit:end -->
 - i18n: ningún texto de usuario en el código; cada `t()` lleva su namespace
   (`t('ordersEdit:tabs.lines')`): el de la feature, el de la familia para lo
   de su `common` (`orders:`), el del dominio o, solo en la raíz, `common:`;
   las claves se agrupan por zona. Todos los idiomas llevan las mismas claves.
-<!-- kit:else -->
-- Textos: van escritos en el componente que los pinta, en
-  `%%DEFAULT_LANGUAGE%%`, sin catálogos. Un mismo dato se llama igual en todas
-  las pantallas.
-<!-- kit:end -->
 - JSDoc en toda función que no es componente, siempre con la misma forma: qué
-  hace (1–2 líneas), un `@param` por parámetro, `@returns` y `@throws` si
-  tocan, cada uno en una línea; 6–8 líneas como máximo.
+  hace (una o dos líneas), un `@param` por parámetro, `@returns` y `@throws` si
+  tocan, cada uno en una línea; de 6 a 8 líneas como mucho.
+<!-- kit:if backend -->
   En los services, la descripción empieza por el endpoint.
+<!-- kit:end -->
   Las funciones internas de un hook o componente y los objetos sin
   comportamiento (schemas, configuración, constantes) no llevan JSDoc ni otro
   comentario.
@@ -324,16 +371,27 @@ la tabla), y cuál es cada una en este proyecto lo dice
 - **D4. Avisos y fallos.** Cada fallo va donde se ve (encima de la barra al
   guardar, al final del cuerpo de un modal, bajo su campo) y nunca en un aviso
   efímero, que solo confirma lo que el control no enseña.
+<!-- kit:if backend -->
 - **D5. Acciones.** En cada zona, la salida a la izquierda y el primario el
   último, uno por zona. Lo que el permiso o el estado no deja hacer no se
   ofrece. Mientras actúa, `loading` sin cambiar el texto, y nada se pinta como
   hecho antes de que el servidor lo confirme.
+<!-- kit:else -->
+- **D5. Acciones.** En cada zona, la salida a la izquierda y el primario el
+  último, uno por zona. Lo que el estado no deja hacer no se ofrece. Mientras
+  actúa, `loading` sin cambiar el texto.
+<!-- kit:end -->
 - **D6. Formularios.** El alta y la edición de un registro son el mismo
   formulario. Se valida a partir del primer intento, la barra dice «Hay N
   campos por revisar» y salir con cambios sin guardar avisa antes.
+<!-- kit:if backend -->
 - **D7. Un registro, una pantalla.** Cada registro tiene una sola pantalla, su
   gestión (`/orders/:id/edit`), con un solo botón para guardar; sin permiso
   para editar, la misma pantalla se abre en lectura.
+<!-- kit:else -->
+- **D7. Un registro, una pantalla.** Cada registro tiene una sola pantalla, su
+  gestión (`/orders/:id/edit`), con un solo botón para guardar.
+<!-- kit:end -->
 - **D8. Listados y tablas.** Solo las columnas imprescindibles; las acciones de
   la tabla, en su cabecera; paginación de 10, 25 o 50 filas; el buscador
   espera 400 ms. Filtros, página y orden sobreviven a navegar y a recargar,
@@ -345,15 +403,27 @@ la tabla), y cuál es cada una en este proyecto lo dice
   su título.
 - **D11. Textos y formato.** Las acciones, en imperativo, con verbo y objeto
   («Cierra el pedido»). Fechas, cifras y porcentajes, siempre con las
-  funciones de formato de la raíz; lo que falta es «-».
+  funciones de formato de la raíz; lo que falta es «-». Sin los signos ni las
+  frases de la IA («·», «→», «—», «✓», emojis).
 - **D12. Accesibilidad.** Los botones de icono llevan `aria-label`, el foco
   siempre se ve, todo se hace con teclado, nada que se pulse mide menos de
   24 px y el contraste sale de los tokens. Cada pantalla se prueba con el
   teclado, con un lector de pantalla y con el zoom al 200 %.
 - **D13. Movimiento.** Lo que se mueve explica qué ha cambiado, corto y con
-  los tokens de «Movimiento»; con «reducir movimiento», como mucho un
-  fundido; nada se queda escondido esperando una animación, y lo que se mueve
-  solo se puede parar.
+  los tokens de «Movimiento»; lo que se pulsa responde al pasar por encima y
+  con el foco; con «reducir movimiento», como mucho un fundido; nada se
+  queda escondido esperando una animación, y lo que se mueve solo se puede
+  parar.
+- **D14. Jerarquía, espacios y columnas.** Lo que más importa, primero y
+  más grande, con pocos niveles bien distintos. Lo que va junto, cerca, y lo
+  que no, separado, con el mismo token para la misma relación. Una rejilla
+  para toda la pantalla: el título y el contenido, en la misma línea; los
+  formularios en columnas, alineados; las cifras de una tabla, a la
+  derecha.
+- **D15. Lo que no se hace.** Salvo que la persona lo pida, ni un borde de
+  color a la izquierda ni lo que delata un diseño hecho por IA (la etiqueta
+  en mayúsculas sobre cada título, la flecha en los enlaces, las tarjetas
+  iguales con sombra gris…).
 
 - **Sistema de diseño:** pendiente de definir (lo escribe `zaius-init`).
 
@@ -362,11 +432,12 @@ Una norma nueva o cambiada llega por una propuesta aceptada, con
 
 ## Skills del proyecto
 
-Están en `.claude/skills/<nombre>/SKILL.md`, todas con el prefijo `zaius-`
-para encontrarlas juntas, y detrás una palabra. En Claude Code se lanzan con
-`/<nombre>`; en opencode, con «usa la skill <nombre>». Cada etapa la lanza la
-persona, y ninguna skill lanza la siguiente
-([El flujo](./docs/process.md#el-flujo)).
+Están en `.claude/skills/<nombre>/SKILL.md`. Las del kit llevan el prefijo
+`zaius-`, para encontrarlas juntas, y detrás una palabra; una del proyecto
+(como una skill de diseño propia) va con su nombre, y con su línea al final
+de esta lista. En Claude Code se lanzan con `/<nombre>`; en opencode, con
+«usa la skill <nombre>». Cada etapa la lanza la persona, y ninguna skill
+lanza la siguiente ([El flujo](./docs/process.md#el-flujo)).
 
 **Las que lanza la persona,** en el orden del trabajo:
 
@@ -387,26 +458,36 @@ persona, y ninguna skill lanza la siguiente
   publicar.
 - `zaius-refactor`: propone mejorar lo que ya está hecho, sin cambiar lo que
   se puede hacer; con el OK, se construye y se cierra como una historia.
-- `zaius-sketch`: un boceto en HTML de una pantalla o de una idea, en baja,
-  media o alta fidelidad, para verlo antes de construirlo.
+- `zaius-brand`: la identidad de la app (su idea, su logo, sus colores, su
+  letra y su firma), en tres direcciones para elegir una.
+- `zaius-sketch`: un boceto en HTML de una pantalla o de una idea, con la
+  identidad de la app, para verlo antes de construirlo.
 - `zaius-design`: una propuesta de diseño, sin tocar el código.
 - `zaius-rename`: alinea los nombres del proyecto con la nomenclatura, por
   bloques y con el OK.
 - `zaius-merge`: fusiona los `.kit-new` del kit, con el OK.
+<!-- kit:if git -->
+- `zaius-git`: el repositorio git: conecta el remoto, apunta cómo se trabaja
+  con ramas, monta el CI y, si se le pide, hace el commit, el push o el pull
+  request.
+<!-- kit:end -->
+- `zaius-languages`: añade un idioma a la app: lo apunta, traduce su
+  catálogo y le da sus direcciones.
 <!-- kit:if api -->
 - `zaius-api`: escribe `docs/api/<zona>.md` y marca lo «Sin verificar».
-<!-- kit:end -->
-<!-- kit:if !i18n -->
-- `zaius-languages`: pasa la app a varios idiomas.
 <!-- kit:end -->
 
 **Las que usa la IA** dentro de las anteriores (quien programa también las
 puede lanzar sueltas):
 
+<!-- kit:if backend -->
 - `zaius-service`: un endpoint, del schema a la consulta que lo pide.
+<!-- kit:end -->
 - `zaius-form`: un formulario, las filas de una tabla o un asistente.
+<!-- kit:if backend -->
 - `zaius-permissions`: la regla de la feature, la guarda, los botones y el
   menú.
+<!-- kit:end -->
 <!-- kit:if existing -->
 - `zaius-adopt`: trae a estas reglas el código que ya había, por bloques; la
   lanza `zaius-init`.
@@ -430,15 +511,19 @@ están en `docs/guides/`.
 | Dónde va cada cosa, y usar o ampliar un dominio | `docs/standards.md` |
 | Cómo llamar a algo | `docs/naming.md` |
 | Montar una pantalla nueva o añadirle una página | `docs/guides/create-a-feature.md` |
+<!-- kit:if backend -->
 | Añadir un endpoint | `docs/guides/add-a-service.md` |
 | Cargar o guardar datos | `docs/guides/load-and-save-data.md` |
+<!-- kit:end -->
 | Un formulario, las filas de una tabla o un asistente | `docs/guides/create-a-form.md` |
 | Una pantalla o un cambio visual | `docs/ux-ui/rules.md`, `docs/ux-ui/design-system.md` y `docs/ux-ui/proposals/` |
 | El sistema de diseño: la librería, los tokens y la pieza de cada papel | `docs/ux-ui/design-system.md` |
 | Las normas de diseño | `docs/ux-ui/rules.md` |
 | Proponer un cambio de diseño | `docs/ux-ui/README.md` |
 | Ver algo antes de construirlo: un boceto | `docs/ux-ui/README.md#bocetos` |
+<!-- kit:if backend -->
 | Permisos de una pantalla, un botón o el menú | `docs/guides/apply-permissions.md` |
+<!-- kit:end -->
 | Tests | `docs/guides/write-tests.md` |
 | Lo que mira la comprobación de la estructura | `docs/standards.md#comprobar-la-estructura` |
 | Lo que se mira al revisar un cambio | `docs/standards.md#qué-se-revisa` |
@@ -478,3 +563,31 @@ están en `docs/guides/`.
   [Dónde estamos](./docs/next-steps.md#dónde-estamos), al día.
 
 Los dos puertos, `%%HUMAN_PORT%%` y `%%REVIEW_PORT%%`, se cambian aquí.
+<!-- kit:if git -->
+
+## Git
+
+El historial de %%APP_NAME%% se guarda con git.
+
+- **Los commits y los push los hace la persona.** Al cerrar cada %%UNIT%%,
+  `zaius-review` le propone el mensaje. La IA lee lo que necesita
+  (`git status`, `git diff`, `git log`), pero no hace un commit, un push, una
+  rama ni un pull request si la persona no se lo pide expresamente, y lo
+  pedido vale para esa vez. Cuando se lo pide, lo hace como dice
+  `zaius-git`, y contesta con lo que ha hecho.
+- **Nunca** reescribe el historial (`--force`, `rebase`, `reset --hard`, un
+  `--amend` de algo ya subido) ni sube contraseñas o claves (`.env*.local`).
+- **El mensaje del commit:** una primera línea, de hasta 72 caracteres, con
+  lo que cambia para quien usa la %%KIND%%, y el código de la %%UNIT%%
+  delante si es una (`%%UNIT_EXAMPLE%% <título>: <lo que cambia>`); si hace
+  falta, una línea en blanco y el detalle, en puntos.
+- **La IA no firma:** ni un commit ni un pull request lleva líneas suyas
+  (`Co-Authored-By`, «Generated with…», un enlace a la sesión). En Claude
+  Code lo apaga `.claude/settings.json` (`attribution`), y la regla vale
+  igual con cualquier IA.
+- **Cómo trabaja este proyecto,** lo apunta `zaius-git` con lo que decide la
+  persona:
+  - el repositorio remoto: ninguno todavía;
+  - las ramas: sin decidir; mientras, todo en la rama en la que se está;
+  - el CI: ninguno.
+<!-- kit:end -->

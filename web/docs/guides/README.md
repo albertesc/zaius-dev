@@ -11,7 +11,7 @@ Lo que no es un paso a paso está fuera de esta carpeta: dónde va cada cosa
 ([UX/UI](../ux-ui/README.md)) y qué hace cada página
 ([Páginas](../pages/README.md)).
 
-**En esta página:** [Las guías](#las-guías) · [Cómo están escritas](#cómo-están-escritas) · [Escribir una guía nueva](#escribir-una-guía-nueva)
+**En esta página:** [Las guías](#las-guías), [Cómo están escritas](#cómo-están-escritas), [Escribir una guía nueva](#escribir-una-guía-nueva)
 
 ## Las guías
 

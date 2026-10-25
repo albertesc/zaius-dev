@@ -23,8 +23,8 @@ proyecto están en
 
 **En esta página:**
 
-- **Cargar:** [1. El hook y el QueryClient](#1-el-hook-y-el-queryclient) · [2. Un dato](#2-un-dato) · [3. Carga, error y vacío](#3-carga-error-y-vacío) · [4. Los catálogos](#4-los-catálogos) · [5. Varios datos a la vez](#5-varios-datos-a-la-vez) · [6. El store de una pantalla](#6-el-store-de-una-pantalla) · [7. Listas paginadas y filtros](#7-listas-paginadas-y-filtros) · [8. Refresco periódico](#8-refresco-periódico)
-- **Guardar:** [1. El guardado](#1-el-guardado) · [2. El fallo del guardado](#2-el-fallo-del-guardado) · [3. La exportación](#3-la-exportación)
+- **Cargar:** [1. El hook y el QueryClient](#1-el-hook-y-el-queryclient), [2. Un dato](#2-un-dato), [3. Carga, error y vacío](#3-carga-error-y-vacío), [4. Los catálogos](#4-los-catálogos), [5. Varios datos a la vez](#5-varios-datos-a-la-vez), [6. El store de una pantalla](#6-el-store-de-una-pantalla), [7. Listas paginadas y filtros](#7-listas-paginadas-y-filtros), [8. Refresco periódico](#8-refresco-periódico)
+- **Guardar:** [1. El guardado](#1-el-guardado), [2. El fallo del guardado](#2-el-fallo-del-guardado), [3. La exportación](#3-la-exportación)
 - [Errores comunes](#errores-comunes)
 
 ## Cargar
@@ -121,7 +121,6 @@ Los hooks que piden devuelven los estados ya decididos (`isError`,
 resuelve con ternarios, del caso más concreto al más general, con un solo
 `return`:
 
-<!-- kit:if i18n -->
 ```tsx
 export function OrdersEditPage () {
   const { t } = useTranslation()
@@ -137,22 +136,6 @@ export function OrdersEditPage () {
         : <OrdersEditTabs data={data} />
 }
 ```
-<!-- kit:else -->
-```tsx
-export function OrdersEditPage () {
-  const { data, isError, isOffline, isNotFound, refetch } = useOrdersEdit()
-  const isLoading = data === undefined
-
-  return isNotFound
-    ? <EmptyState title='Este pedido no existe' action={{ label: 'Vuelve a los pedidos', href: '/orders' }} />
-    : isError
-      ? <ErrorState title={isOffline ? 'Sin conexión' : 'No se ha podido cargar el pedido'} retryLabel='Vuelve a intentarlo' onRetry={refetch} />
-      : isLoading
-        ? <LoadingSkeleton />
-        : <OrdersEditTabs data={data} />
-}
-```
-<!-- kit:end -->
 
 - **`apiErrorUtils.isNotFound(error)`** dice si es un fallo de la API con
   estado 404 ([Errores de la API](./add-a-service.md#errores-de-la-api)).
@@ -589,7 +572,6 @@ Un aviso de fallo tiene dos partes
 El alta de un pedido, con el hook que da el fallo y el aviso que lo pinta
 encima de la barra de acciones:
 
-<!-- kit:if i18n -->
 ```ts
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
@@ -625,48 +607,6 @@ const hasFailure = failure !== null
   </ActionBar>
 </>
 ```
-<!-- kit:else -->
-```ts
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ordersService } from '@/services/orders/ordersService'
-import { apiErrorUtils } from '@/utils/apiErrorUtils'
-import type { OrderFormValues } from '../../common/schemas/orderFormSchema'
-import { orderQueryUtils } from '../../common/utils/orderQueryUtils'
-import { ordersNewValueUtils } from '../utils/ordersNewValueUtils'
-
-/**
- * Da de alta el pedido con lo escrito en el formulario.
- * @returns La mutación de TanStack Query y `failure`, el motivo del fallo (`network` o `generic`) o `null`.
- */
-export function useOrdersNewCreate () {
-  const queryClient = useQueryClient()
-  const mutation = useMutation({
-    mutationFn: (values: OrderFormValues) => ordersService.createOrder(ordersNewValueUtils.buildOrdersNewRequest(values)),
-    onSuccess: () => orderQueryUtils.invalidateOrdersQueries(queryClient),
-  })
-
-  return { ...mutation, failure: mutation.isError ? apiErrorUtils.getRequestFailure(mutation.error) : null }
-}
-```
-
-```tsx
-const hasFailure = failure !== null
-const isOffline = failure === 'network'
-
-<>
-  {hasFailure
-    ? (
-      <PageAlert tone='error' title='No se ha podido crear el pedido'>
-        {isOffline ? 'Comprueba la conexión y vuelve a intentarlo.' : 'Vuelve a intentarlo dentro de un rato.'}
-      </PageAlert>
-      )
-    : null}
-  <ActionBar>
-    <Button loading={creating} onClick={onCreate}>Crea el pedido</Button>
-  </ActionBar>
-</>
-```
-<!-- kit:end -->
 
 Dónde va cada fallo (encima de la barra, al final de un modal, bajo un campo,
 bajo la cabecera) lo dice [D4](../ux-ui/rules.md#d4-avisos-y-fallos); el

@@ -31,15 +31,15 @@ proyecto están en
 - [3. La escritura de un test](#3-la-escritura-de-un-test)
 <!-- kit:if server -->
 <!-- kit:if backend -->
-- **4. El test de cada tipo de fichero:** [Una página](#una-página) · [Un componente](#un-componente) · [Una isla](#una-isla) · [Una action](#una-action) · [Un service](#un-service) · [Un schema o un util](#un-schema-o-un-util)
+- **4. El test de cada tipo de fichero:** [Una página](#una-página), [Un componente](#un-componente), [Una isla](#una-isla), [Una action](#una-action), [Un service](#un-service), [Un schema o un util](#un-schema-o-un-util)
 <!-- kit:else -->
-- **4. El test de cada tipo de fichero:** [Una página](#una-página) · [Un componente](#un-componente) · [Una isla](#una-isla) · [Una action](#una-action) · [Un schema o un util](#un-schema-o-un-util)
+- **4. El test de cada tipo de fichero:** [Una página](#una-página), [Un componente](#un-componente), [Una isla](#una-isla), [Una action](#una-action), [Un schema o un util](#un-schema-o-un-util)
 <!-- kit:end -->
 <!-- kit:else -->
 <!-- kit:if backend -->
-- **4. El test de cada tipo de fichero:** [Una página](#una-página) · [Un componente](#un-componente) · [Una isla](#una-isla) · [Un service](#un-service) · [Un schema o un util](#un-schema-o-un-util)
+- **4. El test de cada tipo de fichero:** [Una página](#una-página), [Un componente](#un-componente), [Una isla](#una-isla), [Un service](#un-service), [Un schema o un util](#un-schema-o-un-util)
 <!-- kit:else -->
-- **4. El test de cada tipo de fichero:** [Una página](#una-página) · [Un componente](#un-componente) · [Una isla](#una-isla) · [Un schema o un util](#un-schema-o-un-util)
+- **4. El test de cada tipo de fichero:** [Una página](#una-página), [Un componente](#un-componente), [Una isla](#una-isla), [Un schema o un util](#un-schema-o-un-util)
 <!-- kit:end -->
 <!-- kit:end -->
 <!-- kit:if backend -->
@@ -133,37 +133,21 @@ que aplica la
 <!-- kit:if backend -->
 - los ayudantes de `src/tests/`;
 <!-- kit:else -->
-<!-- kit:if i18n -->
 - los ayudantes de `src/tests/`;
-<!-- kit:else -->
-- y los ayudantes de `src/tests/`.
-<!-- kit:end -->
 <!-- kit:end -->
 <!-- kit:if backend -->
-<!-- kit:if i18n -->
 - el código base que trae el kit, el transporte (`utils/api*Utils.ts`) y lo
   de i18n (`i18n/i18n.ts`, `utils/languageUtils.ts`): lo prueba el propio
   kit, y si el proyecto lo cambia (la forma del error de su API), le escribe
   su test.
 <!-- kit:else -->
-- el código base que trae el kit, el transporte (`utils/api*Utils.ts`): lo
-  prueba el propio kit, y si el proyecto lo cambia (la forma del error de su
-  API), le escribe su test.
-<!-- kit:end -->
-<!-- kit:else -->
-<!-- kit:if i18n -->
 - el código base que trae el kit, lo de i18n (`i18n/i18n.ts`,
   `utils/languageUtils.ts`): lo prueba el propio kit, y si el proyecto lo
   cambia, le escribe su test.
 <!-- kit:end -->
-<!-- kit:end -->
 
-<!-- kit:if i18n -->
 Los estilos y los textos (`i18n/*.json`) no son código: los textos los cubre
 la paridad de idiomas de la comprobación de la estructura.
-<!-- kit:else -->
-Los estilos no son código.
-<!-- kit:end -->
 <!-- kit:if content -->
 Las entradas de contenido (`src/content/`) tampoco: las valida el schema de su
 colección al compilar
@@ -181,26 +165,26 @@ y ese sí se prueba.
   `RoomsSearch.tsx` y `RoomsSearch.test.tsx`.
 <!-- kit:if privateArea -->
 - **El de una página o un endpoint va en `src/tests/pages/`,** con su misma
-  ruta: `src/pages/rooms.astro` → `src/tests/pages/rooms.test.ts`;
-  `src/pages/account/bookings/[id]/edit.astro` →
+  ruta: el de `src/pages/rooms.astro` es `src/tests/pages/rooms.test.ts`;
+  el de `src/pages/account/bookings/[id]/edit.astro` es
   `src/tests/pages/account/bookings/[id]/edit.test.ts`;
-  `src/pages/api/account/bookings/[id]/invoice.pdf.ts` →
+  el de `src/pages/api/account/bookings/[id]/invoice.pdf.ts` es
   `src/tests/pages/api/account/bookings/[id]/invoice.pdf.test.ts`. Astro
   convierte en una ruta cualquier `.ts` de `src/pages/`: un test al lado de
   la página sería una URL más, y el build fallaría al pintarla.
 <!-- kit:else -->
 <!-- kit:if server -->
 - **El de una página o un endpoint va en `src/tests/pages/`,** con su misma
-  ruta: `src/pages/rooms.astro` → `src/tests/pages/rooms.test.ts`;
-  `src/pages/legal/notice.astro` → `src/tests/pages/legal/notice.test.ts`.
-  Astro convierte en una ruta cualquier `.ts` de `src/pages/`: un test al
-  lado de la página sería una URL más, y el build fallaría al pintarla.
+  ruta: el de `src/pages/rooms.astro` es `src/tests/pages/rooms.test.ts`; el de
+  `src/pages/legal/notice.astro` es `src/tests/pages/legal/notice.test.ts`.
+  Astro convierte en una ruta cualquier `.ts` de `src/pages/`: un test al lado
+  de la página sería una URL más, y el build fallaría al pintarla.
 <!-- kit:else -->
-- **El de una página va en `src/tests/pages/`,** con su misma ruta:
-  `src/pages/rooms.astro` → `src/tests/pages/rooms.test.ts`;
-  `src/pages/legal/notice.astro` → `src/tests/pages/legal/notice.test.ts`.
-  Astro convierte en una ruta cualquier `.ts` de `src/pages/`: un test al
-  lado de la página sería una URL más, y el build fallaría al pintarla.
+- **El de una página va en `src/tests/pages/`,** con su misma ruta: el de
+  `src/pages/rooms.astro` es `src/tests/pages/rooms.test.ts`; el de
+  `src/pages/legal/notice.astro` es `src/tests/pages/legal/notice.test.ts`.
+  Astro convierte en una ruta cualquier `.ts` de `src/pages/`: un test al lado
+  de la página sería una URL más, y el build fallaría al pintarla.
 <!-- kit:end -->
 <!-- kit:end -->
 - **`src/tests/` guarda solo lo que no es el test de un fichero:**
@@ -227,35 +211,35 @@ ROOMS con sus tests. Lo que no tiene `.test` es lo de la lista del
 ```text
 src/
 <!-- kit:if server -->
-├── pages/
-│   ├── contact.astro
-│   └── rooms.astro
+    pages/
+        contact.astro
+        rooms.astro
 <!-- kit:else -->
-├── pages/rooms.astro
+    pages/rooms.astro
 <!-- kit:end -->
-├── components/
-│   ├── RoomCard.astro
-│   ├── RoomCard.test.ts
-│   ├── RoomsList.astro
-│   └── RoomsList.test.ts
-├── utils/
-│   ├── roomPriceUtils.ts
-│   └── roomPriceUtils.test.ts
+    components/
+        RoomCard.astro
+        RoomCard.test.ts
+        RoomsList.astro
+        RoomsList.test.ts
+    utils/
+        roomPriceUtils.ts
+        roomPriceUtils.test.ts
 <!-- kit:if server -->
-├── actions/
-│   ├── index.ts                       (sin test: solo junta las de cada sección)
-│   ├── contactActions.ts
-│   ├── contactActions.test.ts
-│   ├── contactFormSchema.ts
-│   └── contactFormSchema.test.ts
+    actions/
+        index.ts                       (sin test: solo junta las de cada sección)
+        contactActions.ts
+        contactActions.test.ts
+        contactFormSchema.ts
+        contactFormSchema.test.ts
 <!-- kit:end -->
-├── constants/rooms.ts                 (sin test: solo declara)
-├── types/room.ts                      (sin test: solo declara)
-└── tests/pages/
+    constants/rooms.ts                 (sin test: solo declara)
+    types/room.ts                      (sin test: solo declara)
+    tests/pages/
 <!-- kit:if server -->
-    ├── contact.test.ts
+        contact.test.ts
 <!-- kit:end -->
-    └── rooms.test.ts
+        rooms.test.ts
 ```
 
 <!-- kit:if backend -->
@@ -263,11 +247,11 @@ Y lo que le da la disponibilidad, en `services/`:
 
 ```text
 services/bookings/
-├── bookingsService.ts
-├── bookingsService.test.ts
-├── bookingsAvailabilitySchema.ts
-├── bookingsAvailabilitySchema.test.ts
-└── bookingsMocks.json                 (sin test: lo valida bookingsAvailabilitySchema.test.ts)
+    bookingsService.ts
+    bookingsService.test.ts
+    bookingsAvailabilitySchema.ts
+    bookingsAvailabilitySchema.test.ts
+    bookingsMocks.json                 (sin test: lo valida bookingsAvailabilitySchema.test.ts)
 ```
 
 <!-- kit:end -->
@@ -278,19 +262,22 @@ services/bookings/
 - **El nombre de cada `it`** dice, en castellano, qué pasa: «enseña cada
   habitación con su precio por noche».
 - **Se busca como lo haría una persona:** por rol y nombre accesible
-  (`getByRole('link', { name: 'Pide disponibilidad' })`) o por etiqueta.
-  Nunca por clase CSS.
+  (`getByRole('link', { name: testUtils.translate('rooms.cta') })`) o por
+  etiqueta. Nunca por clase CSS.
 - **Corre en el entorno `node`,** como el servidor de Astro, que es donde se
   pintan las páginas y los componentes.
 - **Lo pintado ya está:** `testUtils.renderAstro` devuelve el HTML terminado,
   así que se busca con `getBy`, sin esperar.
-<!-- kit:if i18n -->
-- **Los textos son los reales,** en el idioma por defecto de la web
-  (`APP_DEFAULT_LANGUAGE`): `testUtils.renderAstro` pinta sin idioma en la
-  URL, y `getI18nT(Astro.currentLocale)` da el de por defecto.
-<!-- kit:else -->
-- **Los textos son los reales,** los que pinta la web.
-<!-- kit:end -->
+- **Los textos salen del catálogo, nunca escritos en el test:**
+  `testUtils.translate('rooms.card.capacity', { count: 2 })` da el texto en
+  el idioma por defecto (`APP_DEFAULT_LANGUAGE`), el que pinta
+  `testUtils.renderAstro`, con sus valores y su plural, y falla si la clave
+  o esa forma no están. Nunca se lee el JSON a mano ni se arma un texto con
+  `replace`. Un componente que recibe sus textos por props
+  ([D1](../ux-ui/rules.md#d1-el-sistema-de-diseño-primero)) los recibe así
+  también en su test. Lo que no es un texto de la web, sino un dato del caso
+  (el nombre de una habitación, un precio, un teléfono), va escrito en el
+  test.
 - **Las horas son las de %%TEST_TIMEZONE%%:** `vitest.config.ts` fija `TZ` en
   los tests, para que una fecha con hora dé lo mismo en cualquier máquina.
 
@@ -309,14 +296,41 @@ describe('RoomCard', () => {
     const view = await testUtils.renderAstro(RoomCard, { props: { room: ROOM } })
 
     expect(view.getByRole('heading', { name: 'La Encina' })).toBeInTheDocument()
-    expect(view.getByText('2 personas')).toBeInTheDocument()
-    expect(view.getByText('85 € la noche')).toBeInTheDocument()
+    expect(view.getByText(testUtils.translate('rooms.card.capacity', { count: 2 }))).toBeInTheDocument()
+    expect(view.getByText(testUtils.translate('rooms.card.pricePerNight', { price: '85 €' }))).toBeInTheDocument()
   })
 })
 ```
 
 La habitación va escrita en el test, con los datos del caso: si cambia
 `ROOMS`, el test de la tarjeta no cambia.
+
+### Un test no se manipula
+
+Un test dice lo que la página tiene que hacer: si falla, se arregla el
+código, nunca el test. Para que pase, nunca:
+
+- **se cambia lo que espera por lo que sale:** lo esperado viene del
+  documento de la página o del catálogo de textos, no de lo que pinta el
+  código ni de la misma lógica que lo calcula;
+- **se afloja:** una comprobación que acepta más (`toBeTruthy`, un trozo del
+  texto, una expresión regular más ancha), un `queryBy` que no se comprueba
+  o una comprobación de menos;
+- **se salta o se borra:** `it.skip`, `it.todo`, `it.only`, comentado, o
+  quitado de la lista del documento;
+- **se simula lo que prueba:** solo se simula lo de fuera (la API, la hora),
+  nunca la pieza que se prueba ni la lógica que tiene que funcionar;
+- **se esconde el fallo:** un `try`/`catch`, un `if` dentro del test o una
+  espera más larga para algo que no llega;
+- **se amaña un texto:** escrito a mano, leído del JSON o arreglado con
+  `replace`, en lugar de pedírselo a `testUtils.translate`;
+- **se calla a las comprobaciones:** `// @ts-expect-error`,
+  `eslint-disable` o un cambio en la configuración de Vitest, de los tipos o
+  del lint.
+
+Si es el test el que está mal (el documento ha cambiado, o pedía otra cosa),
+se para y se pregunta: con el OK, primero cambia el documento y después el
+test, en un paso aparte. `zaius-review` lo busca en cada página.
 
 ## 4. El test de cada tipo de fichero
 
@@ -375,7 +389,7 @@ describe('/rooms', () => {
     const view = await testUtils.renderAstro(RoomsPage)
 
     expect(view.getByRole('heading', { name: 'La Encina' })).toBeInTheDocument()
-    expect(view.getByText('85 € la noche')).toBeInTheDocument()
+    expect(view.getByText(testUtils.translate('rooms.card.pricePerNight', { price: '85 €' }))).toBeInTheDocument()
   })
 
   it('dice «Completa» en la habitación que no tiene fechas libres', async () => {
@@ -383,14 +397,14 @@ describe('/rooms', () => {
 
     const view = await testUtils.renderAstro(RoomsPage)
 
-    expect(view.getByText('Completa')).toBeInTheDocument()
+    expect(view.getByText(testUtils.translate('rooms.card.full'))).toBeInTheDocument()
   })
 
   it('da a los buscadores su título y su descripción', async () => {
     const head = await renderHead()
 
-    expect(head.querySelector('title')?.textContent).toMatch(/^Habitaciones · /)
-    expect(head.querySelector('meta[name="description"]')?.getAttribute('content')).toBe('Tres habitaciones de piedra y madera, para dos o para cuatro personas.')
+    expect(head.querySelector('title')?.textContent).toBe(`${testUtils.translate('rooms.title')} - %%APP_NAME%%`)
+    expect(head.querySelector('meta[name="description"]')?.getAttribute('content')).toBe(testUtils.translate('rooms.description'))
   })
 })
 ```
@@ -424,14 +438,14 @@ describe('/rooms', () => {
     const view = await testUtils.renderAstro(RoomsPage)
 
     expect(view.getByRole('heading', { name: 'La Encina' })).toBeInTheDocument()
-    expect(view.getByText('85 € la noche')).toBeInTheDocument()
+    expect(view.getByText(testUtils.translate('rooms.card.pricePerNight', { price: '85 €' }))).toBeInTheDocument()
   })
 
   it('da a los buscadores su título y su descripción', async () => {
     const head = await renderHead()
 
-    expect(head.querySelector('title')?.textContent).toMatch(/^Habitaciones · /)
-    expect(head.querySelector('meta[name="description"]')?.getAttribute('content')).toBe('Tres habitaciones de piedra y madera, para dos o para cuatro personas.')
+    expect(head.querySelector('title')?.textContent).toBe(`${testUtils.translate('rooms.title')} - %%APP_NAME%%`)
+    expect(head.querySelector('meta[name="description"]')?.getAttribute('content')).toBe(testUtils.translate('rooms.description'))
   })
 })
 ```
@@ -463,7 +477,7 @@ describe('/account/bookings/[id]/edit', () => {
   it('enseña la reserva, con su hora de llegada', async () => {
     const view = await testUtils.renderAstro(AccountBookingsEditPage, { params: { id: '1287' }, locals: GUEST })
 
-    expect(view.getByRole('heading', { level: 1, name: 'Gestiona la reserva #1287' })).toBeInTheDocument()
+    expect(view.getByRole('heading', { level: 1, name: testUtils.translate('accountBookingsEdit.title', { id: '1287' }) })).toBeInTheDocument()
   })
 
   it('dice que la reserva no existe si la API da un 404', async () => {
@@ -471,13 +485,13 @@ describe('/account/bookings/[id]/edit', () => {
 
     const view = await testUtils.renderAstro(AccountBookingsEditPage, { params: { id: '1287' }, locals: GUEST })
 
-    expect(view.getByText('Esta reserva no existe')).toBeInTheDocument()
+    expect(view.getByText(testUtils.translate('accountBookingsEdit.notFound'))).toBeInTheDocument()
   })
 
   it('no enseña la reserva sin el permiso de verla', async () => {
     const view = await testUtils.renderAstro(AccountBookingsEditPage, { params: { id: '1287' }, locals: { session: { token: 'test', permissions: [] } } })
 
-    expect(view.queryByRole('heading', { level: 1, name: 'Gestiona la reserva #1287' })).toBeNull()
+    expect(view.queryByRole('heading', { level: 1, name: testUtils.translate('accountBookingsEdit.title', { id: '1287' }) })).toBeNull()
   })
 })
 ```
@@ -513,8 +527,9 @@ piden a toda página:
   (`getByRole('img', { name: 'La Encina, con la ventana al robledal' })`);
   la que solo adorna, con `alt=''`, no sale como imagen.
 - **Los plurales** ([D11](../ux-ui/rules.md#d11-textos-y-formato)): un texto
-  con número se prueba con uno y con varios («1 persona», «2 personas»), para
-  que no falte ninguna de las dos formas.
+  con número se prueba con uno y con varios
+  (`testUtils.translate('rooms.card.capacity', { count: 1 })` y
+  `{ count: 2 }`): si falta una de las dos formas, `translate` falla.
 - **Los enlaces** ([D10](../ux-ui/rules.md#d10-navegación)): lo que lleva a
   otra página («Pide disponibilidad», «Ve a las habitaciones») es un enlace
   con su ruta (`getByRole('link', { name })` y su `href`).
@@ -762,7 +777,7 @@ describe('los mocks casan con los datos de la web', () => {
 |---|---|
 | Vitest no arranca: «Vitest failed to find the runner» | En Windows, se lanzó desde Git Bash, que le pasa la ruta con la letra de la unidad en minúscula: se lanza desde PowerShell. |
 | `%%PM%% run build` falla con «Caught error rendering /rooms.test» | El test de una página está en `src/pages/`, y Astro lo toma por una ruta: va en `src/tests/pages/`, con la misma ruta. |
-| Falla «cada página y cada endpoint tienen su test en src/tests/pages, con la misma ruta» | El test no tiene la misma ruta que la página, carpetas, `index` y corchetes incluidos: `src/pages/legal/notice.astro` → `src/tests/pages/legal/notice.test.ts`. |
+| Falla «cada página y cada endpoint tienen su test en src/tests/pages, con la misma ruta» | El test no tiene la misma ruta que la página, carpetas, `index` y corchetes incluidos: el de `src/pages/legal/notice.astro` es `src/tests/pages/legal/notice.test.ts`. |
 | Falla «cada fichero con código tiene su test al lado» | Un fichero con código no tiene su `.test` al lado: se escribe, con el mismo nombre. Lo demás que mira está en [Normativa](../standards.md#comprobar-la-estructura). |
 | `%%PM%% run typecheck` falla en el test de una página con «Argument of type '(_props: never) => any'…» | Su `getStaticPaths` solo da `params`, y Astro le pone a sus props el tipo `never`: la página declara que no recibe ninguna, con `type Props = Record<string, never>`. |
 | El test de una página o de un componente `.astro` falla al importarlo | Lleva `// @vitest-environment jsdom`: lo de Astro se pinta en el entorno `node`. Solo las islas van en jsdom. |

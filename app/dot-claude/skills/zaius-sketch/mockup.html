@@ -1,84 +1,141 @@
 <!doctype html>
 <!-- Arranque de esta plantilla: el de zaius-sketch. Para una página pública que se lee (una portada de bienvenida, una ayuda), el marco es el mismo, sin el menú lateral. -->
-<html lang="%%DEFAULT_LANGUAGE%%" data-fidelity="high" data-width="desktop" data-theme="light" data-state="content">
+<html lang="%%DEFAULT_LANGUAGE%%" data-width="desktop" data-theme="light" data-state="content">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Boceto · Pedidos · %%APP_NAME%%</title>
+  <!-- La letra de la identidad, de Google Fonts: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=<Familia>:wght@400;700&display=swap"> -->
+  <title>Boceto de pedidos - %%APP_NAME%%</title>
   <style>
     :root {
       --brand: #1d4ed8;
+      --brand-strong: #1e3a8a;
       --brand-text: #ffffff;
       --text: #1f2937;
       --text-muted: #6b7280;
       --surface: #ffffff;
       --surface-alt: #f3f4f6;
       --border: #d1d5db;
-      --line: solid;
       --danger: #b91c1c;
       --success: #15803d;
       --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      --font-display: var(--font);
+      --font-display-weight: 700;
       --radius: 6px;
       --space: 8px;
-      --width-desktop: 1280px;
+      --motion-fast: 150ms;
+      --motion-ease: cubic-bezier(0.2, 0, 0, 1);
       --width-mobile: 360px;
-      --toolbar: #111827;
-      --toolbar-text: #f9fafb;
+      --width-tablet: 768px;
+      --width-desktop: 1280px;
+      --bar-accent: var(--brand);
+      --bar-accent-text: var(--brand-text);
+      --bar-text: var(--text);
+      --bar-muted: var(--text-muted);
+      --bar-surface: var(--surface);
+      --bar-track: var(--surface-alt);
+      --bar-border: var(--border);
+      --bar-font: var(--font);
+      --bar-radius: min(var(--radius), 12px);
+      --stage: color-mix(in srgb, var(--bar-text) 8%, var(--bar-surface));
     }
     [data-theme='dark'] { --text: #f3f4f6; --text-muted: #9ca3af; --surface: #111827; --surface-alt: #1f2937; --border: #374151; }
-    [data-fidelity='mid'] { --brand: #4b5563; --danger: #4b5563; --success: #4b5563; }
-    [data-fidelity='low'] { --brand: #9ca3af; --brand-text: #111827; --danger: #6b7280; --success: #6b7280; --font: system-ui, sans-serif; --radius: 0; --line: dashed; }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--surface-alt); font-family: var(--font); color: var(--text); }
-    .toolbar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: calc(var(--space) * 2); align-items: center; padding: var(--space) calc(var(--space) * 2); background: var(--toolbar); color: var(--toolbar-text); font: 14px system-ui, sans-serif; }
-    .toolbar select { margin-left: 4px; }
-    .stage { overflow-x: auto; padding: calc(var(--space) * 3); }
-    .mockup { margin: 0 auto; width: var(--width-desktop); min-height: 720px; background: var(--surface); border: 1px var(--line) var(--border); }
-    [data-width='mobile'] .mockup { width: var(--width-mobile); }
-    .app-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space) calc(var(--space) * 2); border-bottom: 1px var(--line) var(--border); font-weight: 600; }
+    body { margin: 0; background: var(--bar-surface); color: var(--bar-text); font-family: var(--bar-font); }
+    [data-width='mobile'] body, [data-width='tablet'] body { background: var(--stage); }
+    .bar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 32px; padding: 12px 24px; border-bottom: 1px solid var(--bar-border); background: color-mix(in srgb, var(--bar-surface) 88%, transparent); backdrop-filter: blur(12px); font: 14px/1.3 var(--bar-font); }
+    .bar-title { display: flex; align-items: center; gap: 10px; margin: 0; }
+    .bar-title::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--bar-accent); }
+    .bar-title span { color: var(--bar-muted); }
+    .bar-controls { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+    .control { display: flex; align-items: center; gap: 8px; }
+    .control-label { color: var(--bar-muted); font-size: 13px; }
+    .segmented { display: flex; gap: 2px; padding: 3px; border-radius: calc(var(--bar-radius) + 3px); background: var(--bar-track); }
+    .segmented label { position: relative; }
+    .segmented input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+    .segmented span { display: block; padding: 6px 10px; border-radius: var(--bar-radius); color: var(--bar-muted); white-space: nowrap; transition: background-color 150ms, color 150ms; }
+    .segmented label:hover span { color: var(--bar-text); }
+    .segmented input:checked + span { background: var(--bar-accent); color: var(--bar-accent-text); }
+    .segmented input:focus-visible + span { outline: 2px solid var(--bar-accent); outline-offset: 2px; }
+    @media (max-width: 720px) {
+      .bar { padding: 10px 16px; }
+      .bar-controls { flex-wrap: nowrap; width: calc(100% + 32px); margin: 0 -16px; padding: 0 16px 2px; overflow-x: auto; scrollbar-width: none; }
+    }
+    .stage { overflow-x: auto; }
+    .mockup { width: 100%; min-width: var(--width-desktop); min-height: 720px; background: var(--surface); color: var(--text); font-family: var(--font); }
+    [data-width='mobile'] { --frame: var(--width-mobile); }
+    [data-width='tablet'] { --frame: var(--width-tablet); }
+    [data-width='mobile'] .stage, [data-width='tablet'] .stage { padding: 32px max(0px, min(24px, (100% - var(--frame)) / 2)) 48px; }
+    [data-width='mobile'] .mockup, [data-width='tablet'] .mockup { width: var(--frame); min-width: 0; margin: 0 auto; overflow: clip; border-radius: calc(var(--bar-radius) * 2); box-shadow: 0 0 0 1px color-mix(in srgb, var(--bar-text) 10%, transparent), 0 16px 40px color-mix(in srgb, var(--bar-text) 14%, transparent); }
+    .logo { display: flex; align-items: center; gap: var(--space); font-family: var(--font-display); font-weight: var(--font-display-weight); }
+    .logo-mark { width: 24px; height: 24px; fill: var(--brand); }
+    .app-header { display: flex; align-items: center; justify-content: space-between; padding: var(--space) calc(var(--space) * 2); border-bottom: 1px solid var(--border); font-weight: 600; }
     .app-body { display: flex; }
-    .app-nav { display: flex; flex-direction: column; gap: 4px; width: 220px; padding: calc(var(--space) * 2); border-right: 1px var(--line) var(--border); }
+    .app-nav { display: flex; flex-direction: column; gap: 4px; width: 220px; padding: calc(var(--space) * 2); border-right: 1px solid var(--border); }
     .app-nav a { padding: var(--space); border-radius: var(--radius); color: inherit; text-decoration: none; }
     .app-nav a[aria-current='page'] { background: var(--surface-alt); font-weight: 600; }
+    .app-nav a, .button { transition: background-color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease); }
+    .app-nav a:hover, .button:hover { background: var(--surface-alt); }
+    .button--primary:hover { border-color: var(--brand-strong); background: var(--brand-strong); }
     [data-width='mobile'] .app-nav { display: none; }
     .page { flex: 1; min-width: 0; padding: calc(var(--space) * 3); }
     .page-header { display: flex; flex-wrap: wrap; gap: var(--space); align-items: center; justify-content: space-between; margin-bottom: calc(var(--space) * 3); }
-    .page-header h1 { margin: 0; font-size: 24px; }
+    .page-header h1 { margin: 0; font-family: var(--font-display); font-size: 24px; font-weight: var(--font-display-weight); }
     .actions { display: flex; flex-wrap: wrap; gap: var(--space); }
-    .button { min-height: 32px; padding: 0 calc(var(--space) * 2); border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; white-space: nowrap; }
+    .button { min-height: 32px; padding: 0 calc(var(--space) * 2); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; white-space: nowrap; }
     .button--primary { border-color: var(--brand); background: var(--brand); color: var(--brand-text); }
     .button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
     .table-wrap { overflow-x: auto; }
     .table { width: 100%; border-collapse: collapse; }
-    .table th, .table td { padding: var(--space) calc(var(--space) * 1.5); border-bottom: 1px var(--line) var(--border); text-align: left; }
+    .table th, .table td { padding: var(--space) calc(var(--space) * 1.5); border-bottom: 1px solid var(--border); text-align: left; }
     .table th { color: var(--text-muted); font-weight: 600; }
     .table .number { text-align: right; white-space: nowrap; }
-    .badge { display: inline-block; padding: 2px var(--space); border: 1px var(--line) var(--border); border-radius: 999px; font-size: 13px; }
+    .badge { display: inline-block; padding: 2px var(--space); border: 1px solid var(--border); border-radius: 999px; font-size: 13px; }
     .badge--success { border-color: var(--success); color: var(--success); }
     .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: calc(var(--space) * 2); }
-    .field input { min-height: 32px; padding: 0 var(--space); border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
+    .field input { min-height: 32px; padding: 0 var(--space); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); color: var(--text); font: inherit; }
     .field small { color: var(--text-muted); }
     .field--error input { border-color: var(--danger); }
     .field--error small { color: var(--danger); }
-    .alert { padding: calc(var(--space) * 1.5); border: 1px var(--line) var(--border); border-radius: var(--radius); }
+    .alert { padding: calc(var(--space) * 1.5); border: 1px solid var(--border); border-radius: var(--radius); }
     .alert--error { border-color: var(--danger); color: var(--danger); }
     .empty { padding: calc(var(--space) * 6); text-align: center; color: var(--text-muted); }
     .skeleton { height: 16px; margin: calc(var(--space) * 1.5) 0; border-radius: var(--radius); background: var(--surface-alt); }
     .pagination { display: flex; justify-content: flex-end; gap: var(--space); margin-top: calc(var(--space) * 2); color: var(--text-muted); }
     [data-width='mobile'] .table .optional { display: none; }
+    @media (prefers-reduced-motion: reduce) {
+      .segmented span, .app-nav a, .button { transition: none; }
+    }
   </style>
 </head>
 <body>
-  <header class="toolbar">
-    <strong>Boceto: Pedidos</strong>
-    <label>Nivel <select data-control="fidelity"><option value="low">Baja</option><option value="mid">Media</option><option value="high">Alta</option></select></label>
-    <label>Ancho <select data-control="width"><option value="desktop">Ordenador</option><option value="mobile">Móvil</option></select></label>
-    <label>Tema <select data-control="theme"><option value="light">Claro</option><option value="dark">Oscuro</option></select></label>
-    <label>Estado <select data-control="state"></select></label>
+  <header class="bar">
+    <p class="bar-title"><strong>Pedidos</strong> <span>Boceto - %%APP_NAME%%</span></p>
+    <div class="bar-controls">
+      <div class="control" role="radiogroup" aria-labelledby="control-width">
+        <span class="control-label" id="control-width">Ancho</span>
+        <span class="segmented">
+          <label><input type="radio" name="width" value="desktop"><span>Ordenador</span></label>
+          <label><input type="radio" name="width" value="tablet"><span>Tableta</span></label>
+          <label><input type="radio" name="width" value="mobile"><span>Móvil</span></label>
+        </span>
+      </div>
+      <div class="control" role="radiogroup" aria-labelledby="control-theme">
+        <span class="control-label" id="control-theme">Tema</span>
+        <span class="segmented">
+          <label><input type="radio" name="theme" value="light"><span>Claro</span></label>
+          <label><input type="radio" name="theme" value="dark"><span>Oscuro</span></label>
+        </span>
+      </div>
+      <div class="control" role="radiogroup" aria-labelledby="control-state" data-states>
+        <span class="control-label" id="control-state">Estado</span>
+        <span class="segmented"></span>
+      </div>
+    </div>
   </header>
   <div class="stage">
     <div class="mockup">
-      <header class="app-header">%%APP_NAME%% <span>Ana Ruiz</span></header>
+      <header class="app-header"><span class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4h7v7H4zM13 13h7v7h-7z"/><path d="M13 4h7v7h-7zM4 13h7v7H4z" opacity=".45"/></svg>%%APP_NAME%%</span> <span>Ana Ruiz</span></header>
       <div class="app-body">
         <nav class="app-nav" aria-label="Menú">
           <a href="#">Inicio</a>
@@ -102,7 +159,7 @@
                 <tr><td>PED-2039</td><td>Construcciones Ebro</td><td class="optional">13/10/2026</td><td><span class="badge">Abierto</span></td><td class="number">-</td></tr>
               </tbody>
             </table></div>
-            <div class="pagination">1–3 de 3 <button class="button" type="button">25 filas</button></div>
+            <div class="pagination">1 a 3 de 3 <button class="button" type="button">25 filas</button></div>
           </section>
           <section data-for-state="loading" data-label="Cargando">
             <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
@@ -120,13 +177,19 @@
   <script>
     const root = document.documentElement
     const sections = [...document.querySelectorAll('[data-for-state]')]
-    const stateControl = document.querySelector('[data-control="state"]')
-    for (const section of sections) stateControl.add(new Option(section.dataset.label, section.dataset.forState))
-    if (sections.length === 0) stateControl.closest('label').remove()
+    const states = document.querySelector('[data-states]')
+    for (const section of sections) {
+      const option = document.createElement('label')
+      option.innerHTML = '<input type="radio" name="state"><span></span>'
+      option.firstChild.value = section.dataset.forState
+      option.lastChild.textContent = section.dataset.label
+      states.querySelector('.segmented').append(option)
+    }
+    if (sections.length === 0) states.remove()
     const showState = () => sections.forEach((section) => { section.hidden = section.dataset.forState !== root.dataset.state })
-    for (const control of document.querySelectorAll('[data-control]')) {
-      control.value = root.dataset[control.dataset.control]
-      control.addEventListener('change', () => { root.dataset[control.dataset.control] = control.value; showState() })
+    for (const input of document.querySelectorAll('.bar input')) {
+      input.checked = input.value === root.dataset[input.name]
+      input.addEventListener('change', () => { root.dataset[input.name] = input.value; showState() })
     }
     showState()
   </script>

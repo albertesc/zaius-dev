@@ -36,7 +36,8 @@ description: Escribe una propuesta de cambio de diseño (una norma nueva o cambi
    - su frase, en «Diseño y UX» de `AGENTS.md`, con el mismo número;
    - un cambio del sistema de diseño, en `design-system.md`, y en `AGENTS.md`
      si cambia la librería o los tokens; y la guía visual,
-     `docs/ux-ui/mockups/design-system.html`, al día;
+     `docs/ux-ui/mockups/design-system.html`, al día: la sección que cambia
+     y su fila en «Cambios»;
    - las tareas para aplicarla, en `docs/next-steps.md`.
 6. **Si se descarta,** «descartada», con su motivo en «Decisión»; si otra la
    sustituye, «sustituida», con el enlace a la que la sustituye.
@@ -54,6 +55,7 @@ description: Escribe una propuesta de cambio de diseño (una norma nueva o cambi
 Cada pregunta y cada OK van con palabras de la %%KIND%%, sin jerga
 ([Hablar con la persona](../../../docs/process.md#hablar-con-la-persona)).
 
-- Con la propuesta escrita: la decide la persona.
+- Con la propuesta escrita: enséñasela entera en la pantalla, tal como ha
+  quedado, y dónde está su boceto; la decide la persona.
 - Antes de llevar una propuesta aceptada a `rules.md`, a `design-system.md` y
   a `AGENTS.md`.

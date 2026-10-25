@@ -13,7 +13,15 @@ Su estado va en la cabecera: «pendiente» hasta que `zaius-init` lo escribe,
 («Estado: aprobado el AAAA-MM-DD»). Cada apartado dice «Pendiente» hasta que
 se rellena.
 
-**En esta página:** [Para qué](#para-qué) · [Quién la usa](#quién-la-usa) · [Entra](#entra) · [No entra](#no-entra) · [Decisiones caras](#decisiones-caras) · [Requisitos no funcionales](#requisitos-no-funcionales) · [Pendiente de preguntar](#pendiente-de-preguntar)
+**En esta página:** [La idea](#la-idea), [Para qué](#para-qué), [Quién la usa](#quién-la-usa), [Entra](#entra), [No entra](#no-entra), [Decisiones caras](#decisiones-caras), [Requisitos no funcionales](#requisitos-no-funcionales), [Pendiente de preguntar](#pendiente-de-preguntar)
+
+## La idea
+
+Pendiente.
+
+*Lo que cuenta la persona al lanzar `/zaius-init`, copiado tal cual, con la
+fecha. El resto del brief sale de aquí y de sus respuestas, nunca del nombre
+del proyecto.*
 
 ## Para qué
 
@@ -48,11 +56,20 @@ discutirlo.*
 
 Pendiente.
 
+<!-- kit:if backend -->
 *Lo que cuesta mucho cambiar después, y por eso se pregunta al empezar,
 aunque todavía no se diseñe: si la usan varias organizaciones, cada una con
 sus datos; si hay roles y permisos; si tiene que funcionar sin conexión; y si
 va en varios idiomas o con varias monedas. Cada una, con su respuesta y su
 fecha («Un solo idioma, el castellano. 2026-11-03»).*
+<!-- kit:else -->
+*Lo que cuesta mucho cambiar después, y por eso se pregunta al empezar,
+aunque todavía no se diseñe: qué guarda la app y dónde, porque no tiene API
+(nada, este navegador, o varios dispositivos, que pide una API); si tiene que
+funcionar sin conexión; y si va en varios idiomas o con varias monedas. Cada
+una, con su respuesta y su fecha («Guarda las listas en este navegador.
+2026-11-03»).*
+<!-- kit:end -->
 
 ## Requisitos no funcionales
 
@@ -65,7 +82,9 @@ Pendiente.
 - *Accesibilidad: el nivel que se pide; si no se dice otro, WCAG 2.2 AA.*
 - *Rendimiento: cuánto puede tardar una pantalla y cuántos datos maneja (los
   pedidos de un día, de un año).*
+<!-- kit:if backend -->
 - *Sesión: cómo se entra, cuánto dura y qué pasa cuando caduca.*
+<!-- kit:end -->
 
 ## Pendiente de preguntar
 

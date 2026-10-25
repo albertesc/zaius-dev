@@ -24,31 +24,35 @@ fecha del OK.
   `/zaius-spec`. Con `@`, Claude Code y opencode las listan
   (`/zaius-spec @docs/specs/ORD`).
 - **Su estado** va en la cabecera de su fichero, con la fecha, y se repite
-  aquí: pendiente → por aprobar → aprobada → en curso → por cerrar → hecha
+  aquí: pendiente, por aprobar, aprobada, en curso, por cerrar y hecha
   ([Los estados](./process.md#los-estados-de-una-historia)).
 - **La primera historia es el esqueleto que anda:** la parte más pequeña de
   la app que ya funciona de principio a fin (el marco, una pantalla con sus
   datos y, si hay login, la entrada), sobre la que crecen las demás.
 
-**En esta página:** [Cómo se escribe](#cómo-se-escribe) · [Épicas](#épicas) · [Quitadas](#quitadas)
+**En esta página:** [Cómo se escribe](#cómo-se-escribe), [Épicas](#épicas), [Quitadas](#quitadas)
 
 ## Cómo se escribe
 
-En «Épicas», una sección por épica, en el orden en que se empiezan, y debajo
-una línea por historia, en el orden en que se hacen:
+Se escribe para que se entienda sin saber programar: es lo que la persona
+aprueba. En «Épicas», una sección por épica, en el orden en que se empiezan,
+y debajo una línea por historia, en el orden en que se hacen:
 
 ```markdown
-### Pedidos · ORD
+### Pedidos (ORD)
 
-- **ORD001** Como responsable de almacén, quiero ver los pedidos de mi almacén, para saber cuáles hay que preparar hoy. · pendiente
-- **ORD002** Como responsable de almacén, quiero filtrar los pedidos por estado, para encontrar los atrasados. Requiere: ORD001 · pendiente
+- **ORD001** Como responsable de almacén, quiero ver los pedidos de mi almacén, para saber cuáles hay que preparar hoy. Estado: pendiente.
+- **ORD002** Como responsable de almacén, quiero filtrar los pedidos por estado, para encontrar los atrasados. Requiere: ORD001. Estado: pendiente.
 ```
 
 - **La historia,** en una frase: «Como <quién>, quiero <qué>, para <para
-  qué>.», con las palabras de quien usa la app, sin jerga.
+  qué>.», con las palabras de quien usa la app, sin jerga. El quién es el
+  tipo de usuario («Como responsable de almacén») o, si hay uno solo, «Como
+  usuario».
 - **Requiere:** las historias que tienen que estar hechas antes, por su
   código. Si no requiere ninguna, no lo lleva.
-- **El estado,** al final, detrás de «·», el mismo que dice su fichero.
+- **El estado,** al final, como «Estado: <estado>.», el mismo que dice su
+  fichero.
 
 ## Épicas
 

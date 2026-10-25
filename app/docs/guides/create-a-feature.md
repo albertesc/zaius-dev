@@ -1,8 +1,14 @@
 # Crear una feature
 
+<!-- kit:if backend -->
 Esta guía monta una feature de principio a fin: su documento, la carpeta, las
 rutas, la página, los textos, el menú, los permisos y los datos. Sirve también
 para añadir una página a una feature que ya existe, saltando los pasos hechos.
+<!-- kit:else -->
+Esta guía monta una feature de principio a fin: su documento, la carpeta, las
+rutas, la página, los textos, el menú y los datos. Sirve también para añadir
+una página a una feature que ya existe, saltando los pasos hechos.
+<!-- kit:end -->
 El ejemplo es `orders`, la gestión de los pedidos, en `/orders`; donde otra
 pieza de la misma familia enseña mejor el patrón, sale de `ordersEdit`, la
 gestión de un pedido, en `/orders/:id/edit`.
@@ -16,12 +22,17 @@ proyecto están en
 - [1. El documento](#1-el-documento)
 - [2. El nombre y la carpeta](#2-el-nombre-y-la-carpeta)
 - [3. Las rutas](#3-las-rutas)
-- **4. La página:** [Un componente](#un-componente) · [Un hook](#un-hook)
+- **4. La página:** [Un componente](#un-componente), [Un hook](#un-hook)
 - [5. Los textos](#5-los-textos)
 - [6. El menú](#6-el-menú)
+<!-- kit:if backend -->
 - [7. Los permisos](#7-los-permisos)
 - [8. Los datos y el estado](#8-los-datos-y-el-estado)
 - [9. Los tests](#9-los-tests)
+<!-- kit:else -->
+- [7. Los datos y el estado](#7-los-datos-y-el-estado)
+- [8. Los tests](#8-los-tests)
+<!-- kit:end -->
 - [Las animaciones](#las-animaciones)
 - [La feature terminada](#la-feature-terminada)
 - [Errores comunes](#errores-comunes)
@@ -33,7 +44,11 @@ Una feature nace con la primera historia que la pide (`ORD001`, en
 la pantalla en [Features](../features/README.md):
 `docs/features/<familia>/<feature>.md` (sin familia,
 `docs/features/<feature>.md`), con la plantilla del índice. Ahí se decide qué
+<!-- kit:if backend -->
 hace, sus páginas, sus permisos, sus zonas y los métodos de service que usa.
+<!-- kit:else -->
+hace, sus páginas, sus zonas y sus datos.
+<!-- kit:end -->
 Se escribe sin dudas abiertas: las que salen se resuelven en el momento y
 quedan como decisiones. El código cumple ese documento, y el documento dice
 siempre lo que hace el código: lo que se decide al construir se apunta en la
@@ -53,8 +68,12 @@ El esqueleto, con los apartados de la plantilla en su orden:
 # orders
 
 La gestión de los pedidos: el listado, con la barra de filtros, para buscarlos,
+<!-- kit:if backend -->
 gestionarlos, exportarlos y crear nuevos. Es para quien los gestiona, con el
 permiso `ORDERS.VIEW`.
+<!-- kit:else -->
+gestionarlos, exportarlos y crear nuevos. Es para quien los gestiona.
+<!-- kit:end -->
 
 ## Qué hace
 
@@ -62,11 +81,13 @@ permiso `ORDERS.VIEW`.
 
 ## URL y páginas
 
-| Ruta | Página | Miga de pan |
-|---|---|---|
-| `/orders` | `OrdersPage` | «Pedidos › Gestión de pedidos» |
+| Ruta | Página | Pestaña | Miga de pan |
+|---|---|---|---|
+| `/orders` | `OrdersPage` | «Gestión de pedidos» | «Pedidos / Gestión de pedidos» |
 
+<!-- kit:if backend -->
 ## Permisos
+<!-- kit:end -->
 ## Zonas de la pantalla
 ## Datos
 ## Raíz, dominios, familia y específico
@@ -91,23 +112,42 @@ familia:
 src/features/orders/orders/
 ```
 
+<!-- kit:if backend -->
 Una pantalla sin familia va directa en `features/` (`features/profile/`). La
 entrada, si hay login, es una familia más (`features/auth/authLogin/`): sus
 rutas las monta `router/rootRoutes.tsx`, fuera del marco de la app, en lugar
 de `appRoutes.tsx`. La forma de la carpeta
 por dentro está en [Normativa](../standards.md#la-forma-de-una-feature): solo
 se crean las carpetas que hacen falta.
+<!-- kit:else -->
+Una pantalla sin familia va directa en `features/` (`features/settings/`). La
+forma de la carpeta por dentro está en
+[Normativa](../standards.md#la-forma-de-una-feature): solo se crean las
+carpetas que hacen falta.
+<!-- kit:end -->
 
 ## 3. Las rutas
 
-La feature declara sus rutas en `ordersRoutes.tsx`. Cada página se carga
-con `lazy` en forma de función, que devuelve `{ Component }`: así, si no llega
-el código, sale la página de error
-([Normativa](../standards.md#rutas-permisos-y-navegación)). La ruta lleva su
-miga de pan en `handle`. `orders` tiene una página, en el índice de la
+La feature declara sus rutas en `ordersRoutes.tsx`. Con una sola pantalla en
+la app, su página va directa, sin `lazy` ni `handle`:
+
+```tsx
+import type { RouteObject } from 'react-router'
+import { OrdersPage } from './pages/OrdersPage'
+
+export const ordersRoutes: RouteObject[] = [
+  { path: 'orders', Component: OrdersPage },
+]
+```
+
+Desde la segunda, cada página se carga con `lazy` en forma de función, que
+devuelve `{ Component }`: así, si no llega el código, sale la página de error
+([Normativa](../standards.md#rutas-permisos-y-navegación)). Y si la app pinta
+miga, como la de `orders`, que es de una familia con varias pantallas, la ruta
+<!-- kit:if backend -->
+lleva su segmento en `handle`. `orders` tiene una página, en el índice de la
 familia, bajo su guarda:
 
-<!-- kit:if i18n -->
 ```tsx
 import type { RouteObject } from 'react-router'
 import { SessionPermissionGuard } from '@/domains/session/components/SessionPermissionGuard'
@@ -126,30 +166,26 @@ export const ordersRoutes: RouteObject[] = [
   },
 ]
 ```
-<!-- kit:else -->
-```tsx
-import type { RouteObject } from 'react-router'
-import { SessionPermissionGuard } from '@/domains/session/components/SessionPermissionGuard'
-import { ordersPermissions } from './ordersPermissions'
-
-export const ordersRoutes: RouteObject[] = [
-  {
-    element: <SessionPermissionGuard allowed={(permissions) => ordersPermissions(permissions).canView} />,
-    children: [
-      {
-        index: true,
-        handle: { crumb: () => ({ label: 'Gestión de pedidos', to: '/orders' }) },
-        lazy: () => import('./pages/OrdersPage').then((m) => ({ Component: m.OrdersPage })),
-      },
-    ],
-  },
-]
-```
-<!-- kit:end -->
 
 La guarda y la regla salen del dominio `session`, que crea el proyecto con su
 login ([Aplicar permisos](./apply-permissions.md#lo-que-da-la-sesión)). Una app
 sin login no tiene guardas: sus rutas van sin el `element` de la guarda.
+<!-- kit:else -->
+lleva su segmento en `handle`. `orders` tiene una página, en el índice de la
+familia:
+
+```tsx
+import type { RouteObject } from 'react-router'
+
+export const ordersRoutes: RouteObject[] = [
+  {
+    index: true,
+    handle: { crumb: () => ({ labelKey: 'common:nav.orders', to: '/orders' }) },
+    lazy: () => import('./pages/OrdersPage').then((m) => ({ Component: m.OrdersPage })),
+  },
+]
+```
+<!-- kit:end -->
 
 Después se añade a las rutas de la app, `src/router/appRoutes.tsx`, en
 los `children` del segmento de su familia (`path: 'orders'`), junto a las
@@ -157,31 +193,29 @@ demás features de la familia: `...ordersRoutes, ...ordersDashboardRoutes,
 ...ordersNewRoutes, ...ordersEditRoutes`. Esa es la única línea que conoce la
 feature desde fuera. El segmento de la familia lleva la miga de pan «Pedidos»,
 sin `to`: es texto, sin enlace, porque la familia no tiene página. Así, la
-miga de `orders` es «Pedidos › Gestión de pedidos».
+miga de `orders` es «Pedidos / Gestión de pedidos».
 
-- **`NavHandle`** (`types/navigation.ts`, que nace con los layouts) es el tipo
-  del `handle`: su `crumb` recibe los parámetros de la URL, y del último
-  segmento de la miga sale también el título de la pestaña del navegador
-  ([D10](../ux-ui/rules.md#d10-navegación)).
+- **`NavHandle`** (`types/navigation.ts`, que nace con la miga o con el menú)
+  es el tipo del `handle`: su `crumb` recibe los parámetros de la URL.
 - **Las rutas de una feature son relativas al segmento de la familia:**
   `ordersDashboard` declara `path: 'dashboard'`; `ordersNew`, `path: 'new'`, y
   `ordersEdit`, `path: ':id/edit'`.
 - **Una ruta que no está en el menú** lleva `handle.navTo` con la entrada del
   menú que debe seguir marcada: en la gestión de un pedido, `'/orders'`. De
   ese `navTo` sale también el segundo nivel de su miga, porque la miga lleva
-  siempre la lista: «Pedidos › Gestión de pedidos › Pedido #1287». Su propio
-  segmento («Pedido #1287») da también la pestaña del navegador, y el título
-  de la página es otro texto, «Gestiona el pedido #1287».
+  siempre la lista: «Pedidos / Gestión de pedidos / Pedido #1287». La
+  pestaña del navegador dice lo mismo que su segmento, «Pedido #1287», y el
+  título de la página es otro texto, «Gestiona el pedido #1287».
 
 ## 4. La página
 
 Cada página de `pages/` monta una pantalla: su cabecera y sus zonas. Reparte
+<!-- kit:if backend -->
 los datos que piden sus hooks a los componentes; no pide nada a un service ni
 transforma datos. Un solo `return`, los hooks arriba y las piezas del sistema
 de diseño en el JSX. Esta es la página de `orders`
 (`pages/OrdersPage.tsx`):
 
-<!-- kit:if i18n -->
 ```tsx
 export function OrdersPage () {
   const { t } = useTranslation()
@@ -213,12 +247,22 @@ export function OrdersPage () {
   )
 }
 ```
+
+El cuerpo de la petición (`useOrdersRequest`) es el mismo para la página y
+para la exportación, así que la página lo arma una vez y se lo pasa a la
+tabla, que exporta. El modal de cerrar un pedido es de la familia y se monta
+solo mientras está abierto, con el pedido que eligió la fila: así pide lo suyo
+al abrirse.
 <!-- kit:else -->
+los datos que dan sus hooks a los componentes y no transforma datos. Un solo
+`return`, los hooks arriba y las piezas del sistema de diseño en el JSX. Esta
+es la página de `orders` (`pages/OrdersPage.tsx`):
+
 ```tsx
 export function OrdersPage () {
+  const { t } = useTranslation()
   const search = useOrdersStore((state) => state.listQuery.search)
-  const request = useOrdersRequest()
-  const list = useOrdersListPage(request)
+  const list = useOrdersListPage()
   const [closing, setClosing] = useState<number | null>(null)
 
   const isClosing = closing !== null
@@ -226,17 +270,12 @@ export function OrdersPage () {
   return (
     <>
       <OrderFiltersHeader
-        title='Gestión de pedidos'
-        total={list.data?.totalItems}
-        isTotalError={list.isError}
+        title={t('orders:title')}
+        total={list.totalItems}
         search={search}
       />
       <OrdersTable
-        page={list.data}
-        request={request}
-        isError={list.isError}
-        loading={list.isPending || list.isPlaceholderData}
-        onRetry={() => { void list.refetch() }}
+        page={list.page}
         onClose={setClosing}
       />
       {isClosing ? <OrderCloseModal id={closing} onClose={() => setClosing(null)} /> : null}
@@ -244,19 +283,20 @@ export function OrdersPage () {
   )
 }
 ```
-<!-- kit:end -->
 
-El cuerpo de la petición (`useOrdersRequest`) es el mismo para la página y
-para la exportación, así que la página lo arma una vez y se lo pasa a la
-tabla, que exporta. El modal de cerrar un pedido es de la familia y se monta
-solo mientras está abierto, con el pedido que eligió la fila: así pide lo suyo
-al abrirse.
+El modal de cerrar un pedido es de la familia y se monta solo mientras está
+abierto, con el pedido que eligió la fila: así empieza limpio cada vez.
+<!-- kit:end -->
 
 `ordersDashboard`, la otra feature de la familia, usa la misma cabecera, con
 el enlace al listado, y debajo monta las secciones del análisis. La cabecera
 (`OrderFiltersHeader`) es una pieza de `orders/common`, porque la usan las
 dos: el título, el recuento y la barra de filtros. Recibe por props lo que
+<!-- kit:if backend -->
 depende de la página (el título, el recuento y si ha fallado, la búsqueda) y
+<!-- kit:else -->
+depende de la página (el título, el recuento y la búsqueda) y
+<!-- kit:end -->
 no sabe nada de ellas. Las pestañas de la gestión de un registro van en
 `?tab=`, con `replace`; las de un asistente, en un `useState`
 ([Normativa](../standards.md#rutas-permisos-y-navegación)).
@@ -265,8 +305,9 @@ no sabe nada de ellas. Las pestañas de la gestión de un registro van en
   explicación, el icono de información
   ([D2](../ux-ui/rules.md#d2-sin-textos-explicativos)). El título de una
   pantalla que abre una entrada del menú es el texto de esa entrada («Gestión
-  de pedidos»), y la pestaña del navegador dice «Gestión de pedidos ·
-  %%APP_NAME%%» ([D10](../ux-ui/rules.md#d10-navegación)).
+  de pedidos»), y con él pone la cabecera la pestaña del navegador, con el
+  `<title>` de React: «Gestión de pedidos - %%APP_NAME%%»
+  ([D10](../ux-ui/rules.md#d10-navegación)).
 - **Una pantalla sin barra de acciones abajo** (la gestión de un registro en
   lectura) lleva la vuelta encima del título. Lleva a donde se estaba: si la
   pantalla de origen pasó en el estado de navegación su destino de vuelta, usa
@@ -284,16 +325,12 @@ no sabe nada de ellas. Las pestañas de la gestión de un registro van en
 Un componente pinta lo que recibe: sus props van tipadas y sus estilos salen
 de un `.module.css` al lado, con los tokens del sistema de diseño
 ([D1](../ux-ui/rules.md#d1-el-sistema-de-diseño-primero)).
-<!-- kit:if i18n -->
 Sus textos salen de `t()`, con el namespace de la feature.
-<!-- kit:else -->
-Sus textos van escritos en él.
-<!-- kit:end -->
 La tarjeta de las líneas de `ordersEdit` no pide nada: sus props son justo lo
 que devuelve su hook ([Un hook](#un-hook)), y la página se lo pasa entero
 (`<OrdersEditLinesCard {...lines} />`).
 
-<!-- kit:if i18n -->
+<!-- kit:if backend -->
 ```tsx
 type OrdersEditLinesCardProps = ReturnType<typeof useOrdersEditLines>
 
@@ -312,27 +349,28 @@ export function OrdersEditLinesCard ({ lines, isError, onRetry }: OrdersEditLine
   )
 }
 ```
+
+- **Cada estado es una constante con nombre** (`isLoading`), y el JSX los
 <!-- kit:else -->
 ```tsx
 type OrdersEditLinesCardProps = ReturnType<typeof useOrdersEditLines>
 
-export function OrdersEditLinesCard ({ lines, isError, onRetry }: OrdersEditLinesCardProps) {
-  const isLoading = lines === undefined
+export function OrdersEditLinesCard ({ lines }: OrdersEditLinesCardProps) {
+  const { t } = useTranslation()
+  const isEmpty = lines.length === 0
 
   return (
-    <Card title='Líneas del pedido'>
-      {isError
-        ? <ErrorState title='No se han podido cargar las líneas' retryLabel='Vuelve a intentarlo' onRetry={onRetry} />
-        : isLoading
-          ? <LoadingSkeleton />
-          : <OrdersEditLinesTable lines={lines} />}
+    <Card title={t('ordersEdit:lines.title')}>
+      {isEmpty
+        ? <EmptyState title={t('ordersEdit:lines.empty')} />
+        : <OrdersEditLinesTable lines={lines} />}
     </Card>
   )
 }
 ```
-<!-- kit:end -->
 
-- **Cada estado es una constante con nombre** (`isLoading`), y el JSX los
+- **Cada estado es una constante con nombre** (`isEmpty`), y el JSX los
+<!-- kit:end -->
   resuelve con ternarios, con `null` en la rama que no pinta; nunca `&&`
   ([Normativa](../standards.md#componentes)).
 - **La tabla es otro componente,** en su propio fichero: un fichero de
@@ -343,6 +381,7 @@ export function OrdersEditLinesCard ({ lines, isError, onRetry }: OrdersEditLine
 
 ### Un hook
 
+<!-- kit:if backend -->
 El hook de la feature pide el dato y devuelve justo las props de la pieza que
 lo pinta, para que el componente no transforme nada. Este es el de las líneas
 del pedido:
@@ -380,10 +419,43 @@ export function useOrdersEditLines (id: number) {
 - **La clave es `[service, método, ...parámetros]`:** dos features que piden
   el mismo dato con la misma clave comparten la caché, sin importarse
   ([Cargar y guardar datos](./load-and-save-data.md#2-un-dato)).
+<!-- kit:else -->
+El hook de la feature lee el dato y devuelve justo las props de la pieza que
+lo pinta, para que el componente no transforme nada. Lo que la app guarda sin
+API se decide en `/zaius-init` y se monta con la primera historia que lo
+necesita; en el ejemplo, los pedidos están en un store de la familia,
+`useOrderRecordsStore`. Este es el hook de las líneas del pedido:
+
+```ts
+import { formatUtils } from '@/utils/formatUtils'
+import { useOrderRecordsStore } from '../../common/stores/useOrderRecordsStore'
+import { ordersEditLineUtils } from '../utils/ordersEditLineUtils'
+
+/**
+ * Las líneas del pedido de la gestión, listas para su tarjeta: el producto, la cantidad y el importe de cada una, con formato.
+ * @param id Id del pedido.
+ * @returns `lines`, una lista vacía si el pedido no tiene ninguna.
+ */
+export function useOrdersEditLines (id: number) {
+  const order = useOrderRecordsStore((state) => state.orders.find((item) => item.id === id))
+
+  return {
+    lines: (order?.lines ?? []).map((line) => ({
+      id: line.id,
+      product: line.productName,
+      quantity: formatUtils.formatNumber(line.quantity),
+      amount: formatUtils.formatAmount(ordersEditLineUtils.getOrdersEditLineAmount(line)),
+    })),
+  }
+}
+```
+
+<!-- kit:end -->
 - **Lo que se calcula sin `t` ni locale va en `utils/`,** en el objeto de su
   tema. El hook solo junta, traduce y da formato:
 
 ```ts
+<!-- kit:if backend -->
 import type { OrderEditLines } from '@/services/orders/ordersEditSchema'
 
 /**
@@ -392,6 +464,16 @@ import type { OrderEditLines } from '@/services/orders/ordersEditSchema'
  * @returns El importe, sin redondear.
  */
 function getOrdersEditLineAmount (line: OrderEditLines[number]): number {
+<!-- kit:else -->
+import type { OrderRecord } from '../../common/stores/useOrderRecordsStore'
+
+/**
+ * Calcula el importe de una línea del pedido: la cantidad por el precio, menos el descuento.
+ * @param line Una línea del pedido guardado.
+ * @returns El importe, sin redondear.
+ */
+function getOrdersEditLineAmount (line: OrderRecord['lines'][number]): number {
+<!-- kit:end -->
   return line.quantity * line.unitPrice * (1 - line.discount / 100)
 }
 
@@ -405,13 +487,17 @@ export const ordersEditLineUtils = {
   algo: fechas, cifras, importes y porcentajes, siempre igual en toda la app
   ([D11](../ux-ui/rules.md#d11-textos-y-formato)). Ninguna pantalla formatea
   a mano.
+<!-- kit:if backend -->
 - **Mientras carga, `lines` es `undefined`,** y el componente lo lee como su
   estado de carga; un fallo va en `isError`, con su reintento
   ([Carga, error y vacío](./load-and-save-data.md#3-carga-error-y-vacío)).
+<!-- kit:else -->
+- **Sin líneas, `lines` es una lista vacía,** y el componente la pinta como su
+  estado vacío ([D3](../ux-ui/rules.md#d3-estados-de-carga-error-y-vacío)).
+<!-- kit:end -->
 
 ## 5. Los textos
 
-<!-- kit:if i18n -->
 Cada feature lleva un catálogo por idioma de la app (%%LANGUAGES%%) en su
 carpeta `i18n/` (`i18n/<idioma>.json`). Se cargan solos: el namespace es el
 nombre de la carpeta, así que añadir una feature no toca `src/i18n/`. Los
@@ -446,58 +532,43 @@ plural (`_one` y `_other`: «1 pedido», «24 pedidos»):
 `t('orders:filters.subtitle', { count })`
 ([D11](../ux-ui/rules.md#d11-textos-y-formato)). Las reglas de nombres de
 las claves están en [Nomenclatura](../naming.md#textos-i18n).
-<!-- kit:else -->
-La app tiene un solo idioma, así que los textos van escritos en el componente
-que los pinta, y en ningún otro sitio: un hook o un util devuelven datos (un
-recuento, el motivo de un fallo), y el componente los convierte en texto
-([Normativa](../standards.md#textos)). Así, quitar una pantalla es quitar sus
-textos con ella.
-
-- **La acción de una fila que solo lleva el verbo** («Gestiona», «Quita»)
-  nombra el registro en su nombre accesible («Gestiona el pedido #1287»), para
-  el lector de pantalla ([D12](../ux-ui/rules.md#d12-accesibilidad)).
-- **Un número que concuerda** elige su forma con una constante con nombre, y
-  la cifra llega ya formateada del hook
-  ([D11](../ux-ui/rules.md#d11-textos-y-formato)):
-
-  ```tsx
-  const isOne = count === 1
-
-  return <PageHeader title='Gestión de pedidos' subtitle={isOne ? '1 pedido' : `${total} pedidos`} />
-  ```
-
-- **Si la app pasa a varios idiomas,** la skill `zaius-languages` lleva
-  los textos a los catálogos.
-<!-- kit:end -->
 
 ## 6. El menú
 
+Con una sola pantalla no hay menú: nace con la segunda que se abre desde él,
+y entran las dos ([Normativa](../standards.md#rutas-permisos-y-navegación)).
+
+<!-- kit:if backend -->
 Si la feature es destino del menú, se añade su entrada en
 `src/router/navigation.config.ts`, con su texto y una regla `allowed`
 con el permiso que pide su ruta: sin él, la entrada no se ve. El menú no
 importa de la feature, así que la regla repite el permiso:
 
-<!-- kit:if i18n -->
 ```ts
 { to: '/orders', labelKey: 'common:nav.orders', allowed: (permissions) => permissions.includes('ORDERS.VIEW') }
 ```
+<!-- kit:else -->
+Si la feature es destino del menú, se añade su entrada en
+`src/router/navigation.config.ts`, con su ruta y su texto:
+
+```ts
+{ to: '/orders', labelKey: 'common:nav.orders' }
+```
+<!-- kit:end -->
 
 La etiqueta es `common:nav.<feature>`, con el nombre de la feature
 (`common:nav.ordersNew`, `common:nav.orders`).
-<!-- kit:else -->
-```ts
-{ to: '/orders', label: 'Gestión de pedidos', allowed: (permissions) => permissions.includes('ORDERS.VIEW') }
-```
-<!-- kit:end -->
 
 La entrada va en los `children` del grupo de su familia, en su sitio: las tres
 primeras son siempre añadir, análisis y gestión («Añadir pedido», «Análisis de
 pedidos» y «Gestión de pedidos»), y lo propio de la familia va detrás. Una
 familia sin análisis se lo salta. El grupo («Pedidos») es solo el nombre de la
+<!-- kit:if backend -->
 familia: no tiene `to` ni regla propia, su cabecera despliega o pliega sus
 entradas y se ve si se ve alguna de ellas
 ([Aplicar permisos](./apply-permissions.md#8-el-menú)). El texto de la entrada
-es también la miga de pan de la pantalla ([las rutas](#3-las-rutas)).
+es también el segmento de la pantalla en la miga, si la app la pinta
+([las rutas](#3-las-rutas)).
 
 ## 7. Los permisos
 
@@ -548,6 +619,36 @@ Cada fichero con código tiene su test al lado, con el mismo nombre; solo se
 libran los tipos, las constantes, la configuración y las rutas. La página se
 prueba entera, con el service simulado, montando solo las rutas de la feature.
 <!-- kit:end -->
+<!-- kit:else -->
+familia: no tiene `to` y su cabecera despliega o pliega sus entradas. El texto
+de la entrada es también el segmento de la pantalla en la miga, si la app la
+pinta ([las rutas](#3-las-rutas)).
+
+## 7. Los datos y el estado
+
+Cada dato va en un sitio, según lo que sea:
+
+| Es | Va en | En `orders` |
+|---|---|---|
+| Lo que la app guarda (los pedidos) | El sitio que se decide en `/zaius-init`; en el ejemplo, un store de la familia | `useOrderRecordsStore`, de `orders/common` |
+| Un dato fijo, que no cambia al usar la app (los motivos de cierre) | Una constante de `constants/` | `ORDER_CLOSE_REASONS`, de `orders/common` |
+| Lo que solo importa mientras la pantalla está abierta | `useState` | el borrador de «Más filtros», hasta aplicarlo |
+| Lo que sobrevive a abrir un registro y volver, y a recargar (los filtros, la página, el orden, los ajustes de vista) | Un store de `stores/`, guardado en el `sessionStorage` sin la búsqueda; si lo comparten dos features de la familia, uno de su `common` | `useOrdersStore`: la consulta del listado; `useOrderFiltersStore`, de `orders/common`: los filtros aplicados |
+| Lo que se comparte con un enlace | La URL | la pantalla (`/orders`) y, en la gestión de un registro, su pestaña (`/orders/1287/edit?tab=documents`) |
+
+Dónde guarda la app sus datos se decide en `/zaius-init` y queda en el
+[brief](../brief.md); la primera historia que guarda algo lo monta, con el OK
+de la persona. Lo que ya existe en la raíz, en un dominio o en el `common` de
+la familia se reutiliza; nada se importa de otra feature: si dos necesitan lo
+mismo, se sube primero
+([Normativa](../standards.md#independencia-de-las-features)).
+
+## 8. Los tests
+
+Cada fichero con código tiene su test al lado, con el mismo nombre; solo se
+libran los tipos, las constantes, la configuración y las rutas. La página se
+prueba entera, montando solo las rutas de la feature.
+<!-- kit:end -->
 Los tests salen de la lista de la historia y se escriben antes que su código,
 uno a uno. Cómo: [Escribir tests](./write-tests.md#una-página).
 
@@ -587,45 +688,77 @@ que salen en ella y su `common` quedan así (cada fichero con código tiene su
 `.test` al lado). El resto está en el apartado «Raíz, dominios, familia y
 específico» del documento de cada feature.
 
+<!-- kit:if backend -->
 ```text
 orders/
-├── orders/
-│   ├── pages/OrdersPage.tsx
-│   ├── components/OrdersTable.tsx
-│   ├── hooks/
-│   │   ├── useOrdersExport.ts
-│   │   ├── useOrdersListPage.ts
-│   │   └── useOrdersRequest.ts
-│   ├── constants/ordersColumns.ts
-│   ├── stores/useOrdersStore.ts
-│   ├── ordersPermissions.ts
-│   └── ordersRoutes.tsx
-├── ordersEdit/
-│   ├── pages/OrdersEditPage.tsx
-│   ├── components/lines/
-│   │   ├── OrdersEditLinesCard.tsx
-│   │   └── OrdersEditLinesTable.tsx
-│   ├── hooks/
-│   │   ├── useOrdersEdit.ts
-│   │   └── useOrdersEditLines.ts
-│   ├── utils/ordersEditLineUtils.ts
-│   ├── ordersEditPermissions.ts
-│   └── ordersEditRoutes.tsx
-└── common/
-    ├── components/
-    │   ├── OrderFiltersHeader.tsx
-    │   └── OrderCloseModal.tsx
-    ├── stores/useOrderFiltersStore.ts
-    └── utils/
-        ├── orderQueryUtils.ts
-        └── orderRequestUtils.ts
+    orders/
+        pages/OrdersPage.tsx
+        components/OrdersTable.tsx
+        hooks/
+            useOrdersExport.ts
+            useOrdersListPage.ts
+            useOrdersRequest.ts
+        constants/ordersColumns.ts
+        stores/useOrdersStore.ts
+        ordersPermissions.ts
+        ordersRoutes.tsx
+    ordersEdit/
+        pages/OrdersEditPage.tsx
+        components/lines/
+            OrdersEditLinesCard.tsx
+            OrdersEditLinesTable.tsx
+        hooks/
+            useOrdersEdit.ts
+            useOrdersEditLines.ts
+        utils/ordersEditLineUtils.ts
+        ordersEditPermissions.ts
+        ordersEditRoutes.tsx
+    common/
+        components/
+            OrderFiltersHeader.tsx
+            OrderCloseModal.tsx
+        stores/useOrderFiltersStore.ts
+        utils/
+            orderQueryUtils.ts
+            orderRequestUtils.ts
 ```
+<!-- kit:else -->
+```text
+orders/
+    orders/
+        pages/OrdersPage.tsx
+        components/OrdersTable.tsx
+        hooks/
+            useOrdersExport.ts
+            useOrdersListPage.ts
+        constants/ordersColumns.ts
+        stores/useOrdersStore.ts
+        ordersRoutes.tsx
+    ordersEdit/
+        pages/OrdersEditPage.tsx
+        components/lines/
+            OrdersEditLinesCard.tsx
+            OrdersEditLinesTable.tsx
+        hooks/
+            useOrdersEdit.ts
+            useOrdersEditLines.ts
+        utils/ordersEditLineUtils.ts
+        ordersEditRoutes.tsx
+    common/
+        components/
+            OrderFiltersHeader.tsx
+            OrderCloseModal.tsx
+        constants/orderCloseReasons.ts
+        stores/
+            useOrderFiltersStore.ts
+            useOrderRecordsStore.ts
+        utils/orderQueryUtils.ts
+```
+<!-- kit:end -->
 
-<!-- kit:if i18n -->
 Cada feature y el `common` llevan además su carpeta `i18n/`, con un catálogo
 por idioma.
 
-<!-- kit:end -->
 `ordersDashboard` lee los filtros aplicados de `useOrderFiltersStore`, el
 mismo que usa `orders`, así que pasar de una a otra conserva los filtros.
 
@@ -634,14 +767,17 @@ mismo que usa `orders`, así que pasar de una a otra conserva los filtros.
 | Síntoma | Causa |
 |---|---|
 | La página sale en blanco y la consola dice que falta un export | El `lazy` importa un nombre distinto del que exporta la página. |
-<!-- kit:if i18n -->
+| La pestaña del navegador dice solo «%%APP_NAME%%» | La pantalla no pone su `<title>`: falta en su cabecera. |
 | Se ven las claves (`orders:title`) en lugar de los textos | El namespace no coincide con el nombre de la carpeta, o falta la clave en el catálogo del idioma. |
-<!-- kit:end -->
 | La entrada del menú no se marca en la gestión de un registro | Falta `handle.navTo` en su ruta. |
 | Falla la independencia en la comprobación de la estructura | La feature importa de otra feature o de otra familia: hay que subir lo compartido. |
+<!-- kit:if backend -->
 | La pantalla dice «No tienes acceso a esta página» con alguien que debería entrar | La regla de `SessionPermissionGuard` pide un permiso que la sesión no trae. |
 | La lista no se actualiza al cambiar un filtro | La clave de consulta no lleva el cuerpo entero de la petición. |
 | La lista vuelve a la carga al cambiar un filtro | Falta `placeholderData: keepPreviousData`, o el `loading` de la tabla lee `isFetching` en lugar de `isPending \|\| isPlaceholderData`. |
+<!-- kit:end -->
 | «Gestiona» no se puede abrir en otra pestaña | Navega con `onClick` y `navigate`: lo que lleva a otra pantalla es un enlace con `href`. |
+<!-- kit:if backend -->
 | Dos zonas piden el mismo dato dos veces | Sus claves de consulta no son iguales: un parámetro distinto o un objeto que se crea en cada render. |
+<!-- kit:end -->
 | Falla «un test por fichero» en la comprobación de la estructura | Un fichero con código no tiene su `.test` al lado, con el mismo nombre. |

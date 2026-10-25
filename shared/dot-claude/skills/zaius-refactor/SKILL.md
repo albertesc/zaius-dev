@@ -35,7 +35,7 @@ no es un refactor: es una %%UNIT%% (`/%%SPEC_SKILL%%` o `/zaius-backlog`).
    ```markdown
    # <Lo que se mejora>
 
-   Estado: por aprobar · Unidad: <código, o «todo el proyecto»> · Fecha: AAAA-MM-DD
+   Estado: por aprobar. Unidad: <código, o «todo el proyecto»>. Fecha: AAAA-MM-DD
 
    ## Por qué
    Lo que se mejora y su señal en el código (`fichero:línea`).
@@ -70,9 +70,14 @@ no es un refactor: es una %%UNIT%% (`/%%SPEC_SKILL%%` o `/zaius-backlog`).
 
 Con el OK, la propuesta pasa a «aprobada», con la fecha, y la persona la
 construye con `/zaius-build <fichero de la propuesta>` y la cierra con
+<!-- kit:if git -->
 `/zaius-review`. La %%UNIT%% sigue «hecha», y el commit va aparte del de la
 funcionalidad. Al cerrarla, la propuesta se queda en `docs/refactors/`, como
 historial, con el estado «hecho».
+<!-- kit:else -->
+`/zaius-review`. La %%UNIT%% sigue «hecha». Al cerrarla, la propuesta se
+queda en `docs/refactors/`, como historial, con el estado «hecho».
+<!-- kit:end -->
 
 ## Comprobación
 
@@ -87,8 +92,9 @@ historial, con el estado «hecho».
 Cada pregunta y cada OK van con palabras de la %%KIND%%, sin jerga
 ([Hablar con la persona](../../../docs/process.md#hablar-con-la-persona)).
 
-- Con la propuesta, el boceto y la lista: la persona los aprueba o pide
-  cambios, en el mismo fichero hasta su sí.
+- Con la propuesta, el boceto y la lista: enséñale la propuesta entera en la
+  pantalla, tal como ha quedado escrita, y dónde está el boceto; la persona la
+  aprueba o pide cambios, en el mismo fichero hasta su sí.
 - Si lo que se quiere cambia lo que se ve o lo que se puede hacer: dilo y
   propón una %%UNIT%% en su lugar.
 - Si llevar algo a un sitio compartido pide el OK de la normativa (un

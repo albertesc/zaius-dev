@@ -1,9 +1,16 @@
+// kit:if backend
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+// kit:end
 import { render } from '@testing-library/react'
 import type { ReactElement, ReactNode } from 'react'
 import { createMemoryRouter, MemoryRouter, RouterProvider } from 'react-router'
 import type { InitialEntry, RouteObject } from 'react-router'
+import type { TOptions } from 'i18next'
+import { APP_DEFAULT_LANGUAGE } from '@/constants/appLanguages'
+import { i18n } from '@/i18n/i18n'
+// kit:if backend
 import { queryClientConfig } from '@/queryClient.config'
+// kit:end
 
 type MediaQueryEntry = {
   query: string
@@ -13,6 +20,7 @@ type MediaQueryEntry = {
 
 const entries = new Set<MediaQueryEntry>()
 
+// kit:if backend
 /**
  * Crea los proveedores de la app para un test: un `QueryClient` nuevo, que no hereda la caché de otro test, y un router en memoria para los enlaces.
  * @returns El `wrapper` para `render` o `renderHook`, y su `queryClient`.
@@ -56,6 +64,42 @@ function renderPage (routes: RouteObject[], entry: InitialEntry) {
   return { ...view, router, queryClient }
 }
 
+// kit:else
+/**
+ * Crea los proveedores de la app para un test: un router en memoria para los enlaces.
+ * @returns El `wrapper` para `render` o `renderHook`.
+ */
+function createProvidersWrapper () {
+  const wrapper = ({ children }: { children: ReactNode }) => (
+    <MemoryRouter>
+      {children}
+    </MemoryRouter>
+  )
+  return { wrapper }
+}
+
+/**
+ * Monta un componente con los proveedores de la app.
+ * @param ui El componente, con las props del caso.
+ * @returns Lo que devuelve `render` de Testing Library.
+ */
+function renderWithProviders (ui: ReactElement) {
+  const { wrapper } = createProvidersWrapper()
+  return render(ui, { wrapper })
+}
+
+/**
+ * Monta una página con las rutas de su feature, en un router en memoria.
+ * @param routes Las rutas de la feature (`ordersRoutes`); lo que queda fuera de ellas no pinta nada.
+ * @param entry La URL con la que se abre (`/orders`), o un objeto con su `pathname` y su `state` de navegación.
+ * @returns Lo que devuelve `render`, y el `router` del test, para ver adónde ha llevado.
+ */
+function renderPage (routes: RouteObject[], entry: InitialEntry) {
+  const router = createMemoryRouter([...routes, { path: '*', element: null }], { initialEntries: [entry] })
+  return { ...render(<RouterProvider router={router} />), router }
+}
+
+// kit:end
 /**
  * Dice si una media query de anchos (`min-width`, `max-width`) se cumple con el ancho actual de la ventana.
  * @param query La media query.
@@ -103,10 +147,24 @@ function setViewportWidth (width: number): void {
   })
 }
 
+/**
+ * Da un texto del catálogo en el idioma por defecto, el que pinta la app en los tests, para buscarlo sin escribirlo a mano.
+ * @param key Su clave, con su namespace (`orders:table.title`).
+ * @param options Sus valores y su número, como en `t` (`{ count: 2 }`).
+ * @returns El texto, con sus valores.
+ * @throws Si la clave, o su forma para ese número, no está en el catálogo: un texto que falta no pasa por bueno.
+ */
+function translate (key: string, options: TOptions = {}): string {
+  const fixed = { ...options, lng: APP_DEFAULT_LANGUAGE }
+  if (!i18n.exists(key, fixed)) throw new Error(`Falta el texto «${key}» en ${APP_DEFAULT_LANGUAGE}.`)
+  return i18n.t(key, fixed)
+}
+
 export const testUtils = {
   createProvidersWrapper,
   renderWithProviders,
   renderPage,
   installMatchMedia,
   setViewportWidth,
+  translate,
 }

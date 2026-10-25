@@ -15,10 +15,10 @@ parte.
 - [Independencia de las features](#independencia-de-las-features)
 - [Sencillez y tamaño](#sencillez-y-tamaño)
 - [Comprobar la estructura](#comprobar-la-estructura)
-- [Qué se revisa](#qué-se-revisa) · [La revisión visual](#la-revisión-visual)
-- **Código:** [TypeScript](#typescript) · [Componentes](#componentes) · [Datos](#datos) · [Textos](#textos) · [Estilos](#estilos) · [Comentarios](#comentarios)
+- [Qué se revisa](#qué-se-revisa), [La revisión visual](#la-revisión-visual)
+- **Código:** [TypeScript](#typescript), [Componentes](#componentes), [Datos](#datos), [Textos](#textos), [Estilos](#estilos), [Comentarios](#comentarios)
 - [Rutas, permisos y navegación](#rutas-permisos-y-navegación)
-- **Dominios:** [Dónde va lo compartido](#dónde-va-lo-compartido) · [Normas de un dominio](#normas-de-un-dominio) · [Añadir una pieza a un dominio](#añadir-una-pieza-a-un-dominio) · [Índice de dominios](#índice-de-dominios)
+- **Dominios:** [Dónde va lo compartido](#dónde-va-lo-compartido), [Normas de un dominio](#normas-de-un-dominio), [Añadir una pieza a un dominio](#añadir-una-pieza-a-un-dominio), [Índice de dominios](#índice-de-dominios)
 <!-- kit:if existing -->
 - [Traer un proyecto que ya existe](#traer-un-proyecto-que-ya-existe)
 <!-- kit:end -->
@@ -27,53 +27,82 @@ parte.
 
 ```text
 src/
-├── main.tsx               el arranque: monta la app con su QueryClient y su router
-├── queryClient.config.ts  la configuración del QueryClient
+<!-- kit:if backend -->
+    main.tsx               el arranque: monta la app con su QueryClient y su router
+    queryClient.config.ts  la configuración del QueryClient
 <!-- kit:if mocks -->
-├── services/<entidad>/    el service de una entidad, sus schemas y su JSON de mocks
+    services/<entidad>/    el service de una entidad, sus schemas y su JSON de mocks
 <!-- kit:else -->
-├── services/<entidad>/    el service de una entidad y sus schemas
+    services/<entidad>/    el service de una entidad y sus schemas
 <!-- kit:end -->
-├── schemas/               los schemas que comparten varias entidades
-├── features/              las pantallas: las features, por familia
-├── domains/               los temas de negocio que usan varias familias, sin pantallas
-├── router/                las rutas (rootRoutes.tsx, appRoutes.tsx) y el menú
-├── layouts/               las rutas con Outlet
-├── components/            las piezas compartidas sin dominio
-├── hooks/                 los hooks genéricos
-├── utils/                 las funciones puras, en un objeto por tema, y el transporte
-├── types/                 los tipos compartidos de la raíz (api.ts, los del transporte)
-├── constants/             las constantes compartidas (appLanguages.ts)
-<!-- kit:if i18n -->
-├── i18n/                  la configuración y los textos comunes
+    schemas/               los schemas que comparten varias entidades
+<!-- kit:else -->
+    main.tsx               el arranque: monta la app con su router
 <!-- kit:end -->
-├── pages/                 las páginas genéricas: la que no existe y el error
-└── tests/                 la comprobación de la estructura, la configuración de Vitest y testUtils
+    features/              las pantallas: las features, por familia
+    domains/               los temas de negocio que usan varias familias, sin pantallas
+    router/                las rutas (rootRoutes.tsx, appRoutes.tsx) y el menú
+    layouts/               las rutas con Outlet
+    components/            las piezas compartidas sin dominio
+    hooks/                 los hooks genéricos
+<!-- kit:if backend -->
+    utils/                 las funciones puras, en un objeto por tema, y el transporte
+    types/                 los tipos compartidos de la raíz (api.ts, los del transporte)
+    constants/             las constantes compartidas (appLanguages.ts)
+<!-- kit:else -->
+    utils/                 las funciones puras, en un objeto por tema
+    types/                 los tipos compartidos de la raíz
+    constants/             las constantes compartidas (appLanguages.ts) y los datos fijos de la app
+<!-- kit:end -->
+    i18n/                  la configuración y los textos comunes
+    pages/                 las páginas genéricas: la que no existe y el error
+    tests/                 la comprobación de la estructura, la configuración de Vitest y testUtils
 ```
 
 Solo existen las carpetas que hacen falta:
 
+<!-- kit:if backend -->
 - **Lo instala el kit:** `main.tsx`, `queryClient.config.ts`, el transporte
   (`utils/apiUtils.ts`, `utils/apiErrorUtils.ts`, `utils/apiSessionUtils.ts`
   y `types/api.ts`), `router/rootRoutes.tsx`, `constants/appLanguages.ts`,
   la comprobación de la estructura (`tests/structure.test.ts`) y lo que usan
   los tests (`tests/setup.ts` y `tests/testUtils.tsx`).
+<!-- kit:else -->
+- **Lo instala el kit:** `main.tsx`, `router/rootRoutes.tsx`,
+  `constants/appLanguages.ts`, la comprobación de la estructura
+  (`tests/structure.test.ts`) y lo que usan los tests (`tests/setup.ts` y
+  `tests/testUtils.tsx`).
+<!-- kit:end -->
 <!-- kit:if mocks -->
 - **Con mocks,** también `utils/apiMockUtils.ts`.
 <!-- kit:end -->
-<!-- kit:if i18n -->
-- **Con varios idiomas,** también `i18n/i18n.ts`, con los textos comunes, y
-  `utils/languageUtils.ts`.
+- **Los textos:** `i18n/i18n.ts`, con los textos comunes en su catálogo,
+  aunque haya un solo idioma, y `utils/languageUtils.ts`.
+- **Nace con el proyecto,** con la primera pieza que lo necesita, nunca
+  antes:
+<!-- kit:if backend -->
+  - `services/`, con el primer endpoint;
 <!-- kit:end -->
-- **Nace con el proyecto,** con la primera pieza que lo necesita: `services/`,
-  con el primer endpoint; `features/`, `router/appRoutes.tsx` y
-  `router/navigation.config.ts`, con la primera pantalla; los layouts y las
-  páginas genéricas, con el marco de la app; el dominio `session`, con el
-  login; `schemas/commonSchema.ts`, con el primer schema que comparten dos
-  entidades; y `formatUtils`, con la primera pantalla que formatea un dato.
+  - `features/`, `router/appRoutes.tsx`, el marco de la app (`AppLayout`) y
+    las páginas genéricas, con la primera pantalla;
+  - lo que solo sirve para ir de una pantalla a otra, con la segunda: el
+    layout raíz (`RootLayout`), con el scroll y el foco al cambiar de
+    pantalla, y la carga de cada pantalla con `lazy`, con la recarga de la
+    página de error;
+  - el menú (`router/navigation.config.ts`), cuando hay dos pantallas que se
+    abren desde él;
+  - la miga de pan, con la primera pantalla que la pinta
+    ([La miga de pan](#rutas-permisos-y-navegación));
+<!-- kit:if backend -->
+  - el dominio `session`, con el login;
+  - `schemas/commonSchema.ts`, con el primer schema que comparten dos
+    entidades;
+<!-- kit:end -->
+  - y `formatUtils`, con la primera pantalla que formatea un dato.
 
 Qué va en cada una:
 
+<!-- kit:if backend -->
 - **`main.tsx` y `queryClient.config.ts`** van sueltos en `src/`: el arranque
   de la app y la configuración del `QueryClient`. La configuración va junto
   al arranque, que es quien la usa.
@@ -128,6 +157,11 @@ Qué va en cada una:
   (`ordersDashboardSchema.ts`). Un service no importa nada de `features/`,
   `hooks/` ni `components/`.
 <!-- kit:end -->
+<!-- kit:else -->
+- **`main.tsx`** va suelto en `src/`: el arranque de la app, que monta su
+  router.
+<!-- kit:end -->
+<!-- kit:if backend -->
 - **`features/`** guarda todo lo que tiene pantallas: las features de cada
   familia, en su carpeta (`features/orders/ordersEdit/`), con lo que comparte
   la familia (`features/orders/common/`), y las que no tienen familia,
@@ -139,6 +173,18 @@ Qué va en cada una:
 - **`domains/`** guarda los temas de negocio que usan varias familias
   (`session`, `warehouses`, `products`…). Un dominio no tiene
   pantallas; se organiza como una feature sin páginas ni rutas. Cuáles son:
+<!-- kit:else -->
+- **`features/`** guarda todo lo que tiene pantallas: las features de cada
+  familia, en su carpeta (`features/orders/ordersEdit/`), con lo que comparte
+  la familia (`features/orders/common/`), y las que no tienen familia,
+  directas (`features/profile/`).
+- **`router/`** junta las pantallas: `rootRoutes.tsx` compone los layouts;
+  `appRoutes.tsx`, las rutas de la app, junta las de las features; y
+  `navigation.config.ts` es el menú.
+- **`domains/`** guarda los temas de negocio que usan varias familias
+  (`warehouses`, `products`…). Un dominio no tiene pantallas; se organiza
+  como una feature sin páginas ni rutas. Cuáles son:
+<!-- kit:end -->
   [Dominios](#dominios).
 - **La raíz** (`components/`, `hooks/`, `utils/`, `types/`, `constants/`) es
   lo que no pertenece a ningún dominio.
@@ -147,43 +193,52 @@ Qué va en cada una:
 
 ```text
 ordersEdit/
-├── pages/
-│   └── OrdersEditPage.tsx
-├── components/
-│   ├── documents/
-│   │   ├── OrdersEditDocumentsTab.tsx
-│   │   ├── OrdersEditDocumentViewer.tsx
-│   │   └── OrdersEditDocumentViewer.module.css
-│   ├── lines/
-│   │   ├── OrdersEditLinesTab.tsx
-│   │   └── OrdersEditLineRemoveModal.tsx
-│   └── OrdersEditReopenModal.tsx
-├── hooks/
-│   ├── useOrdersEdit.ts
-│   └── useOrdersEditDocumentsUpload.ts
-├── utils/
-│   └── ordersEditDeadlineUtils.ts
-├── constants/
-│   └── ordersEditTabs.ts
-├── schemas/
-│   └── ordersEditFormSchema.ts
-<!-- kit:if i18n -->
-├── i18n/
-│   └── <idioma>.json
+    pages/
+        OrdersEditPage.tsx
+    components/
+        documents/
+            OrdersEditDocumentsTab.tsx
+            OrdersEditDocumentViewer.tsx
+            OrdersEditDocumentViewer.module.css
+        lines/
+            OrdersEditLinesTab.tsx
+            OrdersEditLineRemoveModal.tsx
+        OrdersEditReopenModal.tsx
+    hooks/
+        useOrdersEdit.ts
+        useOrdersEditDocumentsUpload.ts
+    utils/
+        ordersEditDeadlineUtils.ts
+    constants/
+        ordersEditTabs.ts
+    schemas/
+        ordersEditFormSchema.ts
+    i18n/
+        <idioma>.json
+<!-- kit:if backend -->
+    ordersEditPermissions.ts
 <!-- kit:end -->
-├── ordersEditPermissions.ts
-└── ordersEditRoutes.tsx
+    ordersEditRoutes.tsx
 ```
 
 - **`pages/`**: una página por ruta. Monta la pantalla y reparte los datos.
 - **`components/`**: los componentes de la feature. Si una zona de la pantalla
   tiene varias piezas, van en `components/<zona>/`; si no, directos en
   `components/`.
+<!-- kit:if backend -->
 - **`hooks/`**: un hook por fichero. Aquí se piden y se guardan los datos.
 - **`utils/`**: funciones puras, en un objeto por tema, como un service
   (`ordersEditDeadlineUtils.ts`, que exporta `ordersEditDeadlineUtils`, con
   `buildOrdersEditDeadlineSummary`), sueltos, sin carpetas de tema
   ([Nomenclatura](./naming.md#ficheros)).
+<!-- kit:else -->
+- **`hooks/`**: un hook por fichero. Aquí va lo que tiene estado o efectos y
+  lo que prepara los datos de la pantalla.
+- **`utils/`**: funciones puras, en un objeto por tema
+  (`ordersEditDeadlineUtils.ts`, que exporta `ordersEditDeadlineUtils`, con
+  `buildOrdersEditDeadlineSummary`), sueltos, sin carpetas de tema
+  ([Nomenclatura](./naming.md#ficheros)).
+<!-- kit:end -->
 - **`constants/`**: las constantes que exporta la feature, agrupadas por tema
   (`ordersEditTabs.ts`, con `ORDERS_EDIT_TABS`), sin test. También las
   columnas de una tabla y de su CSV, si solo declaran
@@ -193,19 +248,24 @@ ordersEdit/
 - **`schemas/`**: los schemas de los formularios y del estado que viaja entre
   rutas.
 - **`stores/`**: solo si la feature guarda estado que sobrevive a la pantalla.
-<!-- kit:if i18n -->
 - **`i18n/`**: los textos de la feature, un fichero por idioma (%%LANGUAGES%%).
-<!-- kit:end -->
-- **`<feature>Routes.tsx`**: sus rutas, sus permisos y su miga de pan.
+<!-- kit:if backend -->
+- **`<feature>Routes.tsx`**: sus rutas, sus permisos y, si la app la pinta,
+  su miga de pan.
 - **`<feature>Permissions.ts`**: la regla de permisos de la feature
   (`ordersEditPermissions`), al lado de sus rutas, porque decide la ruta y los
   botones. No es un util. Solo existe si la regla la usa algo más que la ruta.
+<!-- kit:else -->
+- **`<feature>Routes.tsx`**: sus rutas y, si la app la pinta, su miga de
+  pan.
+<!-- kit:end -->
 
 Solo existen las carpetas que hacen falta. Una feature pequeña puede ser solo
 su página y sus rutas.
 
 ## Dónde va cada cosa
 
+<!-- kit:if backend -->
 - **Un hook vive con lo que importa.** Si usa el service, los tipos o los
   schemas de una feature, va en esa feature; si solo usa APIs genéricas (React,
   el router, el navegador) o un service que no es de ninguna feature ni de
@@ -214,24 +274,43 @@ su página y sus rutas.
 - **`utils/`** es para funciones puras, sin JSX ni estado, aunque las use una
   sola pieza. Lo que tiene estado, efectos o red va en un hook. Las funciones
   de un tema van en un objeto (`formatUtils.ts`, con
+<!-- kit:else -->
+- **Un hook vive con lo que importa.** Si usa los tipos, los schemas o los
+  stores de una feature, va en esa feature; si solo usa lo genérico (React,
+  el router, el navegador), va en `hooks/` de la raíz. Se decide por sus
+  imports, no por quién lo usa.
+- **`utils/`** es para funciones puras, sin JSX ni estado, aunque las use una
+  sola pieza. Lo que tiene estado o efectos va en un hook. Las funciones de
+  un tema van en un objeto (`formatUtils.ts`, con
+<!-- kit:end -->
   `formatUtils.formatDate`), suelto en su `utils/`, sin carpetas de tema: en
   la raíz, en una feature, en un `common` o en un dominio
   ([Nomenclatura](./naming.md#ficheros)). Las constantes que exporta van
   a `constants/` y sus tipos compartidos, a `types/`.
+<!-- kit:if backend -->
   La única excepción es el transporte (`apiUtils` y los suyos), que habla con
   la red ([Nomenclatura](./naming.md#el-transporte)).
 - **`types/`** de la raíz es para tipos que no tienen dueño, uno por tema
   (`navigation.ts`, `tableQuery.ts`). Un tipo de una feature o de un service
   vive con su código y sale de su schema.
+<!-- kit:else -->
+- **`types/`** de la raíz es para tipos que no tienen dueño, uno por tema
+  (`navigation.ts`, `tableQuery.ts`). Un tipo de una feature vive con su
+  código y, si tiene schema, sale de él.
+<!-- kit:end -->
 - **`components/`** de la raíz es para piezas sin dominio que conocen la app:
   el marco (la navegación y la barra superior), el buscador de una tabla o el
   aviso de cambios sin guardar, cuando el sistema de diseño no las da tal cual
   ([D1](./ux-ui/rules.md#d1-el-sistema-de-diseño-primero)). Un componente que
   es la interfaz de un dominio vive en su dominio (el menú de las
   notificaciones, en `notifications`).
-- **`layouts/`** solo tiene rutas con `Outlet`: el layout raíz, que envuelve
-  todas y pone el título de la pestaña, el scroll y el foco al cambiar de
-  pantalla; el marco de la app; y, si hay login, el de la entrada.
+- **`layouts/`** solo tiene rutas con `Outlet`: el marco de la app; el layout
+  raíz, que envuelve todas y lleva el scroll y el foco al cambiar de
+<!-- kit:if backend -->
+  pantalla, desde la segunda; y, si hay login, el de la entrada.
+<!-- kit:else -->
+  pantalla, desde la segunda.
+<!-- kit:end -->
 - **Compartir:**
   - lo que comparten las features de una familia va en
     `features/<familia>/common/` (los componentes, los hooks, los utils y los
@@ -240,9 +319,15 @@ su página y sus rutas.
   - lo de negocio que comparten varias familias va en un dominio,
     `domains/<dominio>/`;
   - lo genérico, sin negocio, va a la raíz.
+<!-- kit:if backend -->
 - **La raíz no importa nunca de una feature.** Solo usa los dominios del marco
   y del transporte, los de `SHELL_DOMAINS`, arriba de
   `src/tests/structure.test.ts` ([Normas de un dominio](#normas-de-un-dominio)).
+<!-- kit:else -->
+- **La raíz no importa nunca de una feature.** Solo usa los dominios del
+  marco, los de `SHELL_DOMAINS`, arriba de `src/tests/structure.test.ts`
+  ([Normas de un dominio](#normas-de-un-dominio)).
+<!-- kit:end -->
 
 ## Independencia de las features
 
@@ -251,20 +336,35 @@ rompe nada, salvo su línea en las rutas de `router/` y su entrada en el menú.
 
 - Una feature no importa de otra feature ni de otra familia.
 - Nada de fuera importa del interior de una feature. La única excepción es su
+<!-- kit:if backend -->
   `<feature>Routes.tsx`, que importan las rutas de `router/`: las de la app
   (`appRoutes.tsx`) y, las de la entrada, `rootRoutes.tsx`.
+<!-- kit:else -->
+  `<feature>Routes.tsx`, que importan las rutas de la app
+  (`router/appRoutes.tsx`).
+<!-- kit:end -->
+<!-- kit:if backend -->
 - Una feature puede importar de la raíz, de `services/`, de `schemas/`, de
   `domains/` y del `common` de su propia familia.
+<!-- kit:else -->
+- Una feature puede importar de la raíz, de `domains/` y del `common` de su
+  propia familia.
+<!-- kit:end -->
 - Cuando dos features necesitan lo mismo:
   - si es igual y de la misma familia, sube a su `common`;
   - si es igual, de negocio y de familias distintas, sube a un dominio;
   - si es igual y genérico, sube a la raíz;
+<!-- kit:if backend -->
   - si solo se parece, cada una tiene lo suyo;
   - si es un dato del servidor, las dos lo piden con la misma clave de consulta
     y comparten la caché.
+<!-- kit:else -->
+  - si solo se parece, cada una tiene lo suyo.
+<!-- kit:end -->
 
   Lo que sube recibe por props lo que depende de la pantalla y no sabe qué
   feature lo usa.
+<!-- kit:if backend -->
 - Un ejemplo son `orders` y `ordersDashboard`, dos features con la misma
   cabecera. La cabecera (`OrderFiltersHeader`), el catálogo de filtros
   (`useOrderFilters`, que pide `getOrdersFilters`) y los filtros aplicados
@@ -276,6 +376,14 @@ rompe nada, salvo su línea en las rutas de `router/` y su entrada en el menú.
   `shipmentsPlanning`, de otra familia, pide el catálogo de tipos de pedido
   (`getOrderTypesCatalog`) con la misma clave de consulta que ellas y comparte
   su caché, sin importar nada de `orders/common`.
+<!-- kit:else -->
+- Un ejemplo son `orders` y `ordersDashboard`, dos features con la misma
+  cabecera. La cabecera (`OrderFiltersHeader`), el catálogo de filtros
+  (`useOrderFilters`) y los filtros aplicados (`useOrderFiltersStore`) son
+  de `orders/common`, y las dos features los usan; y el recuento de la
+  cabecera es de cada una, que se lo pasa por props (el listado, el total de
+  su página; el análisis, el de su resumen).
+<!-- kit:end -->
 - Un dominio puede usar otro dominio, sin ciclos, pero nunca una feature ni el
   `common` de una familia.
 - La comprobación de la estructura recorre los imports y falla si alguna de
@@ -295,7 +403,11 @@ ficheros.
   propio fichero al lado; si son varias de una zona, van juntas
   en su carpeta (`components/lines/`). Lo que no pinta (un cálculo, un
   ayudante) va a `utils/` o a un hook. Un hook va en su fichero; los utils, en
+<!-- kit:if backend -->
   un objeto por tema, como un service (`filterUtils.buildFilterChipLabel`),
+<!-- kit:else -->
+  un objeto por tema (`filterUtils.buildFilterChipLabel`),
+<!-- kit:end -->
   con sus ayudantes privados dentro
   ([Nomenclatura](./naming.md#ficheros)). Las constantes y los tipos
   privados sí pueden ir junto al componente o dentro del fichero de utils.
@@ -307,17 +419,23 @@ ficheros.
 - Las carpetas solo agrupan varias piezas de una zona. Una carpeta con una sola
   pieza sobra, y no hay carpetas por tipo de fichero.
 - Un hook por fichero, que se llama como el hook.
-<!-- kit:if i18n -->
 - Lo que solo arma etiquetas con `t()` no es un hook: va en el componente.
-<!-- kit:else -->
-- Lo que solo arma los textos de la pieza no es un hook: va en el componente.
-<!-- kit:end -->
 - Se extrae solo lo que es igual, y cuando aparece la segunda copia o el
   documento de la feature ya dice que la habrá, no antes. Nada de componentes
   genéricos llenos de huecos que cuesten más de leer que la copia.
+- Nada «por si acaso»: lo que hoy no usa nada no se escribe, ni un fichero,
+  ni una prop, ni una variante, ni un estado, ni una dependencia. Una pieza
+  del sistema de diseño nace con lo que pide la historia que la crea, y
+  crece con la que pide más (el `loading` de un botón, con la primera acción
+  que espera). Y cada mecanismo de la app, con el primer caso que lo pide
+  ([Nace con el proyecto](#organización-de-src)).
 - Tamaño orientativo: unas 150 líneas por fichero y unas 100 por componente.
   Si se pasa, se divide por significado (una zona, un grupo de campos, un tipo
+<!-- kit:if backend -->
   de respuesta), nunca por tipo técnico. Si dividirlo lo hace menos
+<!-- kit:else -->
+  de dato), nunca por tipo técnico. Si dividirlo lo hace menos
+<!-- kit:end -->
   entendible, no se divide.
 
 ## Comprobar la estructura
@@ -334,7 +452,11 @@ fichero:
   ([Independencia de las features](#independencia-de-las-features)).
 - **Los nombres:** cada fichero de una feature empieza por el nombre de la
   feature, también sus hooks detrás de `use` (`OrdersEditDocumentsTab.tsx`,
+<!-- kit:if backend -->
   `useOrdersEditStore.ts`, `ordersEditPermissions.ts`); lo del `common` de
+<!-- kit:else -->
+  `useOrdersEditStore.ts`, `ordersEditRoutes.tsx`); lo del `common` de
+<!-- kit:end -->
   una familia, con su entidad, no lo mira
   ([Prefijo de origen](./naming.md#prefijo-de-origen)). Para alinear lo que
   ya hay: `zaius-rename`.
@@ -343,10 +465,8 @@ fichero:
 - **Un test por fichero:** cada fichero con código tiene su `.test` al lado,
   salvo los que solo declaran y el código base del kit
   ([Sencillez y tamaño](#sencillez-y-tamaño)).
-<!-- kit:if i18n -->
 - **La paridad de idiomas:** cada carpeta `i18n/` tiene un catálogo por
   idioma de la app, y todos con las mismas claves ([Textos](#textos)).
-<!-- kit:end -->
 
 Lo encuentra todo solo, con `import.meta.glob`: no hay que apuntar en él
 ninguna feature ni ningún fichero.
@@ -375,27 +495,35 @@ también el de sus hallazgos, de lo más grave a lo menos:
 1. **El sitio y la independencia:** la carpeta de cada fichero, lo que
    importa y quién lo importa ([Dónde va cada cosa](#dónde-va-cada-cosa) e
    [Independencia de las features](#independencia-de-las-features)).
+<!-- kit:if backend -->
 2. **Los nombres:** el prefijo de origen, el tipo final, el verbo, el
    singular o el plural, los métodos de service y las claves de consulta
    ([Nomenclatura](./naming.md)).
+<!-- kit:else -->
+2. **Los nombres:** el prefijo de origen, el tipo final, el verbo y el
+   singular o el plural ([Nomenclatura](./naming.md)).
+<!-- kit:end -->
 3. **El código:** un solo `return`, las condiciones en constantes con `? :` y
    `null`, ningún `&&` en el JSX, sin `any`, `import type`, el JSDoc y los
    tamaños ([Código](#código) y [Sencillez y tamaño](#sencillez-y-tamaño)).
-<!-- kit:if i18n -->
-4. **Los textos:** ninguno de usuario en el código, el namespace de cada
-   `t()`, las claves de la nomenclatura y las mismas claves en todos los
-   idiomas ([Textos](#textos)).
-<!-- kit:else -->
-4. **Los textos:** en el componente que los pinta, sin copiar los que ya
-   escribe una pieza de la raíz, y el mismo dato con el mismo nombre en todas
-   las pantallas ([Textos](#textos)).
-<!-- kit:end -->
+   Y nada «por si acaso»: lo que no usa nada de la historia es un hallazgo,
+   sea un fichero, una prop, una variante, una dependencia o un mecanismo
+   (la miga de pan en una app que no la pinta, el `loading` de un botón que
+   nadie pone).
+4. **Los textos:** ninguno de usuario en el código ni en los tests, que los
+   piden a `testUtils.translate`; el namespace de cada `t()`, las claves de
+   la nomenclatura y las mismas claves en todos los idiomas
+   ([Textos](#textos)). Ni en ellos ni en los documentos, los signos ni las
+   frases de la IA
+   ([Escribir como una persona](./process.md#escribir-como-una-persona)).
 5. **El diseño:** las normas, la pieza de cada papel y los tokens
    ([Normas de UX/UI](./ux-ui/rules.md) y
    [Piezas por papel](./ux-ui/design-system.md#piezas-por-papel)).
 6. **Los tests:** uno al lado de cada fichero con código; cada test de la
-   lista de la historia, marcado y en verde; y cada criterio, con su test o
-   en la verificación a mano ([Escribir tests](./guides/write-tests.md)).
+   lista de la historia, marcado y en verde; cada criterio, con su test o en
+   la verificación a mano; y ninguno manipulado para que pase
+   ([Escribir tests](./guides/write-tests.md) y
+   [Un test no se manipula](./guides/write-tests.md#un-test-no-se-manipula)).
 7. **El documento dice lo que hace el código:** la historia, con lo decidido
    al construirla; el documento de cada pantalla que toca
    ([Features](./features/README.md));
@@ -408,7 +536,7 @@ Cada hallazgo va en una línea, con `fichero:línea`, la regla que rompe, con
 su enlace, y la corrección propuesta:
 
 ```text
-src/features/orders/orders/components/ListTable.tsx:3 · Falta el prefijo de la feature (docs/naming.md#componentes) · Renombrar a OrdersTable.
+src/features/orders/orders/components/ListTable.tsx:3: falta el prefijo de la feature (docs/naming.md#componentes); se renombra a OrdersTable.
 ```
 
 <!-- kit:if existing -->
@@ -429,15 +557,29 @@ nunca en el %%HUMAN_PORT%%, que es el de la persona:
 - **en los anchos del sistema de diseño**
   ([Anchos](./ux-ui/design-system.md#anchos)), sin scroll horizontal de la
   página;
+- **la jerarquía, los espacios y las columnas,** en cada ancho: se ve
+  primero lo que más importa; lo que va junto, cerca, y lo que no, separado;
+  y todo en la misma rejilla
+  ([D14](./ux-ui/rules.md#d14-jerarquía-espacios-y-columnas)), sin
+  nada de lo que no se hace
+  ([D15](./ux-ui/rules.md#d15-lo-que-no-se-hace));
+- **con el ratón y el teclado:** lo que se pulsa responde al pasar por
+  encima y con el foco ([D13](./ux-ui/rules.md#d13-movimiento));
 - **con el teclado, con un lector de pantalla y con el zoom al 200 %**
   ([D12](./ux-ui/rules.md#d12-accesibilidad));
 - **con «reducir movimiento»,** si algo se mueve
   ([D13](./ux-ui/rules.md#d13-movimiento)).
 
+<!-- kit:if backend -->
 Lo que no se puede mirar así (un móvil de verdad, los datos reales de la API)
 va a la verificación a mano de la persona. En el resumen, su línea:
-«✓ Revisión visual: <pantallas>, con sus estados, en <anchos>, con teclado,
-lector de pantalla y zoom al 200 %».
+<!-- kit:else -->
+Lo que no se puede mirar así (un móvil de verdad) va a la verificación a mano
+de la persona. En el resumen, su línea:
+<!-- kit:end -->
+«Revisión visual: <pantallas>, con sus estados, en <anchos>, con la
+jerarquía, los espacios y las columnas repasados, con teclado, lector de
+pantalla y zoom al 200 %».
 
 **Al terminar, se para el servidor de revisión:** el `%%PM%% run dev:review`
 que se arrancó, con Ctrl+C en su terminal o parando su tarea si va en segundo
@@ -449,10 +591,17 @@ plano. El de la persona, en el %%HUMAN_PORT%%, no se toca.
 
 - Estricto, sin `any` y sin casts innecesarios. Se prefiere la inferencia.
 - Los imports de solo tipos usan `import type`.
+<!-- kit:if backend -->
 - Sin `enum` ni `namespace`. Un enumerado de la API es un objeto `as const`
   con nombres de la app (`ORDER_STATUS = { pending: 0, … }`).
 - Los tipos de los datos salen de los schemas de zod con `z.infer`; no se
   escriben a mano.
+<!-- kit:else -->
+- Sin `enum` ni `namespace`. Un enumerado es un objeto `as const`
+  (`ORDER_STATUS = { pending: 0, … }`).
+- Los tipos de los formularios salen de sus schemas de zod con `z.infer`; no
+  se escriben a mano.
+<!-- kit:end -->
 
 ```ts
 // mal
@@ -471,25 +620,22 @@ export type OrderStatus = (typeof ORDER_STATUS)[keyof typeof ORDER_STATUS]
   null`, `const isDraft = order.status === ORDER_STATUS.pending`), y en el JSX
   se aplica siempre con `? :`, con `null` en la rama que no pinta; nunca con
   `&&`. Un ternario anidado vale si cada condición es una de esas constantes.
+<!-- kit:if backend -->
   Un booleano que ya tiene nombre (una prop como `collapsed`, un `canExport`
   del permiso, un `isError` del hook) ya es esa constante. Las condiciones de
   una prop que no es JSX (`disabled={lines.length === 0}`, un texto) no son
+<!-- kit:else -->
+  Un booleano que ya tiene nombre (una prop como `collapsed`, un `isOpen` de
+  un `useState`) ya es esa constante. Las condiciones de una prop que no es
+  JSX (`disabled={lines.length === 0}`, un texto) no son
+<!-- kit:end -->
   renderizado condicional y pueden ir en línea; las de una prop que recibe JSX
   (`hint`, `actions`), sí lo son.
-<!-- kit:if i18n -->
 - Un componente pinta: recibe el dato listo. Las transformaciones van en
   `utils/` si son puras, o en un hook si necesitan `t` o el locale, y ese hook
   devuelve justo las props de la pieza que pinta (la tarjeta de un gráfico, la
   tabla; [Crear una feature](./guides/create-a-feature.md)). En el cuerpo
   solo se arman las etiquetas con `t()`.
-<!-- kit:else -->
-- Un componente pinta: recibe el dato listo. Las transformaciones van en
-  `utils/` si son puras, o en un hook si necesitan el locale o el estado de la
-  pantalla, y ese hook devuelve justo las props de la pieza que pinta (la
-  tarjeta de un gráfico, la tabla;
-  [Crear una feature](./guides/create-a-feature.md)). En el cuerpo solo se
-  arman las etiquetas.
-<!-- kit:end -->
 - Dentro del componente solo van sus handlers y las flechas en línea. Una
   función que devuelve JSX es otro componente, en su fichero; una que arma una
   lista de acciones va en el hook de la pieza (`useOrdersTable`).
@@ -531,6 +677,7 @@ return <OrdersDashboardDeadlinesCard {...card} title={title} />
 
 ### Datos
 
+<!-- kit:if backend -->
 - Los datos del servidor se piden en hooks con `useQuery` y se guardan con
   `useMutation`. Un componente nunca llama a un service. El detalle está en
   [Cargar y guardar datos](./guides/load-and-save-data.md).
@@ -539,6 +686,17 @@ return <OrdersDashboardDeadlinesCard {...card} title={title} />
   normaliza en el propio schema con `.transform`.
 - Zustand solo guarda lo que sobrevive a salir de la pantalla: la sesión, los
   filtros aplicados, la página y el orden de una lista y los ajustes de vista
+<!-- kit:else -->
+- Los datos fijos de la app (los tipos de un pedido, las opciones de un
+  selector) van en `constants/`, por tema y sin test.
+- Lo que la app guarda sin API se decide en `/zaius-init`, con el sitio donde
+  se guarda (por ejemplo, el navegador), y queda en el [brief](./brief.md).
+  El kit no trae código para ello: se monta con la primera historia que lo
+  necesita, con el OK de la persona.
+- Zod valida los formularios y los parámetros de ruta.
+- Zustand solo guarda lo que sobrevive a salir de la pantalla: los filtros
+  aplicados, la página y el orden de una lista y los ajustes de vista
+<!-- kit:end -->
   (la escala de un planning, un interruptor). Lo demás es `useState`, también
   lo que es de una pestaña de la gestión de un registro (el buscador de
   Documentos), que no se conserva al salir de la gestión.
@@ -551,6 +709,7 @@ return <OrdersDashboardDeadlinesCard {...card} title={title} />
     (`partialize` la deja fuera), porque puede ser un nombre o un dato
     personal. Nada de esto va en la URL.
   - Si un store se vacía cuando cambia otro, se suscribe a él en su propio
+<!-- kit:if backend -->
     fichero. Puede ser un store del `common` de su familia: el de la consulta
     del listado de pedidos (`useOrdersStore`) vuelve a la página 1 cuando
     cambian los filtros aplicados (`useOrderFiltersStore`, de `orders/common`).
@@ -573,11 +732,17 @@ useSessionStore.subscribe((state) => {
   useOrderFiltersStore.persist.clearStorage()
 })
 ```
+<!-- kit:else -->
+    fichero. Puede ser un store del `common` de su familia: el de la página y
+    el orden del listado de pedidos (`useOrdersStore`) vuelve a la página 1
+    cuando cambian los filtros aplicados (`useOrderFiltersStore`, de
+    `orders/common`).
+<!-- kit:end -->
 
 ### Textos
 
-<!-- kit:if i18n -->
-- Ningún texto de usuario va en el código: todo sale de i18n.
+- Ningún texto de usuario va en el código: todo sale de i18n, también con un
+  solo idioma, para que añadir otro sea solo traducir.
 - Cada `t()` lleva su namespace (`t('ordersEdit:documents.table.title')`). El
   namespace es el de quien tiene el texto: la feature (`ordersEdit:`), la
   familia para lo de su `common` (`orders:filters.subtitle`), el dominio
@@ -597,37 +762,29 @@ useSessionStore.subscribe((state) => {
 - Las piezas del sistema de diseño reciben siempre sus textos desde i18n,
   aunque traigan los suyos; los de los campos salen de `common:fields`
   ([D1](./ux-ui/rules.md#d1-el-sistema-de-diseño-primero)).
+<!-- kit:if backend -->
 - Las claves que manda la API se resuelven contra claves propias, con el texto
   de la API como valor por defecto.
+<!-- kit:end -->
+<!-- kit:if i18n -->
 - **Para cambiar el idioma** fuera de un componente o en un efecto se usa la
   instancia de `src/i18n/i18n.ts` (`i18n.changeLanguage`): la que da
   `useTranslation()` es otro objeto en cada idioma, y en las dependencias de
   un efecto lo vuelve a lanzar con cada cambio.
+<!-- kit:end -->
 - `<html lang>` sigue al idioma de la app, y cambiar de idioma deja la misma
+<!-- kit:if backend -->
   pantalla, con sus filtros y lo escrito. Si la API devuelve textos
   traducidos, el idioma va en su clave de consulta, y solo se vuelve a pedir
   eso.
+<!-- kit:else -->
+  pantalla, con sus filtros y lo escrito.
+<!-- kit:end -->
 - Cómo se nombran las claves: [Nomenclatura](./naming.md#textos-i18n).
 - La [comprobación de la estructura](#comprobar-la-estructura) mira que todos
   los idiomas tengan las mismas claves.
-<!-- kit:else -->
-- La app tiene un solo idioma, `APP_DEFAULT_LANGUAGE` (`%%DEFAULT_LANGUAGE%%`),
-  en `src/constants/appLanguages.ts`. No hay i18next ni catálogos.
-- **Los textos van escritos en el componente que los pinta,** en el JSX o en
-  una constante del cuerpo. El texto de una pieza compartida sube con ella al
-  `common`, al dominio o a la raíz; el de una feature se queda en la feature.
-- Las piezas del sistema de diseño reciben siempre sus textos desde la app,
-  aunque traigan los suyos
-  ([D1](./ux-ui/rules.md#d1-el-sistema-de-diseño-primero)).
-- Un número que concuerda tiene su forma en singular y en plural: «1
-  pedido», «2 pedidos», «Hay 1 campo por revisar»
-  ([D11](./ux-ui/rules.md#d11-textos-y-formato)).
-- Los códigos que manda la API se resuelven contra textos propios, con el
-  texto de la API como valor por defecto.
-- `<html lang>` es el idioma de la app, en `index.html`.
-- Para pasar a varios idiomas, la skill `zaius-languages` lleva los
-  textos a catálogos y activa la prueba de que todos tienen las mismas claves.
-<!-- kit:end -->
+- **Un idioma nuevo** se añade con la skill `zaius-languages`: lo apunta y
+  traduce los catálogos.
 - **Las fechas, los números y los porcentajes se formatean con las funciones
   de la raíz,** en `formatUtils`, que nace con la primera pantalla que
   formatea un dato. Ninguna pantalla formatea a mano, y todas dan «-» si falta
@@ -635,8 +792,13 @@ useSessionStore.subscribe((state) => {
 
   | Función | Recibe | Da |
   |---|---|---|
+<!-- kit:if backend -->
   | `formatUtils.formatDate(value)` | Una fecha de la API | La fecha, sin moverse por la zona horaria |
   | `formatUtils.formatDateTime(value)` | Un momento de la API | La fecha y la hora locales |
+<!-- kit:else -->
+  | `formatUtils.formatDate(value)` | Una fecha, sin hora | La fecha, sin moverse por la zona horaria |
+  | `formatUtils.formatDateTime(value)` | Un momento, con su hora | La fecha y la hora locales |
+<!-- kit:end -->
   | `formatUtils.formatNumber(value, decimals = 0)` | Una cifra y sus decimales | «1.500»; una media, con `1`: «3,8» |
   | `formatUtils.formatPercent(value)` | Un porcentaje de 0 a 100 | «65 %», entero |
 
@@ -665,13 +827,19 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
 [D10](./ux-ui/rules.md#d10-navegación).
 
 - **URLs.** Las pantallas cuelgan de la raíz (`/home`, `/orders`,
+<!-- kit:if backend -->
   `/orders/:id/edit`, `/admin/users`), y la entrada, si la hay, tampoco lleva
   prefijo (`/login`). `/` lleva a la portada o al login, según la sesión.
+<!-- kit:else -->
+  `/orders/:id/edit`, `/admin/products`), y `/` lleva a la portada.
+<!-- kit:end -->
   `/<familia>/:id` no es una ruta: un registro tiene una sola pantalla, su
   gestión ([D7](./ux-ui/rules.md#d7-un-registro-una-pantalla)).
 - **Rutas de una feature.** Cada feature declara las suyas en
-  `<feature>Routes.tsx`, con cada página cargada con `lazy` en forma de
-  función (`lazy: () => import('./pages/OrdersPage').then((m) => ({
+  `<feature>Routes.tsx`. Con una sola pantalla en la app, su página va
+  directa (`Component: OrdersPage`): no hay otra que descargar aparte. Desde
+  la segunda, cada página se carga con `lazy`, también las que ya había, en
+  forma de función (`lazy: () => import('./pages/OrdersPage').then((m) => ({
   Component: m.OrdersPage }))`), nunca en la de objeto (`lazy: {
   Component }`): con la de objeto, si no llega el código de la página, el
   router no lo pasa al `errorElement` y la pantalla se queda vacía.
@@ -680,15 +848,26 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
     índice de la familia; `ordersDashboard`, `dashboard`; y `ordersEdit`,
     `:id/edit`. Un segmento fijo gana a un parámetro hermano: en
     `invoicesUpload`, `new` gana a `:id`.
+<!-- kit:if backend -->
   - `router/rootRoutes.tsx` compone los layouts, las guardas y las rutas: el
-    layout raíz envuelve todo; dentro, si hay login, la entrada (las rutas de
-    las features de `auth`, bajo `SessionGuestGuard` y con el layout de la
-    entrada, `AuthLayout`, sin menú) y, bajo `SessionGuard`, el layout de la
-    app, con el menú, y dentro una ruta sin `path` con el `errorElement`, para
-    que el error se pinte con el marco, con las rutas de la app y `*`, la
-    página que no existe.
+    layout raíz, si lo hay, envuelve todo; dentro, si hay login, la entrada
+    (las rutas de las features de `auth`, bajo `SessionGuestGuard` y con el
+    layout de la entrada, `AuthLayout`, sin menú) y, bajo `SessionGuard`, el
+    layout de la app, con el menú si lo hay, y dentro una ruta sin `path` con
+    el `errorElement`, para que el error se pinte con el marco, con las rutas
+    de la app y `*`, la página que no existe.
   - Un ejemplo, con su guarda y su miga de pan:
     [Crear una feature](./guides/create-a-feature.md).
+<!-- kit:else -->
+  - `router/rootRoutes.tsx` compone los layouts y las rutas: el layout raíz,
+    si lo hay, envuelve todo; dentro, el layout de la app, con el menú si lo
+    hay, y dentro una ruta sin `path` con el `errorElement`, para que el
+    error se pinte con el marco, con las rutas de la app y `*`, la página
+    que no existe.
+  - Un ejemplo, con su miga de pan:
+    [Crear una feature](./guides/create-a-feature.md).
+<!-- kit:end -->
+<!-- kit:if backend -->
 - **Guardas.** Son del dominio `session`, que crea el proyecto con su login;
   sin login no hay guardas.
   - `SessionGuard` protege la app. Sin sesión, lleva al login con la ruta
@@ -705,13 +884,15 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
   - Un `401` cierra la sesión: `apiSessionUtils.endOnError` lo pasa a `onEnd`
     como `expired`, y la guarda lleva al login con el aviso de que ha caducado
     y, al entrar, a la misma pantalla.
+<!-- kit:end -->
 - **Páginas de error.** La página que no existe y el error inesperado al
-  pintar una pantalla se pintan dentro de la app, con su marco. Si falla la
-  descarga del código de una pantalla (pasa tras publicar una versión nueva),
-  la página de error recarga sola una vez; si vuelve a fallar en menos de 10
-  segundos, se queda en el error.
+  pintar una pantalla se pintan dentro de la app, con su marco. Con las
+  pantallas en `lazy`, si falla la descarga del código de una (pasa tras
+  publicar una versión nueva), la página de error recarga sola una vez; si
+  vuelve a fallar en menos de 10 segundos, se queda en el error.
 - **Lo que aún no está hecho no tiene ruta ni entrada en el menú.** Una
   feature entra en las rutas y en el menú cuando se hace.
+<!-- kit:if backend -->
 - **Reglas de permisos.** Si la misma regla decide la ruta y los botones de la
   pantalla, es una función pura `<feature>Permissions`, en
   `<feature>Permissions.ts`, en la raíz de la feature, junto a
@@ -719,49 +900,66 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
   Una regla que otra feature necesita igual se repite en cada una: por
   independencia, ninguna importa la de la otra. Cómo se aplica a una ruta, un
   botón, una pestaña o una petición: [Permisos](./guides/apply-permissions.md).
-- **Menú.** `navigation.config.ts` (`navigationConfig`) es la única fuente del
-  menú: añadir una sección es añadir su entrada ahí y sus rutas.
+<!-- kit:end -->
+- **Menú.** Nace cuando hay dos pantallas que se abren desde él; con una, no
+  hay menú. `navigation.config.ts` (`navigationConfig`) es su única fuente:
+  añadir una sección es añadir su entrada ahí y sus rutas.
   `rootRoutes.tsx` se lo pasa al layout de la app por props: el layout no
+<!-- kit:if backend -->
   sabe qué menú pinta. Sus
   tipos (`NavEntry`, `NavGroup` y `NavMenu`) están en `types/navigation.ts`,
   y `navigationUtils.filterNavMenu` deja lo que ve la persona.
+<!-- kit:else -->
+  sabe qué menú pinta. Sus tipos (`NavEntry`, `NavGroup` y `NavMenu`) están
+  en `types/navigation.ts`.
+<!-- kit:end -->
   - Es una lista de entradas sueltas («Inicio») y de grupos, uno por familia.
     La cabecera de un grupo es solo el nombre de su familia («Pedidos»), sin
     enlace, y sus entradas son sus pantallas: «Añadir pedido»
     (`/orders/new`), «Análisis de pedidos» (`/orders/dashboard`) y «Gestión de
     pedidos» (`/orders`).
+<!-- kit:if backend -->
   - Cada entrada lleva una regla `allowed` con los permisos que pide su ruta,
     y no se ve sin ellos. El grupo no lleva regla propia: se ve si se ve
     alguna de sus entradas.
-<!-- kit:if i18n -->
-- **Títulos y miga.** Cada ruta declara su segmento en `handle.crumb`, una
-  función que recibe los parámetros de la URL y devuelve la clave de su texto
-  (`labelKey`), sus valores y, si enlaza, su ruta (`NavHandle` y `NavCrumb`,
-  en `types/navigation.ts`).
-<!-- kit:else -->
-- **Títulos y miga.** Cada ruta declara su segmento en `handle.crumb`, una
-  función que recibe los parámetros de la URL y devuelve su texto y, si
-  enlaza, su ruta (`NavHandle` y `NavCrumb`, en `types/navigation.ts`).
 <!-- kit:end -->
+- **La pestaña del navegador** la pone cada pantalla, con el `<title>` de
+  React, que lo lleva al `<head>`: «<título> - %%APP_NAME%%», con un solo
+  texto (`t('common:documentTitle', { title })`). La pone su cabecera, junto
+  al `h1` y con su mismo título; la gestión de un registro le pasa el del
+  registro, «Pedido #1287», más corto que su título («Gestiona el pedido
+  #1287»). La página que no existe y la de error, igual.
+- **La miga de pan,** solo si la app la pinta: cuando hay una familia con
+  varias pantallas o una pantalla que cuelga de otra (la gestión de un
+  registro). Con un solo nivel, el título ya dice dónde se está: no hay
+  miga, ni `handle.crumb`, ni el hook que la junta. Nace con la primera
+  pantalla que la pinta:
+  - Cada ruta declara su segmento en `handle.crumb`, una función que recibe
+    los parámetros de la URL y devuelve la clave de su texto (`labelKey`),
+    sus valores y, si enlaza, su ruta (`NavHandle` y `NavCrumb`, en
+    `types/navigation.ts`).
   - Un hook de la raíz junta los segmentos de las rutas de la URL, y el marco
     los pinta. El primero es el de la familia, que es texto, sin enlace,
     porque la familia no tiene página; lo pone el segmento de la familia en
-    las rutas de la app. Detrás va el de la pantalla: «Pedidos › Gestión de
+    las rutas de la app. Detrás va el de la pantalla: «Pedidos / Gestión de
     pedidos».
   - Una ruta que no está en el menú pero cuelga de una entrada (la gestión de
     un registro) lo dice con `handle.navTo: '/orders'`: esa entrada sigue
-    marcada, y de ella sale el segundo nivel de la miga: «Pedidos › Gestión
-    de pedidos › Pedido #1287».
-  - **La pestaña del navegador sale del último segmento de la miga:** la pone
-    el layout raíz, «<título> · %%APP_NAME%%»; sin segmento, «%%APP_NAME%%».
-    Las pantallas de la entrada no pintan miga, pero declaran su segmento,
-    para su pestaña.
+    marcada, y de ella sale el segundo nivel de la miga: «Pedidos / Gestión
+    de pedidos / Pedido #1287».
 - **Pestañas.** Las de la gestión de un registro van en `?tab=`
   (`/orders/1287/edit?tab=documents`): la pestaña por defecto no lleva
+<!-- kit:if backend -->
   parámetro y cambiar de pestaña usa `replace`. Una `?tab=` que no existe, o
   que la persona no puede ver, abre la pestaña por defecto y corrige la URL
   con `replace`. Así, un enlace a un registro abre la pestaña que toca. Las de
   un asistente no se comparten por URL y van en un `useState`.
+<!-- kit:else -->
+  parámetro y cambiar de pestaña usa `replace`. Una `?tab=` que no existe
+  abre la pestaña por defecto y corrige la URL con `replace`. Así, un enlace
+  a un registro abre la pestaña que toca. Las de un asistente no se
+  comparten por URL y van en un `useState`.
+<!-- kit:end -->
 - **Enlaces.** Lo que lleva a otra pantalla es un enlace (`<a href>` con el
   enlace del router), con aspecto de botón donde toque, nunca un `onClick`
   con `navigate`. El componente de la raíz que adapta el enlace del router
@@ -776,6 +974,7 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
   vuelta, `back`, con el texto y la ruta (`{ back: { label, to } }`). La
   salida de la gestión de un registro usa los dos («Vuelve al envío #12»); la
   de un alta, solo la ruta. Sin origen (un enlace directo, una recarga), se
+<!-- kit:if backend -->
   vuelve a la lista de la familia, y si la persona no puede verla, a la
   portada. Solo tienen salida la gestión de un registro, las páginas que
   cuelgan de una feature (el detalle de una carga) y las altas: a un listado
@@ -786,13 +985,25 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
   asistente. El estado de navegación solo lleva el origen y los avisos de
   llegada, nunca datos que la pantalla necesite para pintarse; un aviso de
   llegada se consume con `replace` en cuanto se pinta.
+<!-- kit:else -->
+  vuelve a la lista de la familia. Solo tienen salida la gestión de un
+  registro, las páginas que cuelgan de una feature (el detalle de una carga)
+  y las altas: a un listado o a un análisis se vuelve con el menú.
+- **Historial.** `replace` cuando lo que se deja ya no tiene sentido: una
+  baja, un formulario enviado y un cambio de pestaña. En el resto, cada paso
+  añade una entrada, también cada paso de un asistente. El estado de
+  navegación solo lleva el origen y los avisos de llegada, nunca datos que la
+  pantalla necesite para pintarse; un aviso de llegada se consume con
+  `replace` en cuanto se pinta.
+<!-- kit:end -->
 - **Lo que se conserva.** Los filtros, la página, el orden y los ajustes de
   vista sobreviven a abrir un registro y volver, y a recargar, en el store de
   la pantalla guardado en el `sessionStorage` ([Datos](#datos)).
 - **Scroll y foco.** Al entrar en una pantalla nueva, el scroll va arriba y el
   foco a su `h1`; atrás y adelante del navegador recuperan el scroll de antes.
   Cambiar de pestaña, plegar una sección o cambiar de página en una tabla no
-  mueve el scroll. Lo hace el layout raíz:
+  mueve el scroll. Lo hace el layout raíz, que nace con la segunda pantalla
+  (con una sola, no hay cambios de pantalla que cuidar):
   - **el scroll,** con `ScrollRestoration` del router, que lo lleva arriba en
     cada navegación y lo recupera al ir atrás y adelante; si el marco de la
     app tiene su propia zona con scroll, su layout hace lo mismo con ella, y
@@ -804,9 +1015,15 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
 
 ## Dominios
 
+<!-- kit:if backend -->
 Un dominio es un tema de negocio que usan features de varias familias: la
 sesión, los almacenes, los productos. Vive en
 `src/domains/<dominio>/` y no tiene pantallas. Las pantallas de su tema son
+<!-- kit:else -->
+Un dominio es un tema de negocio que usan features de varias familias: los
+almacenes, los productos. Vive en `src/domains/<dominio>/` y no tiene
+pantallas. Las pantallas de su tema son
+<!-- kit:end -->
 features normales que lo usan, como cualquier otra: `adminProducts` usa
 `products`, e `incidents` usa `incidents`.
 
@@ -830,45 +1047,48 @@ negocio, es un dominio. Si solo se parece, cada feature tiene lo suyo.
 Una familia que se llama como un dominio (`customers`, `incidents`) no tiene
 `common`: lo que comparten sus features va al dominio, que ya es de su
 entidad.
-<!-- kit:if i18n -->
 Así no hay dos namespaces de textos con el mismo nombre.
-<!-- kit:end -->
 
 ### Normas de un dominio
 
 - **No tiene páginas, rutas ni entrada en el menú.** Lo que tiene pantallas
   son features.
-<!-- kit:if i18n -->
 - **Se organiza como una feature, sin `pages/` ni rutas:** `components/`,
   `hooks/`, `utils/` (un objeto por tema), `constants/`, `schemas/`,
   `stores/` e `i18n/`, solo las que hacen falta.
-<!-- kit:else -->
-- **Se organiza como una feature, sin `pages/` ni rutas:** `components/`,
-  `hooks/`, `utils/` (un objeto por tema), `constants/`, `schemas/` y
-  `stores/`, solo las que hacen falta.
-<!-- kit:end -->
 - **Se llama por su entidad**, en camelCase: en plural si es una colección
   (`products`, `warehouses`, `notifications`), en singular si es una sola cosa
+<!-- kit:if backend -->
   (`session`, `company`).
 - **Sus piezas llevan la entidad delante**, igual que el `common` de una
   familia: `ProductStatsSection`, `IncidentStatusBadge`, `SessionGuard`.
+<!-- kit:else -->
+  (`company`).
+- **Sus piezas llevan la entidad delante**, igual que el `common` de una
+  familia: `ProductStatsSection`, `IncidentStatusBadge`.
+<!-- kit:end -->
 - **Una zona de pantalla (una sección, una tarjeta) solo sube a un dominio si
   es idéntica y de negocio y la usan varias familias** (`ProductStatsSection`).
   Las demás zonas son de su feature, aunque otra tenga una parecida; de ellas
   sube la pieza genérica que usan por dentro.
-<!-- kit:if i18n -->
 - **Sus textos van en su propio namespace**, con el nombre del dominio
   (`products:stats.title`).
-<!-- kit:end -->
 - **Recibe por props lo que depende de la pantalla.** No sabe qué feature lo
   usa: `ProductStatsSection` recibe las cifras, no las pide.
 - **Puede usar otro dominio**, sin ciclos: `incidents` usa `products`. Nunca
   usa una feature ni el `common` de una familia.
+<!-- kit:if backend -->
 - **La raíz solo usa los dominios del marco y del transporte,** los de
   `SHELL_DOMAINS`, arriba de `src/tests/structure.test.ts`: `session` (el
   transporte, el router y la barra superior) y, si los hay, los que pinta el
   marco (`notifications`, en la barra superior). Un dominio que la raíz
   necesita se añade ahí.
+<!-- kit:else -->
+- **La raíz solo usa los dominios del marco,** los de `SHELL_DOMAINS`,
+  arriba de `src/tests/structure.test.ts`. Al instalar, la lista está vacía:
+  la raíz no usa ningún dominio hasta que el marco pinta uno. Un dominio que
+  la raíz necesita se añade ahí.
+<!-- kit:end -->
 - **Un dominio nuevo necesita el OK de la persona,** y se apunta aquí, en el
   [Índice de dominios](#índice-de-dominios), igual que cada pieza nueva de uno
   ([Añadir una pieza a un dominio](#añadir-una-pieza-a-un-dominio)).
@@ -877,33 +1097,37 @@ Así no hay dos namespaces de textos con el mismo nombre.
 
 Una pieza nueva va a un dominio solo si es de negocio y la usan varias familias
 ([Dónde va lo compartido](#dónde-va-lo-compartido)). El dominio se
+<!-- kit:if backend -->
 organiza como una feature, sin `pages/` ni rutas, y el service de su dato no
 vive en él, sino en `src/services/<entidad>/`
 ([Añadir un servicio](./guides/add-a-service.md)). Así estaría
 `products`:
+<!-- kit:else -->
+organiza como una feature, sin `pages/` ni rutas. Así estaría `products`:
+<!-- kit:end -->
 
 ```text
 src/
-├── domains/products/
-│   ├── components/
-│   │   ├── ProductStatsSection.tsx
-│   │   ├── ProductStatsTopCard.tsx
-│   │   └── ProductNameValue.tsx
-│   ├── hooks/
-│   │   ├── useProductsCatalog.ts
-│   │   └── useProductStatsTop.ts
-│   ├── utils/
-│   │   └── productStatsUtils.ts
-<!-- kit:if i18n -->
-│   ├── i18n/
-│   │   └── <idioma>.json
+    domains/products/
+        components/
+            ProductStatsSection.tsx
+            ProductStatsTopCard.tsx
+            ProductNameValue.tsx
+        hooks/
+            useProductsCatalog.ts
+            useProductStatsTop.ts
+        utils/
+            productStatsUtils.ts
+        i18n/
+            <idioma>.json
+        constants/
+            productStats.ts
+<!-- kit:if backend -->
+    services/products/
+        productsService.ts
+        productsSchema.ts
+        productsOrdersDashboardSchema.ts
 <!-- kit:end -->
-│   └── constants/
-│       └── productStats.ts
-└── services/products/
-    ├── productsService.ts
-    ├── productsSchema.ts
-    └── productsOrdersDashboardSchema.ts
 ```
 
 Cada fichero con código lleva su `.test` al lado, y cada componente con
@@ -912,12 +1136,14 @@ estilos, su `.module.css`. Para añadir una pieza:
 1. **El fichero,** en la carpeta que toca (`components/`, `hooks/`, `utils/`,
    `constants/`, `schemas/` o `stores/`), con la entidad delante del nombre;
    en `utils/`, un objeto por tema (`productStatsUtils`).
-<!-- kit:if i18n -->
 2. **Sus textos,** en los `i18n/<idioma>.json` del dominio.
-<!-- kit:end -->
+<!-- kit:if backend -->
 3. **Su dato,** si es nuevo: el método va en el service de su entidad, no en el
    dominio.
 4. **Su fila,** en la tabla de su dominio de este documento, con quién la usa.
+<!-- kit:else -->
+3. **Su fila,** en la tabla de su dominio de este documento, con quién la usa.
+<!-- kit:end -->
 
 ### Índice de dominios
 
@@ -929,8 +1155,13 @@ fila a esta tabla y su sección debajo, `### <dominio>`, con:
 
 - una frase de qué es;
 - la tabla de sus piezas, `| Pieza | Qué es | La usan |`;
+<!-- kit:if backend -->
 - sus datos (los métodos de los services que piden sus piezas), los dominios
   que usa y las pantallas de su tema.
+<!-- kit:else -->
+- sus datos (de dónde salen los que usan sus piezas), los dominios que usa y
+  las pantallas de su tema.
+<!-- kit:end -->
 <!-- kit:if existing -->
 
 ## Traer un proyecto que ya existe
@@ -945,11 +1176,21 @@ hay y un par de ejemplos, con `fichero:línea`, en este orden:
 2. **Las pantallas:** todas van en `src/features/`, por familia, también la
    entrada (la familia `auth`) y la administración (`admin`)
    ([Familias y features](./naming.md#familias-y-features)).
+<!-- kit:if backend -->
 3. **Los nombres:** features, componentes, hooks, services y utils
    ([Revisar los nombres](./naming.md#revisar-los-nombres)).
+<!-- kit:else -->
+3. **Los nombres:** features, componentes, hooks y utils
+   ([Revisar los nombres](./naming.md#revisar-los-nombres)).
+<!-- kit:end -->
 4. **Las features y su independencia:** quién importa de quién
    ([Independencia de las features](#independencia-de-las-features)).
+<!-- kit:if backend -->
 5. **Los datos:** services, schemas, consultas y estado ([Datos](#datos)).
+<!-- kit:else -->
+5. **Los datos:** de dónde salen, lo que se guarda, los schemas y el estado
+   ([Datos](#datos)).
+<!-- kit:end -->
 6. **Los tests que faltan,** al lado de cada fichero con código
    ([Sencillez y tamaño](#sencillez-y-tamaño)).
 7. **El stack:** lo que falta o sobra respecto a

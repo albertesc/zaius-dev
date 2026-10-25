@@ -4,14 +4,14 @@ Esta carpeta guarda todo el diseño de %%APP_NAME%%: el sistema de diseño, las
 normas vigentes y las propuestas para cambiarlos. Sirve para ir iterando el
 diseño sin tocar el código hasta que un cambio está decidido.
 
-**En esta página:** [Qué hay aquí](#qué-hay-aquí) · [Bocetos](#bocetos) · [Cómo se cambia el diseño](#cómo-se-cambia-el-diseño) · [Plantilla de una propuesta](#plantilla-de-una-propuesta) · [Propuestas](#propuestas)
+**En esta página:** [Qué hay aquí](#qué-hay-aquí), [Bocetos](#bocetos), [Una skill de diseño propia](#una-skill-de-diseño-propia), [Cómo se cambia el diseño](#cómo-se-cambia-el-diseño), [Plantilla de una propuesta](#plantilla-de-una-propuesta), [Propuestas](#propuestas)
 
 ## Qué hay aquí
 
 - **[design-system.md](./design-system.md):** con qué se construye la
-  %%KIND%%: la librería y cómo se monta, los tokens, los anchos, el tema, el
-  movimiento, los iconos y qué pieza cumple cada papel. Lo escribe
-  `zaius-init` al empezar.
+  %%KIND%%: su identidad, la librería y cómo se monta, los tokens, los
+  anchos, el tema, el movimiento, los iconos y qué pieza cumple cada papel.
+  Lo escribe `zaius-init` al empezar, con `zaius-brand`.
 - **[rules.md](./rules.md):** las normas D vigentes, con ejemplos. Dicen cómo
   se comporta y cómo se escribe cada pantalla, sea cual sea el sistema de
   diseño.
@@ -21,7 +21,8 @@ diseño sin tocar el código hasta que un cambio está decidido.
 - **`mockups/`:** los bocetos, páginas HTML para ver algo antes de
   construirlo ([Bocetos](#bocetos)).
 - **`references/`:** lo que la persona pasa para basar el diseño: una web
-  que le gusta, capturas, la guía de marca, un enlace a Figma.
+  que le gusta, capturas, la guía de marca, su logo, sus fotos, un enlace a
+  Figma.
 
 Las tres últimas carpetas nacen con su primer fichero.
 
@@ -29,11 +30,16 @@ Las tres últimas carpetas nacen con su primer fichero.
 
 Un boceto es una página HTML que se abre con doble clic en el navegador, sin
 instalar nada ni arrancar la %%KIND%%: enseña cómo será algo antes de
-construirlo. Los hace la skill `zaius-sketch`, con los tokens del sistema de
-diseño y datos de ejemplo, en `mockups/`:
+construirlo. Los hace la skill `zaius-sketch`, con la identidad y los tokens
+del sistema de diseño y datos de ejemplo, en `mockups/`:
 
-- **La guía visual,** `mockups/design-system.html`: el marco y las piezas del
-  sistema de diseño, con sus colores y su tipografía. Nace con `zaius-init`,
+- **Las direcciones de la identidad,** `mockups/identity.html`: las tres
+  que propone `zaius-brand`, para elegir una. Se borra cuando se aprueba la
+  guía visual.
+- **La guía visual,** `mockups/design-system.html`: la documentación del
+  sistema de diseño, con un menú lateral para ir a cada sección: la
+  identidad, los fundamentos, cada pieza con sus estados, cuándo se usa,
+  sus normas y su nombre en el código, y los cambios. Nace con `zaius-init`,
   se aprueba antes de la primera %%UNIT%% y se pone al día con cada cambio
   aceptado del sistema de diseño.
 - **El de una %%UNIT%%,** `mockups/%%UNIT_EXAMPLE%%.html`, con el código de la
@@ -45,18 +51,40 @@ diseño y datos de ejemplo, en `mockups/`:
 - **El de una propuesta,** `mockups/AAAA-MM-DD-<topic>.html`: el antes y el
   después de una propuesta de diseño. Se queda con ella.
 
-| Nivel | Qué se ve | Para decidir |
-|---|---|---|
-| Baja | Cajas y grises, sin la marca; los textos y los datos, de verdad. | Qué hay y dónde va. |
-| Media | La tipografía, los espacios y las piezas, en grises. | La jerarquía y qué pieza va en cada sitio. |
-| Alta | Todo el sistema de diseño: los colores, la tipografía y los iconos. | Cómo se verá. |
+Un boceto se ve como será de verdad: con el logo, la letra, los colores y la
+firma de la [identidad](./design-system.md#identidad), y con fotos, las de
+la persona o, mientras no las pasa, unas de muestra de Unsplash. Salvo la
+guía, que lleva su menú, lleva arriba una barra, con los colores y la letra
+del sistema de diseño, para el ancho, el tema y los estados: en el ordenador ocupa la ventana entera, y
+en la tableta y el móvil va en su marco. Sin conexión se sigue viendo
+ordenado, con la letra del sistema y un fondo de color en cada foto. Un
+boceto se parece a lo de verdad, pero no lo es: el aspecto de una librería
+de componentes se imita con CSS, y lo que vale es la revisión visual de lo
+construido.
 
-El nivel de partida de los bocetos es el de «Bocetos», en el
-[sistema de diseño](./design-system.md#bocetos), y la guía visual va siempre
-en alta. Cada boceto lleva arriba un selector para pasar de un nivel a otro, y
-otros para el ancho, el tema y los estados. Un boceto se parece a lo de verdad,
-pero no lo es: el aspecto de una librería de componentes se imita con CSS, y lo
-que vale es la revisión visual de lo construido.
+## Una skill de diseño propia
+
+Si la persona tiene una skill de diseño (la de su empresa, o una que usa
+siempre para diseñar), se añade al proyecto y el diseño la sigue:
+
+1. **Se copia en el proyecto,** tal cual y con sus ficheros, en
+   `.claude/skills/<su-nombre>/`, para que la tenga cualquier sesión, con
+   cualquier IA: no basta con que esté en el ordenador de la persona. Va con
+   su nombre, sin el prefijo `zaius-`, que es del kit, y con su licencia; si
+   es de una empresa, con su permiso. El kit no la toca al actualizarse.
+2. **Se apunta** en «Identidad», en el
+   [sistema de diseño](./design-system.md#identidad), y en `AGENTS.md`: en
+   «Diseño y UX», una línea `- **Skill de diseño:** <su-nombre>, en
+   .claude/skills/<su-nombre>/.`, y en «Skills del proyecto», la suya.
+3. **La leen** `zaius-brand` y `zaius-sketch` antes de proponer o de
+   dibujar, y cualquier sesión que diseñe o construya algo que se ve.
+4. **Manda lo que fija:** su marca, su letra, sus piezas o lo que prohíbe
+   cuentan como pedidos por la persona, por encima de lo que propone el kit
+   (las direcciones de `zaius-brand`, «Que no salga genérico»). Si choca con
+   una norma de diseño, la persona decide cuál manda, y se apunta en
+   «Identidad»; la accesibilidad (D12) se cumple siempre.
+5. **Con el sistema de diseño ya aprobado,** la identidad se repasa con ella
+   lanzando `/zaius-brand`, que va como propuesta.
 
 ## Cómo se cambia el diseño
 

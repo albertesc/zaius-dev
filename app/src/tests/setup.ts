@@ -1,9 +1,7 @@
 import { cleanup, configure } from '@testing-library/react'
 import { afterEach, beforeEach, vi } from 'vitest'
 import '@testing-library/jest-dom/vitest'
-// kit:if i18n
 import '@/i18n/i18n'
-// kit:end
 import { testUtils } from './testUtils'
 
 configure({ asyncUtilTimeout: 3000 })

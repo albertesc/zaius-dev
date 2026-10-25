@@ -2,13 +2,26 @@
 
 > Pendiente de definir: lo rellena la skill `zaius-init`.
 
-Con qué se construyen las pantallas de %%APP_NAME%%: la librería, los tokens y
-qué pieza cumple cada papel que nombran las [normas](./rules.md). Las normas
-dicen cómo se comporta una pantalla; este documento, con qué piezas se hace.
+Con qué se construyen las pantallas de %%APP_NAME%%: su identidad, la librería,
+los tokens y qué pieza cumple cada papel que nombran las
+[normas](./rules.md). Las normas dicen cómo se comporta una pantalla; este
+documento, con qué piezas se hace.
 Una vez escrito, se cambia con una propuesta
 ([Cómo se cambia el diseño](./README.md#cómo-se-cambia-el-diseño)).
 
-**En esta página:** [Librería y cómo se monta](#librería-y-cómo-se-monta) · [Tokens](#tokens) · [Anchos](#anchos) · [Tema](#tema) · [Movimiento](#movimiento) · [Iconos](#iconos) · [Bocetos](#bocetos) · [Piezas por papel](#piezas-por-papel) · [Lo que falta](#lo-que-falta)
+**En esta página:** [Identidad](#identidad), [Librería y cómo se monta](#librería-y-cómo-se-monta), [Tokens](#tokens), [Anchos](#anchos), [Tema](#tema), [Movimiento](#movimiento), [Iconos](#iconos), [Bocetos](#bocetos), [Piezas por papel](#piezas-por-papel), [Lo que falta](#lo-que-falta)
+
+## Identidad
+
+Pendiente.
+
+*Lo que hace reconocible a %%APP_NAME%%, elegido entre tres direcciones con
+la skill `zaius-brand`: su idea, en una frase; el logo (dónde está y si es
+provisional); los colores y su papel (uno que domina y un acento); la letra,
+con su papel y cómo se carga; las fotos (qué enseñan, cómo, y si son propias
+o de muestra); la firma, lo único que se recordará; cómo se compone; «Lo
+que no», lo genérico que se evita; y la skill de diseño de la persona, si la
+hay ([Una skill de diseño propia](./README.md#una-skill-de-diseño-propia)).*
 
 ## Librería y cómo se monta
 
@@ -25,7 +38,9 @@ Pendiente.
 
 *De dónde salen (los de la librería o `src/styles/tokens.css`, importado en
 `src/main.tsx`): el color de la marca, la tipografía, la escala de grises, los
-espacios y los radios. Nunca colores sueltos.*
+espacios (cada uno con lo que separa: una etiqueta de su campo, dentro de un
+grupo, entre grupos, entre secciones), los márgenes de la rejilla y los
+radios. Nunca colores sueltos.*
 
 ## Anchos
 
@@ -45,7 +60,8 @@ Pendiente.
 Pendiente.
 
 *Cuánto se mueve (nada, lo justo o vistoso), sus duraciones y sus curvas,
-como tokens, y que con «reducir movimiento» solo queda un fundido
+como tokens; cómo responde lo que se pulsa al pasar por encima y con el
+foco; y que con «reducir movimiento» solo queda un fundido
 ([D13](./rules.md#d13-movimiento)).*
 
 ## Iconos
@@ -59,10 +75,10 @@ pasa un icono a una pieza.*
 
 Pendiente.
 
-*El nivel de partida de los bocetos de cada historia (baja, media o alta) y
-la guía visual, `mockups/design-system.html`, que enseña las piezas con sus
-colores y su tipografía. Los hace la skill `zaius-sketch`, con los tokens de
-este documento ([Bocetos](./README.md#bocetos)).*
+*La guía visual, `mockups/design-system.html`, la documentación de este
+sistema de diseño (la identidad, los fundamentos, cada pieza con sus estados
+y sus normas, y los cambios), y la fecha en que se aprobó. Los bocetos los hace la skill `zaius-sketch`, con los tokens de este
+documento ([Bocetos](./README.md#bocetos)).*
 
 ## Piezas por papel
 
@@ -74,7 +90,7 @@ historia.*
 
 | Papel | Pieza | Notas |
 |---|---|---|
-| Título de página | Pendiente | El `h1`; recibe el foco al entrar (D10, D12) |
+| Título de página | Pendiente | El `h1`; recibe el foco al entrar y pone la pestaña del navegador (D10, D12) |
 | Título de sección | Pendiente | `h2` y `h3`, sin saltos (D12) |
 | Texto | Pendiente | |
 | Enlace | Pendiente | Con el enlace del router para las rutas internas (D10) |
@@ -95,7 +111,11 @@ historia.*
 | Interruptor | Pendiente | Lo que se aplica al momento |
 | Tabla | Pendiente | Acciones en su cabecera; la cabecera, siempre a la vista (D8) |
 | Paginación | Pendiente | 10, 25 o 50 filas (D8) |
+<!-- kit:if backend -->
 | Buscador | Pendiente | Espera 400 ms si busca en el servidor (D8) |
+<!-- kit:else -->
+| Buscador | Pendiente | Espera 400 ms desde la última tecla (D8) |
+<!-- kit:end -->
 | Modal | Pendiente | Se bloquea mientras actúa (D9) |
 | Modal de confirmación | Pendiente | Su título es una pregunta (D9) |
 | Pestañas | Pendiente | En `?tab=` en la gestión de un registro (D7) |
@@ -110,7 +130,7 @@ historia.*
 | Estado vacío | Pendiente | «Todavía no hay …» (D3) |
 | Estado de error | Pendiente | Con reintentar (D3) |
 | Insignia de estado | Pendiente | |
-| Menú ⋮ | Pendiente | El último de su fila o su tarjeta (D8) |
+| Menú de más acciones | Pendiente | El último de su fila o su tarjeta (D8) |
 | Icono de información | Pendiente | De 1 a 4 frases (D2) |
 | Barra de progreso | Pendiente | |
 | Contenedores y rejilla | Pendiente | Los espacios salen de sus tokens (D1) |

@@ -19,7 +19,7 @@ proyecto están en
 
 **En esta página:**
 
-- **1. La regla de la feature:** [Lo que da la sesión](#lo-que-da-la-sesión) · [La regla](#la-regla)
+- **1. La regla de la feature:** [Lo que da la sesión](#lo-que-da-la-sesión), [La regla](#la-regla)
 - [2. La ruta](#2-la-ruta)
 - [3. Los botones](#3-los-botones)
 - [4. Las acciones de fila](#4-las-acciones-de-fila)
@@ -28,7 +28,7 @@ proyecto están en
 - [7. Las peticiones](#7-las-peticiones)
 - [8. El menú](#8-el-menú)
 - [9. Los tests de la regla](#9-los-tests-de-la-regla)
-- **Casos especiales:** [Varios permisos](#varios-permisos) · [Por rol](#por-rol) · [Un permiso nuevo](#un-permiso-nuevo) · [Cuando la API pide otra cosa](#cuando-la-api-pide-otra-cosa)
+- **Casos especiales:** [Varios permisos](#varios-permisos), [Por rol](#por-rol), [Un permiso nuevo](#un-permiso-nuevo), [Cuando la API pide otra cosa](#cuando-la-api-pide-otra-cosa)
 - [Errores comunes](#errores-comunes)
 
 ## 1. La regla de la feature
@@ -163,7 +163,6 @@ pantalla final del alta de un pedido, solo para quien puede ver el listado.
 Lleva a otra pantalla, así que es un enlace (`href`)
 ([D10](../ux-ui/rules.md#d10-navegación)):
 
-<!-- kit:if i18n -->
 ```tsx
 const { canViewList } = useSessionPermissions(ordersNewPermissions)
 
@@ -174,18 +173,6 @@ return (
   </ActionBar>
 )
 ```
-<!-- kit:else -->
-```tsx
-const { canViewList } = useSessionPermissions(ordersNewPermissions)
-
-return (
-  <ActionBar>
-    {canViewList ? <Button variant='secondary' href='/orders'>Ve al listado</Button> : null}
-    <Button onClick={onCreateAnother}>Crea otro pedido</Button>
-  </ActionBar>
-)
-```
-<!-- kit:end -->
 
 - **Para elegir entre dos cosas** se usa un ternario. Si de un grupo de
   acciones no queda ninguna, el grupo tampoco se pinta.
@@ -202,7 +189,7 @@ return (
 
 Cuando la tabla tiene acciones por fila, cada una se ofrece solo con su
 permiso y en los estados en que se puede hacer. Cuántas se ven, cuál va la
-última y cuáles van en el ⋮ de la fila lo dice
+última y cuáles van en el menú de más acciones de la fila lo dice
 [D8](../ux-ui/rules.md#d8-listados-y-tablas); aquí, cómo se arman.
 
 «Gestiona» pide lo que pide la gestión para abrirse, no para editar: su regla
@@ -213,12 +200,11 @@ permiso de editar también para leer el registro, `canManage` pediría ese, y
 sin él «Gestiona» no se ofrecería.
 
 Las acciones de una fila son funciones que reciben la fila y devuelven sus
-acciones: las que se ven y las del ⋮. Una acción sin permiso, o que el estado
-no deja hacer, no está en la lista; si el ⋮ se queda sin ninguna, no se
-pinta. En el listado de pedidos, una fila puede tener tres (gestionar, cerrar
-y cancelar), así que cerrar y cancelar van en el ⋮:
+acciones: las que se ven y las del menú de más acciones. Una acción sin permiso,
+o que el estado no deja hacer, no está en la lista; si el menú se queda sin
+ninguna, no se pinta. En el listado de pedidos, una fila puede tener tres
+(gestionar, cerrar y cancelar), así que cerrar y cancelar van en el menú:
 
-<!-- kit:if i18n -->
 ```ts
 const { t } = useTranslation()
 const { canManage, canClose, canCancel } = useSessionPermissions(ordersPermissions)
@@ -238,24 +224,6 @@ const rowMenu = (order: OrdersListRow) => {
 ```
 
 Se arman en el hook que prepara la tabla.
-<!-- kit:else -->
-```tsx
-const { canManage, canClose, canCancel } = useSessionPermissions(ordersPermissions)
-
-<Table
-  …
-  rowActions={(order) => canManage
-    ? [{ label: 'Gestiona', ariaLabel: `Gestiona el pedido #${order.id}`, href: `/orders/${order.id}/edit` }]
-    : []}
-  rowMenu={(order) => [
-    ...(canClose && orderStatusUtils.isOrderOpen(order.status) ? [{ label: 'Cierra el pedido', ariaLabel: `Cierra el pedido #${order.id}`, onClick: () => onClose(order.id) }] : []),
-    ...(canCancel && orderStatusUtils.isOrderOpen(order.status) ? [{ label: 'Cancela el pedido', ariaLabel: `Cancela el pedido #${order.id}`, destructive: true, onClick: () => onCancel(order.id) }] : []),
-  ]}
-/>
-```
-
-Llevan textos, así que se arman en el componente de la tabla, que los pinta.
-<!-- kit:end -->
 
 Cada acción lleva su regla y, si solo vale en unos estados, la condición del
 estado, que es de la familia (`orderStatusUtils.isOrderOpen`, en
@@ -267,7 +235,6 @@ que es un enlace (`href`).
 
 La pestaña que pide un permiso no sale en la lista de pestañas:
 
-<!-- kit:if i18n -->
 ```tsx
 const { canViewInvoices } = useSessionPermissions(ordersEditPermissions)
 
@@ -277,17 +244,6 @@ const tabs = [
   ...(canViewInvoices ? [{ value: 'invoices', label: t('ordersEdit:tabs.invoices') }] : []),
 ]
 ```
-<!-- kit:else -->
-```tsx
-const { canViewInvoices } = useSessionPermissions(ordersEditPermissions)
-
-const tabs = [
-  { value: 'data', label: 'Datos' },
-  { value: 'documents', label: 'Documentos' },
-  ...(canViewInvoices ? [{ value: 'invoices', label: 'Facturas' }] : []),
-]
-```
-<!-- kit:end -->
 
 Los datos de esa pestaña llevan además la regla en su petición
 ([Las peticiones](#7-las-peticiones)), para que ni escribiendo
@@ -351,7 +307,6 @@ familia: no tiene `to` ni regla propia. Cada una de sus entradas lleva la
 suya, en el orden del menú (añadir, análisis, gestión y lo propio de la
 familia):
 
-<!-- kit:if i18n -->
 ```ts
 {
   labelKey: 'common:navGroups.orders',
@@ -362,18 +317,6 @@ familia):
   ],
 }
 ```
-<!-- kit:else -->
-```ts
-{
-  label: 'Pedidos',
-  children: [
-    { to: '/orders/new', label: 'Añadir pedido', allowed: (permissions) => permissions.includes('ORDERS.CREATE') },
-    { to: '/orders/dashboard', label: 'Análisis de pedidos', allowed: (permissions) => permissions.includes('ORDERS.VIEW') },
-    { to: '/orders', label: 'Gestión de pedidos', allowed: (permissions) => permissions.includes('ORDERS.VIEW') },
-  ],
-}
-```
-<!-- kit:end -->
 
 - **Una entrada sin permiso no se ve.**
 - **Un grupo se ve si se ve alguna de sus entradas:** «Pedidos» se ve con

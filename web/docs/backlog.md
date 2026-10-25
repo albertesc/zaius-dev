@@ -19,52 +19,78 @@ fecha del OK.
   «pendiente», y lo completa `/zaius-page`. Con `@`, Claude Code y opencode
   las listan (`/zaius-page @docs/pages/RO`).
 - **Su estado** va en la cabecera de su fichero, con la fecha, y se repite
-  aquí: pendiente → por aprobar → aprobada → en curso → por cerrar → hecha
+  aquí: pendiente, por aprobar, aprobada, en curso, por cerrar y hecha
   ([Los estados](./process.md#los-estados-de-una-página)).
 - **La primera página es HOME:** con ella nacen el marco (la cabecera, el
   menú y el pie) y lo que comparten todas, y las demás crecen sobre ella.
 
-**En esta página:** [Cómo se escribe](#cómo-se-escribe) · [Mapa del sitio](#mapa-del-sitio) · [Páginas](#páginas) · [Quitadas](#quitadas)
+**En esta página:** [Cómo se escribe](#cómo-se-escribe), [Mapa del sitio](#mapa-del-sitio), [Páginas](#páginas), [Quitadas](#quitadas)
 
 ## Cómo se escribe
 
-En «Mapa del sitio», lo que lleva el menú y lo que lleva el pie, en su orden,
-con el texto de cada entrada y su página. En «Páginas», una línea por página,
-en el orden en que se hacen:
+Se escribe para que se entienda sin saber programar: es lo que la persona
+aprueba. En «Mapa del sitio», lo que lleva el menú y lo que lleva el pie, en
+su orden, con el texto de cada entrada y su página. En «Páginas», un apartado
+por página, en el orden en que se hacen:
 
 ```markdown
 ## Mapa del sitio
 
-- **Menú:** «Inicio» (HOME) · «Habitaciones» (ROOMS) · «El entorno» (AREA) · «Contacto» (CONTACT)
-- **Pie:** «Aviso legal» (LEGAL-NOTICE) · «Privacidad» (PRIVACY) · «Cookies» (COOKIES)
+- **Menú:** «Inicio» (HOME), «Habitaciones» (ROOMS), «El entorno» (AREA), «Contacto» (CONTACT)
+- **Pie:** «Aviso legal» (LEGAL-NOTICE), «Privacidad» (PRIVACY), «Cookies» (COOKIES)
 
 ## Páginas
 
-- **HOME** `/` Conocer la casa y llegar a las habitaciones. Datos: constants/ · pendiente
-- **ROOMS** `/rooms` Elegir habitación y pedir disponibilidad. Datos: constants/ · pendiente
+### HOME: Inicio
+
+- **Para qué:** como pareja que busca una escapada, quiero conocer la casa de un vistazo, para saber si es lo que busco y llegar a las habitaciones.
+- **Dirección web:** `/`
+- **Lo que enseña:** sus textos y los datos de la casa (cuántos caben, el teléfono).
+- **Estado:** pendiente
+
+### ROOMS: Las habitaciones
+
+- **Para qué:** como pareja que busca una escapada, quiero ver cada habitación con sus fotos, cuántos caben y su precio, para elegir la mía y pedir disponibilidad.
+- **Dirección web:** `/rooms`
+- **Lo que enseña:** los datos de las habitaciones (sus fotos, cuántos caben y su precio).
+- **Estado:** pendiente
+
+### CONTACT: Contacto
+
 <!-- kit:if server -->
-- **CONTACT** `/contact` Pedir unas fechas o preguntar, y que la casa conteste. Datos: formulario (servidor) · pendiente
+- **Para qué:** como pareja que busca una escapada, quiero pedir unas fechas o preguntar, para que la casa me conteste.
+- **Dirección web:** `/contact`
+- **Lo que enseña:** sus textos y un formulario.
 <!-- kit:else -->
-- **CONTACT** `/contact` Pedir unas fechas o preguntar, por teléfono o por correo. Datos: la página · pendiente
+- **Para qué:** como pareja que busca una escapada, quiero llamar o escribir a la casa, para pedir unas fechas o preguntar.
+- **Dirección web:** `/contact`
+- **Lo que enseña:** sus textos y los datos de la casa (el teléfono, el correo).
 <!-- kit:end -->
+- **Estado:** pendiente
 ```
 
-- **La página,** con su nombre en negrita y su URL.
-- **Para qué,** en una frase, con las palabras de quien visita la web: lo
-  que viene a hacer en ella.
-- **Datos:** de dónde sale lo que enseña, con estas palabras: «la página»
-  (sus textos), «constants/» (los datos que se repiten o cambian),
+- **El título:** su nombre y el título que se ve, como en la cabecera de su
+  fichero («ROOMS: Las habitaciones»).
+- **Para qué:** su historia, en una frase: «Como <quién>, quiero <qué>,
+  para <para qué>.», con quien la visita, como lo dice el brief («Como
+  pareja que busca una escapada») o, si no se distingue, «Como visitante», y
+  sus palabras: lo que viene a hacer en ella. Una página no se parte en
+  historias: se entrega entera.
+- **Dirección web:** su URL.
+- **Lo que enseña:** de dónde sale lo que se ve, con estas palabras, una o
+  varias, cada una con lo que es:
+  - «sus textos»: los de la propia página;
+  - «los datos de …»: unos pocos que se repiten o cambian de vez en cuando;
 <!-- kit:if content -->
-  «colección» (las entradas de contenido),
+  - «las entradas de …»: las del blog, una a una;
 <!-- kit:end -->
 <!-- kit:if backend -->
-  «la API» (otro sistema),
+  - «lo que da …»: lo que da otro sistema, en el momento;
 <!-- kit:end -->
 <!-- kit:if server -->
-  «formulario (servidor)» (lo que escribe quien la visita),
+  - «un formulario»: lo que escribe quien la visita.
 <!-- kit:end -->
-  o varias, separadas por comas.
-- **El estado,** al final, detrás de «·», el mismo que dice su fichero.
+- **El estado,** el mismo que dice su fichero.
 
 ## Mapa del sitio
 

@@ -22,8 +22,11 @@ argument-hint: [<%%UNIT_EXAMPLE%%>]
 
 1. **El alcance:** una %%UNIT%% por su código o su ruta
    (`/zaius-review %%UNIT_EXAMPLE%%`, o con `@`), un refactor por su fichero, o,
-   sin nada, el cambio en curso (lo que dice git; sin git, pregunta qué
-   ficheros).
+<!-- kit:if git -->
+   sin nada, el cambio en curso (lo que dicen `git status` y `git diff`).
+<!-- kit:else -->
+   sin nada, el cambio en curso: pregunta qué ficheros.
+<!-- kit:end -->
 2. **Las comprobaciones:** `%%PM%% run typecheck`, `%%PM%% run lint`,
    `%%PM%% run test` y `%%PM%% run build`, en verde. En Windows, desde
    PowerShell.
@@ -45,14 +48,16 @@ argument-hint: [<%%UNIT_EXAMPLE%%>]
 
    ```text
    <código> <título>, lista para cerrar
-   ✓ Tipos, lint, tests (N nuevos) y build
-   ✓ Revisión contra las normas: nada que cambiar
-   ✓ <lo propio de esta %%KIND%%, de «Qué se revisa»>
+   Tipos, lint, tests (N nuevos) y build: en verde.
+   Revisión contra las normas: nada que cambiar.
+   <Lo propio de esta %%KIND%%, de «Qué se revisa»>.
    Falta tu verificación (N):
-     · <lo que se mira a mano>
+     - <lo que se mira a mano>
    Para verla: http://localhost:%%HUMAN_PORT%%/<…>
    Cuando lo hayas visto, ¿la doy por hecha? Con tu OK, <lo que se hará>.
+<!-- kit:if git -->
    Commit propuesto, para que lo hagas tú: «<mensaje>»
+<!-- kit:end -->
    ```
 
 7. **Si hay hallazgos,** o la persona ve algo que no le encaja: no lo arregles.
@@ -67,6 +72,11 @@ argument-hint: [<%%UNIT_EXAMPLE%%>]
    - su boceto, borrado de `docs/ux-ui/mockups/`; el de un refactor, también;
    - «Dónde estamos», al día, con la %%UNIT%% siguiente que propones; la elige
      la persona.
+<!-- kit:if git -->
+   - el commit lo hace la persona, con el mensaje del resumen, que sigue
+     [Git](../../../AGENTS.md#git). Si te pide que lo hagas, o que lo subas,
+     es `zaius-git`, con su resumen.
+<!-- kit:end -->
 
 Sin %%UNIT%%, los pasos 2, 3 y 5 y el resumen, sin cambiar ningún estado.
 

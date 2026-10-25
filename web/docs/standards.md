@@ -14,11 +14,11 @@ que las de esta página, y cada una nace cuando la necesita la primera pieza.
 - [Dónde va cada cosa](#dónde-va-cada-cosa)
 - [Sencillez y tamaño](#sencillez-y-tamaño)
 - [Comprobar la estructura](#comprobar-la-estructura)
-- [Qué se revisa](#qué-se-revisa) · [La revisión visual](#la-revisión-visual)
+- [Qué se revisa](#qué-se-revisa), [La revisión visual](#la-revisión-visual)
 <!-- kit:if server -->
-- **Código:** [TypeScript](#typescript) · [Páginas](#páginas) · [Componentes](#componentes) · [Islas](#islas) · [Datos](#datos) · [Los datos de la web](#los-datos-de-la-web) · [Guardar](#guardar) · [Textos](#textos) · [Estilos](#estilos) · [Comentarios](#comentarios)
+- **Código:** [TypeScript](#typescript), [Páginas](#páginas), [Componentes](#componentes), [Islas](#islas), [Datos](#datos), [Los datos de la web](#los-datos-de-la-web), [Guardar](#guardar), [Textos](#textos), [Estilos](#estilos), [Comentarios](#comentarios)
 <!-- kit:else -->
-- **Código:** [TypeScript](#typescript) · [Páginas](#páginas) · [Componentes](#componentes) · [Islas](#islas) · [Datos](#datos) · [Los datos de la web](#los-datos-de-la-web) · [Textos](#textos) · [Estilos](#estilos) · [Comentarios](#comentarios)
+- **Código:** [TypeScript](#typescript), [Páginas](#páginas), [Componentes](#componentes), [Islas](#islas), [Datos](#datos), [Los datos de la web](#los-datos-de-la-web), [Textos](#textos), [Estilos](#estilos), [Comentarios](#comentarios)
 <!-- kit:end -->
 - [Rutas y navegación](#rutas-y-navegación)
 <!-- kit:if existing -->
@@ -29,39 +29,37 @@ que las de esta página, y cada una nace cuando la necesita la primera pieza.
 
 ```text
 src/
-├── pages/                 las rutas: una página por URL, en la ruta de su URL (legal/notice.astro)
+    pages/                 las rutas: una página por URL, en la ruta de su URL (legal/notice.astro)
 <!-- kit:if server -->
-│   └── api/               los endpoints: solo lo que es HTTP de verdad (un fichero que se descarga, un webhook)
+        api/               los endpoints: solo lo que es HTTP de verdad (un fichero que se descarga, un webhook)
 <!-- kit:end -->
-├── layouts/               los layouts generales: el documento HTML y el marco de la web
-├── components/            los componentes, planos, sin subcarpetas
+    layouts/               los layouts generales: el documento HTML y el marco de la web
+    components/            los componentes, planos, sin subcarpetas
 <!-- kit:if server -->
-├── actions/               lo que envían o guardan los formularios, con sus schemas
-├── middleware.ts          la respuesta a los formularios (post/redirect/get)
+    actions/               lo que envían o guardan los formularios, con sus schemas
+    middleware.ts          la respuesta a los formularios (post/redirect/get)
 <!-- kit:end -->
 <!-- kit:if privateArea -->
-├── env.d.ts               el tipo de la sesión, que el middleware deja en Astro.locals
+    env.d.ts               el tipo de la sesión, que el middleware deja en Astro.locals
 <!-- kit:end -->
 <!-- kit:if content -->
-├── content.config.ts      las colecciones de contenido
-├── content/               las entradas de cada colección, en Markdown o MDX
+    content.config.ts      las colecciones de contenido
+    content/               las entradas de cada colección, en Markdown o MDX
 <!-- kit:end -->
 <!-- kit:if backend -->
-├── services/<entidad>/    el service de una entidad de la API, sus schemas y su JSON de mocks
-├── schemas/               los schemas que comparten varias entidades
-├── utils/                 las funciones puras, en un objeto por tema, y el transporte
-├── types/                 los tipos compartidos (api.ts, los del transporte)
+    services/<entidad>/    el service de una entidad de la API, sus schemas y su JSON de mocks
+    schemas/               los schemas que comparten varias entidades
+    utils/                 las funciones puras, en un objeto por tema, y el transporte
+    types/                 los tipos compartidos (api.ts, los del transporte)
 <!-- kit:else -->
-├── utils/                 las funciones puras, en un objeto por tema
-├── types/                 los tipos compartidos
+    utils/                 las funciones puras, en un objeto por tema
+    types/                 los tipos compartidos
 <!-- kit:end -->
-├── constants/             las constantes compartidas (appLanguages.ts) y los datos de la web (rooms.ts)
-<!-- kit:if i18n -->
-├── i18n/                  la configuración y un catálogo de textos por idioma
-<!-- kit:end -->
-├── styles/                los tokens del sistema de diseño y los estilos globales
-├── assets/                las imágenes que optimiza Astro, con el prefijo de su página (homeHeader.jpg)
-└── tests/                 la comprobación de la estructura, la configuración de Vitest, testUtils y los tests de las páginas
+    constants/             las constantes compartidas (appLanguages.ts) y los datos de la web (rooms.ts)
+    i18n/                  la configuración y un catálogo de textos por idioma
+    styles/                los tokens del sistema de diseño y los estilos globales
+    assets/                las imágenes que optimiza Astro, con el prefijo de su página (homeHeader.jpg)
+    tests/                 la comprobación de la estructura, la configuración de Vitest, testUtils y los tests de las páginas
 ```
 
 Solo existen las carpetas que hacen falta:
@@ -79,10 +77,8 @@ Solo existen las carpetas que hacen falta:
 - **Con la zona privada,** también `utils/apiSessionUtils.ts`, la sesión de
   cada petición para el transporte.
 <!-- kit:end -->
-<!-- kit:if i18n -->
-- **Con varios idiomas,** también `i18n/i18n.ts`, un catálogo por idioma
-  (`i18n/<idioma>.json`) y `utils/languageUtils.ts`.
-<!-- kit:end -->
+- **Los textos:** `i18n/i18n.ts`, un catálogo por idioma
+  (`i18n/<idioma>.json`), aunque haya uno solo, y `utils/languageUtils.ts`.
 <!-- kit:if existing -->
 - **En un proyecto que ya existía,** el kit no toca `src/` hasta que acaba
   de traerse (la skill `zaius-adopt`): entonces `%%KIT_RUN%% change` trae
@@ -287,7 +283,7 @@ ficheros.
   del fichero de utils.
 - Todo fichero con código tiene su test al lado, con el mismo nombre. Las
   páginas no pueden: lo de `src/pages/` tiene su test en `src/tests/pages/`,
-  en la misma ruta (`src/pages/legal/notice.astro` →
+  en la misma ruta (el de `src/pages/legal/notice.astro` es
   `src/tests/pages/legal/notice.test.ts`), porque Astro convertiría en ruta
   un test que estuviera a su lado. Solo se libran los que únicamente
   declaran (tipos, constantes y configuración),
@@ -305,13 +301,8 @@ ficheros.
 <!-- kit:else -->
   Solo `pages/` sigue la URL.
 <!-- kit:end -->
-<!-- kit:if i18n -->
 - Lo que solo arma etiquetas con `t()` no sale del componente: va en su
   frontmatter.
-<!-- kit:else -->
-- Lo que solo arma los textos de una pieza no sale del componente: va en su
-  frontmatter.
-<!-- kit:end -->
 - Se extrae solo lo que es igual, y cuando aparece la segunda copia o el
   documento de la página ya dice que la habrá, no antes. Nada de componentes
   genéricos llenos de huecos que cuesten más de leer que la copia.
@@ -350,10 +341,8 @@ fichero:
   cada fichero de `src/pages/`, el suyo en `src/tests/pages/`, salvo los que
   solo declaran y el código base del kit
   ([Sencillez y tamaño](#sencillez-y-tamaño)).
-<!-- kit:if i18n -->
 - **La paridad de idiomas:** `src/i18n/` tiene un catálogo por idioma de la
   web, y todos con las mismas claves ([Textos](#textos)).
-<!-- kit:end -->
 
 Lo encuentra todo solo, con `import.meta.glob`: no hay que apuntar en él
 ninguna página ni ningún fichero.
@@ -392,22 +381,22 @@ hallazgos, de lo más grave a lo menos:
    ([Nomenclatura](./naming.md)).
 5. **El código:** las condiciones en constantes con `? :` y `null`, ningún
    `&&` en el HTML, sin `any`, `import type`, el JSDoc y los tamaños
-   ([Código](#código) y [Sencillez y tamaño](#sencillez-y-tamaño)).
-<!-- kit:if i18n -->
-6. **Los textos:** ninguno de usuario en el código, las claves de la
-   nomenclatura y las mismas claves en todos los idiomas ([Textos](#textos)).
-<!-- kit:else -->
-6. **Los textos:** en el componente que los pinta, sin copiar los que ya
-   escribe una pieza de toda la web, y el mismo dato con el mismo nombre en
-   todas las páginas ([Textos](#textos)).
-<!-- kit:end -->
+   ([Código](#código) y [Sencillez y tamaño](#sencillez-y-tamaño)). Y nada
+   «por si acaso»: lo que no usa nada de la página es un hallazgo, sea un
+   fichero, una prop, una variante o una dependencia.
+6. **Los textos:** ninguno de usuario en el código ni en los tests, que
+   los piden a `testUtils.translate`; las claves de la nomenclatura y las
+   mismas claves en todos los idiomas ([Textos](#textos)). Ni en ellos ni en
+   los documentos, los signos ni las frases de la IA
+   ([Escribir como una persona](./process.md#escribir-como-una-persona)).
 7. **El diseño:** las normas, la pieza de cada papel y los tokens
    ([Normas de UX/UI](./ux-ui/rules.md) y
    [Piezas por papel](./ux-ui/design-system.md#piezas-por-papel)).
 8. **Los tests:** uno al lado de cada fichero con código; cada test de la
-   lista de la página, marcado y en verde; y cada cosa que pide su
-   documento, con su test o en la verificación a mano
-   ([Escribir tests](./guides/write-tests.md)).
+   lista de la página, marcado y en verde; cada cosa que pide su
+   documento, con su test o en la verificación a mano; y ninguno manipulado
+   para que pase ([Escribir tests](./guides/write-tests.md) y
+   [Un test no se manipula](./guides/write-tests.md#un-test-no-se-manipula)).
 9. **El documento dice lo que hace el código:** el de la página, en
    `docs/pages/`, con lo decidido al construirla, y lo que dependa de él (el
    backlog, el mapa del sitio, las guías).
@@ -421,21 +410,19 @@ hallazgos, de lo más grave a lo menos:
 4. **El código:** las condiciones en constantes con `? :` y `null`, ningún
    `&&` en el HTML, sin `any`, `import type`, el JSDoc y los tamaños
    ([Código](#código) y [Sencillez y tamaño](#sencillez-y-tamaño)).
-<!-- kit:if i18n -->
-5. **Los textos:** ninguno de usuario en el código, las claves de la
-   nomenclatura y las mismas claves en todos los idiomas ([Textos](#textos)).
-<!-- kit:else -->
-5. **Los textos:** en el componente que los pinta, sin copiar los que ya
-   escribe una pieza de toda la web, y el mismo dato con el mismo nombre en
-   todas las páginas ([Textos](#textos)).
-<!-- kit:end -->
+5. **Los textos:** ninguno de usuario en el código ni en los tests, que
+   los piden a `testUtils.translate`; las claves de la nomenclatura y las
+   mismas claves en todos los idiomas ([Textos](#textos)). Ni en ellos ni en
+   los documentos, los signos ni las frases de la IA
+   ([Escribir como una persona](./process.md#escribir-como-una-persona)).
 6. **El diseño:** las normas, la pieza de cada papel y los tokens
    ([Normas de UX/UI](./ux-ui/rules.md) y
    [Piezas por papel](./ux-ui/design-system.md#piezas-por-papel)).
 7. **Los tests:** uno al lado de cada fichero con código; cada test de la
-   lista de la página, marcado y en verde; y cada cosa que pide su
-   documento, con su test o en la verificación a mano
-   ([Escribir tests](./guides/write-tests.md)).
+   lista de la página, marcado y en verde; cada cosa que pide su
+   documento, con su test o en la verificación a mano; y ninguno manipulado
+   para que pase ([Escribir tests](./guides/write-tests.md) y
+   [Un test no se manipula](./guides/write-tests.md#un-test-no-se-manipula)).
 8. **El documento dice lo que hace el código:** el de la página, en
    `docs/pages/`, con lo decidido al construirla, y lo que dependa de él (el
    backlog, el mapa del sitio, las guías).
@@ -445,7 +432,7 @@ Cada hallazgo va en una línea, con `fichero:línea`, la regla que rompe, con
 su enlace, y la corrección propuesta:
 
 ```text
-src/components/RoomsSection.astro:3 · Falta el prefijo de la página (docs/naming.md#prefijo-de-origen) · Renombrar a HomeRoomsSection.
+src/components/RoomsSection.astro:3: falta el prefijo de la página (docs/naming.md#prefijo-de-origen); se renombra a HomeRoomsSection.
 ```
 
 <!-- kit:if existing -->
@@ -473,12 +460,20 @@ con su propio servidor (`%%PM%% run dev:review`), y nunca en el
 - **con los estados que toca:** el vacío y la página que no existe
   ([D3](./ux-ui/rules.md#d3-estados-de-carga-error-y-vacío));
 <!-- kit:end -->
+- **la jerarquía, los espacios y las columnas,** en cada ancho: se ve
+  primero lo que más importa; lo que va junto, cerca, y lo que no, separado;
+  y todo en la misma rejilla
+  ([D15](./ux-ui/rules.md#d15-jerarquía-espacios-y-columnas)), sin
+  nada de lo que no se hace
+  ([D16](./ux-ui/rules.md#d16-lo-que-no-se-hace));
+- **con el ratón y el teclado:** lo que se pulsa responde al pasar por
+  encima y con el foco ([D13](./ux-ui/rules.md#d13-movimiento));
 - **con el teclado, con un lector de pantalla y con el zoom al 200 %**
   ([D12](./ux-ui/rules.md#d12-accesibilidad));
 - **con «reducir movimiento»,** si algo se mueve
   ([D13](./ux-ui/rules.md#d13-movimiento));
 - **buscadores y compartir,** en el HTML de la página: su título y su
-  descripción, únicos; su imagen para compartir, de 1200 × 630 px; la
+  descripción, únicos; su imagen para compartir, de 1200 por 630 px; la
   dirección canónica; y `noindex` en las páginas que no son públicas y en
   las de error. El `site`, el mapa del sitio y el `robots.txt` los pone
   `zaius-publish` al publicar
@@ -491,9 +486,10 @@ con su propio servidor (`%%PM%% run dev:review`), y nunca en el
 
 Lo que no se puede mirar así (un móvil de verdad, la velocidad con la red de
 un móvil, un correo que llega) va a la verificación a mano de la persona. En
-el resumen, su línea: «✓ Revisión visual: <páginas>, en <anchos>, con
-teclado, lector de pantalla, zoom al 200 % y reducir movimiento; título,
-descripción e imagen para compartir; imágenes optimizadas».
+el resumen, su línea: «Revisión visual: <páginas>, en <anchos>, con la
+jerarquía, los espacios y las columnas repasados, con teclado, lector de
+pantalla, zoom al 200 % y reducir movimiento; título, descripción e imagen
+para compartir; imágenes optimizadas».
 
 **Al terminar, se para el servidor de revisión:** el `%%PM%% run dev:review`
 que se arrancó, con Ctrl+C en su terminal o parando su tarea. Si se arrancó
@@ -611,23 +607,14 @@ Así queda ROOMS, con las habitaciones de `constants/`:
 ---
 import RoomsList from '@/components/RoomsList.astro'
 import { ROOMS } from '@/constants/rooms'
-<!-- kit:if i18n -->
 import { getI18nT } from '@/i18n/i18n'
-<!-- kit:end -->
 import AppLayout from '@/layouts/AppLayout.astro'
-<!-- kit:if i18n -->
 
 const t = getI18nT(Astro.currentLocale)
-<!-- kit:end -->
 ---
 
-<!-- kit:if i18n -->
 <AppLayout title={t('rooms.title')} description={t('rooms.description')} image='/share/rooms.png'>
   <h1>{t('rooms.title')}</h1>
-<!-- kit:else -->
-<AppLayout title='Habitaciones' description='Tres habitaciones de piedra y madera, para dos o para cuatro, con desayuno casero.' image='/share/rooms.png'>
-  <h1>Habitaciones</h1>
-<!-- kit:end -->
   <RoomsList rooms={ROOMS} />
 </AppLayout>
 ```
@@ -657,15 +644,9 @@ service y se las pasa a la lista
   constante. Las condiciones de un atributo
   (`aria-current={isActive ? 'page' : undefined}`) no son renderizado
   condicional y pueden ir en línea.
-<!-- kit:if i18n -->
 - **El frontmatter solo prepara lo que pinta:** las condiciones, `t` y las
   etiquetas. Lo que transforma un dato va a un util puro, que devuelve justo
   lo que pinta la pieza (el precio de una estancia).
-<!-- kit:else -->
-- **El frontmatter solo prepara lo que pinta:** las condiciones y las
-  etiquetas. Lo que transforma un dato va a un util puro, que devuelve justo
-  lo que pinta la pieza (el precio de una estancia).
-<!-- kit:end -->
 - **Lo que envuelve llega por `<slot />`,** no por una prop con HTML; con
   varios huecos, slots con nombre (`<slot name='actions' />`).
 - **Un `<script>` para lo pequeño:** abrir el menú del móvil, pasar las fotos
@@ -720,12 +701,8 @@ que después se pone en marcha en el navegador, con su JavaScript.
   ([La directiva](./guides/add-an-island.md#3-la-directiva)):
   `client:visible` por defecto; `client:idle` si tiene que estar lista
   pronto; `client:load` solo si se usa nada más cargar.
-<!-- kit:if i18n -->
 - **Props serializables:** datos, nunca funciones ni instancias de clases. Los
   textos le llegan ya traducidos, por props: la isla no usa i18n.
-<!-- kit:else -->
-- **Props serializables:** datos, nunca funciones ni instancias de clases.
-<!-- kit:end -->
 <!-- kit:if server -->
 <!-- kit:if backend -->
 - **Nunca importa código que solo funciona en el servidor:** ni services, ni
@@ -750,15 +727,9 @@ que después se pone en marcha en el navegador, con su JavaScript.
   prop, `handleX`. La lógica con estado que no pinta va a un hook de
   `hooks/`, que nace con el primero.
 
-<!-- kit:if i18n -->
 ```astro
 <RoomsSearch client:visible rooms={rooms} labels={labels} />
 ```
-<!-- kit:else -->
-```astro
-<RoomsSearch client:visible rooms={rooms} />
-```
-<!-- kit:end -->
 
 ### Datos
 
@@ -845,12 +816,7 @@ Lo que no sale de la API se escribe en el proyecto:
 Todo lo que se ve se escribe en el proyecto:
 <!-- kit:end -->
 
-<!-- kit:if i18n -->
 - **Los textos,** en los catálogos de cada idioma ([Textos](#textos)).
-<!-- kit:else -->
-- **Los textos,** en la página o el componente que los pinta
-  ([Textos](#textos)).
-<!-- kit:end -->
 <!-- kit:if content -->
 - **Los textos largos** (una entrada del blog, un sitio del entorno), en las
   colecciones de contenido ([Añadir contenido](./guides/add-content.md)).
@@ -955,8 +921,8 @@ export const accountActions = {
 <!-- kit:end -->
 ### Textos
 
-<!-- kit:if i18n -->
-- Ningún texto de usuario va en el código: todo sale de i18n.
+- Ningún texto de usuario va en el código: todo sale de i18n, también con un
+  solo idioma, para que añadir otro sea solo traducir.
 - **`t` se pide en el frontmatter** de la página o del componente que pinta el
   texto, fija al idioma de la petición:
   `const t = getI18nT(Astro.currentLocale)`. Un idioma que no es de la web
@@ -986,30 +952,15 @@ export const accountActions = {
 - Las claves que manda la API se resuelven contra claves propias, con el texto
   de la API como valor por defecto.
 <!-- kit:end -->
+<!-- kit:if i18n -->
 - **Cambiar de idioma es un enlace** a la misma página en el otro idioma
   (`getRelativeLocaleUrl`). `<html lang>` es el idioma de la petición: lo
   pone `BaseLayout.astro`.
+<!-- kit:end -->
 - La [comprobación de la estructura](#comprobar-la-estructura) mira que todos
   los idiomas tengan las mismas claves.
-<!-- kit:else -->
-- La web tiene un solo idioma, `APP_DEFAULT_LANGUAGE` (`%%DEFAULT_LANGUAGE%%`),
-  en `src/constants/appLanguages.ts`. No hay i18next ni catálogos.
-- **Los textos van escritos en el componente que los pinta,** en el HTML o en
-  una constante del frontmatter. El texto de una pieza compartida va con
-  ella; el de una página se queda en sus componentes.
-- Las piezas del sistema de diseño reciben siempre sus textos desde la web,
-  aunque traigan los suyos
-  ([D1](./ux-ui/rules.md#d1-el-sistema-de-diseño-primero)).
-- Un número que concuerda tiene su forma en singular y en plural: «1
-  noche», «2 noches» ([D11](./ux-ui/rules.md#d11-textos-y-formato)).
-<!-- kit:if backend -->
-- Los códigos que manda la API se resuelven contra textos propios, con el
-  texto de la API como valor por defecto.
-<!-- kit:end -->
-- `<html lang>` es el idioma de la web: lo pone `BaseLayout.astro`.
-- Para pasar a varios idiomas, la skill `zaius-languages` lleva los
-  textos a catálogos y activa la prueba de que todos tienen las mismas claves.
-<!-- kit:end -->
+- **Un idioma nuevo** se añade con la skill `zaius-languages`: lo apunta,
+  traduce el catálogo y le da sus direcciones.
 - **Las fechas, los números, los precios y los porcentajes se formatean con
   las funciones de la raíz,** en `formatUtils`, que nace con la primera
   página que formatea un dato. Ninguna pieza formatea a mano, y todas dan «-»
@@ -1073,13 +1024,11 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
   La ruta del fichero es la URL: `/legal/notice` es
   `src/pages/legal/notice.astro`
   ([Páginas y rutas](./naming.md#páginas-y-rutas)).
-<!-- kit:if i18n -->
 - **Idiomas.** El idioma por defecto no lleva prefijo (`/rooms`) y los
   demás, sí (`/en/rooms`); los dos los pinta la misma página, con
   `Astro.currentLocale`. Un enlace de la web se arma con
   `getRelativeLocaleUrl(Astro.currentLocale ?? APP_DEFAULT_LANGUAGE, '/rooms')`,
   para seguir en el idioma de la página (ojo: termina en `/`).
-<!-- kit:end -->
 <!-- kit:if server -->
 - **Páginas de error.** La página que no existe (`src/pages/404.astro`) y el
   error inesperado (`src/pages/500.astro`) se pintan dentro de la web, con
@@ -1136,7 +1085,7 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
 <!-- kit:end -->
   - Cómo se añade una entrada: [El menú](./guides/create-a-page.md#5-el-menú).
 - **Títulos.** Cada página pasa su `title` al layout, y `BaseLayout.astro`
-  pone en la pestaña del navegador «<título> · %%APP_NAME%%». El título de
+  pone en la pestaña del navegador «<título> - %%APP_NAME%%». El título de
   una página del menú es el de su entrada.
 <!-- kit:if privateArea -->
   El de la gestión de un registro, «Reserva #1287», aunque su `h1` diga

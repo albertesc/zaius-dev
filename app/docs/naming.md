@@ -11,25 +11,29 @@ la cumple.
 
 **En esta página:**
 
-- [Familias y features](#familias-y-features) · [Lo que no es feature](#lo-que-no-es-feature-pero-ya-tiene-nombre) · [Ficheros](#ficheros) · [Prefijo de origen](#prefijo-de-origen)
-- [Componentes](#componentes) · [Funciones, hooks, tipos, constantes y stores](#funciones-hooks-tipos-constantes-y-stores) · [Services, schemas y claves de consulta](#services-schemas-y-claves-de-consulta)
+- [Familias y features](#familias-y-features), [Lo que no es feature](#lo-que-no-es-feature-pero-ya-tiene-nombre), [Ficheros](#ficheros), [Prefijo de origen](#prefijo-de-origen)
+<!-- kit:if backend -->
+- [Componentes](#componentes), [Funciones, hooks, tipos, constantes y stores](#funciones-hooks-tipos-constantes-y-stores), [Services, schemas y claves de consulta](#services-schemas-y-claves-de-consulta)
 <!-- kit:if mocks -->
-- [Mocks](#mocks) · [El transporte](#el-transporte)
+- [Mocks](#mocks), [El transporte](#el-transporte)
 <!-- kit:else -->
 - [El transporte](#el-transporte)
 <!-- kit:end -->
-<!-- kit:if i18n -->
-- [Textos (i18n)](#textos-i18n) · [JSDoc](#jsdoc) · [Revisar los nombres](#revisar-los-nombres)
 <!-- kit:else -->
-- [Textos](#textos) · [JSDoc](#jsdoc) · [Revisar los nombres](#revisar-los-nombres)
+- [Componentes](#componentes), [Funciones, hooks, tipos, constantes y stores](#funciones-hooks-tipos-constantes-y-stores)
 <!-- kit:end -->
+- [Textos (i18n)](#textos-i18n), [JSDoc](#jsdoc), [Revisar los nombres](#revisar-los-nombres)
 
 ## Familias y features
 
 - **F1. Familia.** Un grupo de pantallas de un mismo tema, con una URL base
   común. Se nombra en plural y en camelCase: `orders` (`/orders`), `invoices`,
+<!-- kit:if backend -->
   `shipments`, `customers`, `incidents`, `admin` y `auth` (`/login` y
   `/recover`, que cuelgan de `/`).
+<!-- kit:else -->
+  `shipments`, `customers`, `incidents` y `admin`.
+<!-- kit:end -->
 - **F2. Feature.** Cada hija directa de la URL base de una familia es una
   feature, y su nombre es su URL en camelCase, segmento a segmento, sin los
   parámetros. No hay un tipo de pantalla obligatorio: el nombre dice dónde
@@ -43,22 +47,28 @@ la cumple.
   - `:id/edit` es `Edit`, la gestión de un registro, su única pantalla, donde
     se ve y se edita: `ordersEdit` (`/orders/:id/edit`).
     `/<familia>/:id` no es una ruta. En admin, la gestión lleva `Edit` detrás
+<!-- kit:if backend -->
     del nombre de la feature: `adminUsersEdit` (`/admin/users/:id/edit`).
+<!-- kit:else -->
+    del nombre de la feature: `adminProductsEdit` (`/admin/products/:id/edit`).
+<!-- kit:end -->
 
-<!-- kit:if i18n -->
   El nombre de la feature es su carpeta, su namespace de i18n y el prefijo de
   todo lo que contiene.
-<!-- kit:else -->
-  El nombre de la feature es su carpeta y el prefijo de todo lo que contiene.
-<!-- kit:end -->
 - **F3. Páginas.** Lo que cuelga de una feature son páginas suyas, no features
   nuevas. La página índice es `<Feature>Page` y las demás,
   `<Feature><Subruta>Page`: `InvoicesUploadPage` (`/invoices/upload`),
   `InvoicesUploadNewPage` (`/new`) e `InvoicesUploadDetailPage` (`/:id`). La
   gestión de un registro nunca es una página: es su propia feature (F2). Las
+<!-- kit:if backend -->
   features de admin que gestionan un registro (`adminUsers`, `adminRoles`)
   tienen dos, `AdminUsersPage` y `AdminUsersNewPage`, y su gestión es otra
   feature (`adminUsersEdit`). Las demás, una sola.
+<!-- kit:else -->
+  features de admin que gestionan un registro (`adminProducts`,
+  `adminWarehouses`) tienen dos, `AdminProductsPage` y `AdminProductsNewPage`,
+  y su gestión es otra feature (`adminProductsEdit`). Las demás, una sola.
+<!-- kit:end -->
 - **F4. Pantalla sin familia.** Se llama como su segmento de URL: la portada,
   `home` (`/home`), `profile`, `terms`. Si un día tiene varias pantallas en el
   menú, pasa a ser familia.
@@ -69,17 +79,27 @@ la cumple.
   (`features/orders/common/`).
 - **F7. Dominio.** Un tema de negocio que usan varias familias vive en
   `domains/<dominio>/` y se llama por su entidad, en plural si es una
+<!-- kit:if backend -->
   colección y en singular si es una sola cosa: `session`, `notifications`,
   `warehouses`, `company`, `products`. No es una feature: no tiene pantallas.
+<!-- kit:else -->
+  colección y en singular si es una sola cosa: `notifications`, `warehouses`,
+  `company`, `products`. No es una feature: no tiene pantallas.
+<!-- kit:end -->
   Las pantallas de su tema son features normales que lo usan
   (`adminProducts`, `incidents`). Una familia que se llama como un
   dominio (`customers`, `incidents`) no tiene `common`: lo que comparten sus
   features va al dominio. Ver [Dominios](./standards.md#dominios).
 - **F8. La carpeta.** Todas las features van en `features/`: las de una
   familia, en su carpeta (`features/orders/ordersEdit/`), y las que no tienen
+<!-- kit:if backend -->
   familia, directas (`features/profile/`). La entrada y la administración son
   familias como las demás: `features/auth/authLogin/`,
   `features/admin/adminUsers/`.
+<!-- kit:else -->
+  familia, directas (`features/profile/`). La administración es una familia
+  como las demás: `features/admin/adminProducts/`.
+<!-- kit:end -->
 
 ## Lo que no es feature, pero ya tiene nombre
 
@@ -91,7 +111,9 @@ nombre:
 |---|---|---|
 | El historial de cambios de un pedido | Pestaña de `ordersEdit` | `OrdersEditChangesTab` |
 | Las notificaciones | Desplegable del dominio `notifications` | `NotificationsMenu` |
+<!-- kit:if backend -->
 | Sin permisos | Mensaje dentro de la app, con su marco | Lo pinta `SessionPermissionGuard`; no hay página `/403` |
+<!-- kit:end -->
 | La página que no existe y el error inesperado | Páginas genéricas de `src/pages/`, dentro del layout de la app | `NotFoundPage` y `ErrorPage`; no son features (F5) |
 
 ## Ficheros
@@ -110,8 +132,13 @@ nombre:
   `<prefijo><Zona><Tipo>`: `ordersEditFormSchema.ts` (los schemas de los
   formularios de la gestión), `ordersDashboardSchema.ts` (las respuestas del
   análisis).
+<!-- kit:if backend -->
 - **Un fichero de utils es un objeto con las funciones de un tema**, como un
   service: `utils/dateUtils.ts` exporta `dateUtils`, con `getUtcDayMs`,
+<!-- kit:else -->
+- **Un fichero de utils es un objeto con las funciones de un tema:**
+  `utils/dateUtils.ts` exporta `dateUtils`, con `getUtcDayMs`,
+<!-- kit:end -->
   `readUtcDay` y `getToday`, y se usa con el objeto delante:
   `dateUtils.getToday()`, `formatUtils.formatDate(value)`. El objeto es lo
   único que exporta el fichero, y el fichero se llama como él.
@@ -119,7 +146,11 @@ nombre:
     ([Prefijo de origen](#prefijo-de-origen)): en la raíz, ninguno
     (`formatUtils`); en el `common` de una familia o en un dominio, la entidad
     en singular (`orderCloseUtils`, `warehouseUtils`); en una feature, su
+<!-- kit:if backend -->
     nombre (`authLoginFailureUtils`, `ordersEditDocumentUtils`). Un tema nuevo
+<!-- kit:else -->
+    nombre (`ordersNewDraftUtils`, `ordersEditDocumentUtils`). Un tema nuevo
+<!-- kit:end -->
     es un objeto nuevo, y uno que pasa de ~150 líneas se parte en dos temas.
   - **Por dentro,** cada función se declara suelta, con su JSDoc, y el objeto
     del final las reúne. Lo que no está en el objeto es privado: un ayudante
@@ -141,9 +172,14 @@ nombre:
     }
     ```
   - **Los métodos conservan su nombre entero,** con su verbo y su prefijo,
+<!-- kit:if backend -->
     aunque repitan el tema (`formatUtils.formatDate`,
     `orderRequestUtils.buildOrderRequest`), igual que `ordersService` repite
     la entidad en `getOrdersFilters`: así se encuentran buscando su nombre.
+<!-- kit:else -->
+    aunque repitan el tema (`formatUtils.formatDate`): así se encuentran
+    buscando su nombre.
+<!-- kit:end -->
   - **Van sueltos en su `utils/`,** sin carpetas de tema: en la raíz,
     `src/utils/formatUtils.ts`; en una familia,
     `orders/common/utils/orderCloseUtils.ts`.
@@ -158,6 +194,7 @@ nombre:
     ([Normativa](./standards.md#comprobar-la-estructura)): cada fichero de
     `utils/` exporta un solo objeto, que se llama como el fichero y acaba en
     `Utils`.
+<!-- kit:if backend -->
   - **El transporte también son utils,** aunque hable con la red: `apiUtils`,
     `apiErrorUtils` y `apiSessionUtils`, en `src/utils/`
     ([El transporte](#el-transporte)). Es la única excepción a que un util
@@ -165,12 +202,14 @@ nombre:
     función por fichero) no cambian.
 - **La configuración estática** se llama `<qué configura>.config.ts`:
   `navigation.config.ts`, `queryClient.config.ts`.
+<!-- kit:else -->
+- **La configuración estática** se llama `<qué configura>.config.ts`:
+  `navigation.config.ts`.
+<!-- kit:end -->
 - **Los estilos y los tests** van al lado, con el mismo nombre:
   `OrdersEditDocumentViewer.module.css`, `OrdersEditDocumentViewer.test.tsx`,
   `ordersEditDeadlineUtils.test.ts`.
-<!-- kit:if i18n -->
 - **Los textos** van en `i18n/<idioma>.json`, uno por idioma (%%LANGUAGES%%).
-<!-- kit:end -->
 <!-- kit:if mocks -->
 - **Los mocks de un service** van en un JSON a su lado, sin carpeta:
   `services/orders/ordersMocks.json` ([Mocks](#mocks)).
@@ -185,15 +224,15 @@ Los objetos de `src/utils/`, uno por tema; cada uno nuevo se apunta aquí:
 
 | Objeto | Qué reúne | Funciones |
 |---|---|---|
+<!-- kit:if backend -->
 | `apiUtils` | Las llamadas a la API ([El transporte](#el-transporte)) | `request`, `upload`, `download` |
 | `apiErrorUtils` | El fallo de una llamada a la API | `buildError`, `isApiError`, `readErrorCode`, `isNotFound`, `getRequestFailure` |
 | `apiSessionUtils` | La conexión del transporte con la sesión | `connect`, `getToken`, `endOnError` |
 <!-- kit:if mocks -->
 | `apiMockUtils` | Las respuestas de los mocks, con los `*Mocks.json` | `respond`, `upload`, `download` |
 <!-- kit:end -->
-<!-- kit:if i18n -->
-| `languageUtils` | El idioma de la app | `resolveAppLanguage` |
 <!-- kit:end -->
+| `languageUtils` | El idioma de la app | `resolveAppLanguage` |
 
 `formatUtils`, el formato de los datos en pantalla
 ([D11](./ux-ui/rules.md#d11-textos-y-formato)), nace con la primera pantalla
@@ -205,7 +244,11 @@ que formatea un dato.
 | `import { formatDate } from '@/utils/formats/formatDate'` | `import { formatUtils } from '@/utils/formatUtils'` y `formatUtils.formatDate(value)` | Se importa el objeto y se usa con él delante. |
 | `export function getToday ()` en un fichero de utils | `function getToday ()` y, al final, `export const dateUtils = { …, getToday }` | El fichero solo exporta su objeto. |
 | `utils/dates/`, una carpeta por tema | `utils/dateUtils.ts` | Los utils van sueltos en su `utils/`: el tema es el objeto. |
+<!-- kit:if backend -->
 | `orders/common/utils/ordersQueries.ts` o `invalidateOrdersQueries.ts` | `orders/common/utils/orderQueryUtils.ts`, con `orderQueryUtils.invalidateOrdersQueries` | El objeto lleva el prefijo de su origen (la entidad en singular) y su tema. |
+<!-- kit:else -->
+| `orders/common/utils/ordersClose.ts` o `isOrderClosable.ts` | `orders/common/utils/orderCloseUtils.ts`, con `orderCloseUtils.isOrderClosable` | El objeto lleva el prefijo de su origen (la entidad en singular) y su tema. |
+<!-- kit:end -->
 | `orders/common/utils/orderStatus.ts`, con dos constantes y una función | `orders/common/constants/orderStatus.ts` y `orderStatusUtils.isOrderOngoing` | Lo que solo declara va a `constants/`. |
 | `buildOrderOptionsFilter.ts`, un ayudante con su fichero | `buildOrderOptionsFilter`, privado en `orderFilterUtils.ts` | Un ayudante que solo usan las funciones del tema no sale del objeto. |
 | `formatUtils.date` | `formatUtils.formatDate` | El método conserva su nombre entero. |
@@ -217,10 +260,20 @@ Todo nombre empieza por el sitio del que sale:
 
 | Dónde vive | Prefijo | Ejemplos |
 |---|---|---|
+<!-- kit:if backend -->
 | Una feature | El nombre de la feature | `OrdersEditDocumentsTab`, `useOrdersEdit`, `ordersEditPermissions` |
 | El `common` de una familia | La entidad en singular | `OrderStatusBadge`, `OrderTypeBadge`, `OrderFiltersHeader`, `useOrderFiltersStore` |
 | Un dominio | Su entidad | `ProductStatsSection`, `IncidentStatusBadge`, `SessionGuard`, `WarehousesSelect` |
+<!-- kit:else -->
+| Una feature | El nombre de la feature | `OrdersEditDocumentsTab`, `useOrdersEdit`, `ordersEditRoutes` |
+| El `common` de una familia | La entidad en singular | `OrderStatusBadge`, `OrderTypeBadge`, `OrderFiltersHeader`, `useOrderFiltersStore` |
+| Un dominio | Su entidad | `ProductStatsSection`, `IncidentStatusBadge`, `WarehousesSelect` |
+<!-- kit:end -->
+<!-- kit:if backend -->
 | La raíz | Ninguno: dice qué es | `TableSearch`, `UnsavedChangesModal`, `UserMenu`, `AppLogoImage` |
+<!-- kit:else -->
+| La raíz | Ninguno: dice qué es | `TableSearch`, `UnsavedChangesModal`, `AppLogoImage` |
+<!-- kit:end -->
 
 - **Lo global se nombra por lo que es, no por dónde se usa.** Una pieza de la
   raíz o de un dominio no lleva el nombre de una feature, de una familia ni de
@@ -249,11 +302,15 @@ Todo nombre empieza por el sitio del que sale:
   - usar un nombre genérico (`data`, `items`, `handlers`, `utils`, `index.tsx`,
     `routes.tsx`, `schemas.ts`) como nombre de fichero o de export: es
     `ordersEditRoutes.tsx`, `ordersEditFormSchema.ts`,
+<!-- kit:if backend -->
     `ordersEditDeadlineUtils.ts`;
   - usar las palabras del backend cuando la app tiene las suyas: si la API
     llama `purchaseRequest` al pedido, en la app sigue siendo `order`
     (`getOrderCarriersCatalog`, no `getPurchaseRequestCarriersCatalog`, y
     `getOrdersListPage`, para `POST /purchaseRequests`).
+<!-- kit:else -->
+    `ordersEditDeadlineUtils.ts`.
+<!-- kit:end -->
 
 ## Componentes
 
@@ -344,9 +401,13 @@ singular.
   `buildOrdersEditDeadlineSummary`, `formatDate` (de la raíz). Las de utils
   lo llevan también dentro de su objeto
   (`ordersEditDeadlineUtils.buildOrdersEditDeadlineSummary`).
+<!-- kit:if backend -->
   `build` arma un objeto con lo que recibe (`buildBreadcrumbs`,
   `apiErrorUtils.buildError`); `create` es solo dar
   de alta en la API (`createOrder`).
+<!-- kit:else -->
+  `build` arma un objeto con lo que recibe (`buildBreadcrumbs`).
+<!-- kit:end -->
 - **Formato de los datos:** cada tipo de dato tiene su función de la raíz, en
   `formatUtils`: `formatUtils.formatDate`, `formatDateTime`, `formatNumber` y
   `formatPercent` ([D11](./ux-ui/rules.md#d11-textos-y-formato)). Una
@@ -355,7 +416,11 @@ singular.
   `useOrdersEditDocumentsUpload`, `useOrdersTable`. Llevan la misma zona
   que los componentes a los que sirven, para que al ordenar por nombre quede
   junto todo lo de una zona: `useOrdersEditNotesCommentCreate`, como
+<!-- kit:if backend -->
   `OrdersEditNotesTab`. Lo que hacen es el verbo del service (`…Create`,
+<!-- kit:else -->
+  `OrdersEditNotesTab`. Lo que hacen es su verbo (`…Create`,
+<!-- kit:end -->
   `…Update`, `…Remove`, `…Send`) o la pieza a la que sirven (`…Form`,
   `…Table`). El de la raíz que da a una pieza del sistema de diseño sus
   textos comunes (y lo que los acompaña, como el idioma) se llama como la
@@ -364,16 +429,24 @@ singular.
   locales** que hacen algo más que relanzar la prop: `handleX`.
 - **Tipos:** PascalCase con prefijo: `OrdersEditDeadlineSummary`,
   `OrdersEditStatusOption`.
+<!-- kit:if backend -->
 - **Constantes:** `SCREAMING_SNAKE_CASE` con prefijo: `ORDERS_EDIT_TABS`; en
   un service, la entidad: `ORDER_STATUS`. Las que se exportan van en
   `constants/`, en un fichero por tema ([Ficheros](#ficheros)); en un service,
   junto a su schema.
+<!-- kit:else -->
+- **Constantes:** `SCREAMING_SNAKE_CASE` con prefijo: `ORDERS_EDIT_TABS`; en
+  el `common` de una familia o en un dominio, la entidad: `ORDER_STATUS`. Las
+  que se exportan van en `constants/`, en un fichero por tema
+  ([Ficheros](#ficheros)).
+<!-- kit:end -->
 - **Stores:** `use<Feature>Store` (`useOrdersStore`) y, en el `common` de
   una familia, `use<Entidad><Qué>Store` (`useOrderFiltersStore`). Cada acción
   lleva el nombre de su dato, aunque solo haya una: `setListPage`,
   `setAppliedFilters`.
 - **Formularios:** el schema es `<feature><Qué>FormSchema`
   (`ordersEditDocumentDescriptionFormSchema`) y su tipo,
+<!-- kit:if backend -->
   `<Feature><Qué>FormValues` (`OrdersEditDocumentDescriptionFormValues`). Las
   funciones que pasan del registro al formulario y del formulario a la
   petición son `build<Feature><Qué>FormValues` y `build<Feature><Qué>Request`,
@@ -386,19 +459,34 @@ singular.
   `<feature>Routes.tsx`, porque decide la ruta y los botones: no es un util ni
   va en `utils/`.
 - **Columnas de una tabla:** las que solo declaran (la propiedad de la API, la
+<!-- kit:else -->
+  `<Feature><Qué>FormValues` (`OrdersEditDocumentDescriptionFormValues`). Las
+  funciones que pasan del registro al formulario y del formulario a lo que se
+  guarda son `build<Feature><Qué>FormValues` y `build<Feature><Qué>Changes`,
+  en el objeto de utils del formulario
+  (`ordersEditFormUtils.buildOrdersEditFormValues`,
+  `ordersEditFormUtils.buildOrdersEditChanges`).
+- **Columnas de una tabla:** las que solo declaran (la propiedad del dato, la
+<!-- kit:end -->
   clave de su texto, el grupo del CSV y cuáles vienen marcadas) van en
   `constants/<feature>Columns.ts` (`orders/constants/ordersColumns.ts`),
   sin test. Lo que pinta una celda o necesita el idioma está en el hook de la
   tabla (`useOrdersTable`); lo que se calcula igual para la tabla y el
+<!-- kit:if backend -->
   CSV, en un objeto de utils del tema (`ordersColumnUtils`). La regla que
   decide «Gestiona» es `canManage` para los registros de la propia familia y
   `canManage<Entidad>` para los de otra (`canManageOrder`, en los pedidos de
   un envío).
+<!-- kit:else -->
+  CSV, en un objeto de utils del tema (`ordersColumnUtils`).
+<!-- kit:end -->
 
 | Mal | Bien | Por qué |
 |---|---|---|
 | `deadlineSummary` | `buildOrdersEditDeadlineSummary` | Una función empieza por un verbo y lleva el prefijo de origen. |
+<!-- kit:if backend -->
 | `utils/ordersPermissions.ts` | `ordersPermissions.ts`, junto a `ordersRoutes.tsx` | La regla de permisos decide la ruta y los botones: va en la raíz de la feature, al lado de sus rutas, y no es un util. |
+<!-- kit:end -->
 | `utils/ordersColumns.ts` | `constants/ordersColumns.ts` | Las columnas solo declaran: son constantes, sin test. |
 | `useDocumentsUpload` | `useOrdersEditDocumentsUpload` | Le faltaba el prefijo de origen. |
 | `useOrdersEditOrder` | `useOrdersEdit` | «Order» va implícito en la gestión de un pedido. |
@@ -407,6 +495,7 @@ singular.
 | `useStore` y `setPage` | `useOrdersStore` y `setListPage` | El store lleva la feature, y la acción, el nombre de su dato. |
 | `OrdersEditDocumentDescriptionFormData` | `OrdersEditDocumentDescriptionFormValues` | El tipo de un formulario acaba en `FormValues`. |
 
+<!-- kit:if backend -->
 ## Services, schemas y claves de consulta
 
 Todo lo de `services/<entidad>/`, pieza a pieza. La entidad es el nombre del
@@ -520,11 +609,11 @@ que usa la app:
 
 ```text
 services/orders/
-├── ordersService.ts
-├── ordersFiltersSchema.ts
-├── ordersEditSchema.ts
-├── ordersMocks.json        "GET /order/filters", "POST /order/search", "GET /order/detail/:id"…
-└── ordersEditMocks.json    si el de la entidad crece, los de una zona, aparte
+    ordersService.ts
+    ordersFiltersSchema.ts
+    ordersEditSchema.ts
+    ordersMocks.json        "GET /order/filters", "POST /order/search", "GET /order/detail/:id"…
+    ordersEditMocks.json    si el de la entidad crece, los de una zona, aparte
 ```
 
 | Pieza | Nombre | Ejemplos |
@@ -570,7 +659,7 @@ Sus tipos (`ApiMethod`, `ApiError`, `RequestFailure`, `ApiSession` y
 | `error instanceof ApiError` | `apiErrorUtils.isApiError(error)` | Y se reconoce con su util. |
 | `src/api/apiCalls.ts` | `src/utils/apiUtils.ts` | El transporte va en `utils/`, sin carpeta propia. |
 
-<!-- kit:if i18n -->
+<!-- kit:end -->
 ## Textos (i18n)
 
 - **Namespace:** el nombre de la feature (`ordersEdit:`), de la familia para
@@ -610,8 +699,12 @@ Sus tipos (`ApiMethod`, `ApiError`, `RequestFailure`, `ApiSession` y
 - **`failure` y `errors`:** `failure` es una acción que ha fallado y `errors`,
   una validación o una carga. `failure` es el título del aviso («No se ha
   podido cancelar el pedido», sin punto); su descripción es una de
+<!-- kit:if backend -->
   `common:failure` o, si la API manda un código conocido, una clave propia que
   empieza por `failure` (`failureOutOfStock`).
+<!-- kit:else -->
+  `common:failure`.
+<!-- kit:end -->
 - **Menú:** sus etiquetas son `common:nav.*` y no se reutilizan como títulos de
   página. La clave
   de un grupo es el nombre de su familia, en `common:navGroups`
@@ -630,22 +723,26 @@ Así quedan las claves del `common` de la familia, de `orders` y de
 
 ```text
 orders:
-├── status.{pending, shipped, delivered, cancelled}   «Pendiente», de OrderStatusBadge y del filtro Estado
-├── filters.subtitle                                 «{{count}} pedidos», de OrderFiltersHeader
-├── filters.names.<filtro>                           «Estado»: el nombre de cada filtro, por su nombre en la API
-├── filters.all.<filtro>                             «Todos los estados»: el resumen sin nada elegido
-├── close.{title, titleNamed, confirm, failure, done, doneNamed}  «¿Quieres cerrar el pedido?», de OrderCloseModal
-└── cancel.{title, titleNamed, keep, confirm, failure, done, doneNamed}  «¿Quieres cancelar el pedido?», de OrderCancelModal
+    status.{pending, shipped, delivered, cancelled}   «Pendiente», de OrderStatusBadge y del filtro Estado
+    filters.subtitle                                 «{{count}} pedidos», de OrderFiltersHeader
+<!-- kit:if backend -->
+    filters.names.<filtro>                           «Estado»: el nombre de cada filtro, por su nombre en la API
+<!-- kit:else -->
+    filters.names.<filtro>                           «Estado»: el nombre de cada filtro
+<!-- kit:end -->
+    filters.all.<filtro>                             «Todos los estados»: el resumen sin nada elegido
+    close.{title, titleNamed, confirm, failure, done, doneNamed}  «¿Quieres cerrar el pedido?», de OrderCloseModal
+    cancel.{title, titleNamed, keep, confirm, failure, done, doneNamed}  «¿Quieres cancelar el pedido?», de OrderCancelModal
 orders:
-├── title, create                                    «Gestión de pedidos», «Crea un pedido»
-├── search.{label, placeholder}                      «Busca pedidos», «Busca por número o cliente»
-├── table.{title, info, id, manage, manageAria, emptyTitle, noResultsTitle, noMatchesTitle}  «Gestiona», «Gestiona el pedido #{{id}}»
-└── columns.<field>                                  «Cliente»: cada columna, de la tabla y del CSV
+    title, create                                    «Gestión de pedidos», «Crea un pedido»
+    search.{label, placeholder}                      «Busca pedidos», «Busca por número o cliente»
+    table.{title, info, id, manage, manageAria, emptyTitle, noResultsTitle, noMatchesTitle}  «Gestiona», «Gestiona el pedido #{{id}}»
+    columns.<field>                                  «Cliente»: cada columna, de la tabla y del CSV
 ordersEdit:
-├── title                                            «Gestiona el pedido #{{id}}», el título
-├── breadcrumb                                       «Pedido #{{id}}», la miga y la pestaña del navegador
-├── documents.table.{title, info, …}
-└── reopen.{title, confirm, failure}                 «¿Quieres reabrir el pedido?»
+    title                                            «Gestiona el pedido #{{id}}», el título
+    breadcrumb                                       «Pedido #{{id}}», la miga y la pestaña del navegador
+    documents.table.{title, info, …}
+    reopen.{title, confirm, failure}                 «¿Quieres reabrir el pedido?»
 ```
 
 **Las claves de `common:`** son las de la raíz, cada una en el bloque de su
@@ -654,35 +751,25 @@ pieza o de su tema:
 - **Lo que repite toda la app** va una sola vez, en `common:`, y una feature no
   lo copia en su namespace: las acciones (`common:actions.save`, «Guarda»;
   `common:actions.cancel`, `common:actions.remove`), la descripción de un
+<!-- kit:if backend -->
   fallo (`common:failure.network`, `common:failure.generic`), los errores de
+<!-- kit:else -->
+  fallo (`common:failure.generic`), los errores de
+<!-- kit:end -->
   validación (`common:formErrors.required`, `common:formErrors.max`) y el
   aviso de cambios sin guardar (`common:unsavedChanges.*`).
 - **Los textos de las piezas del sistema de diseño** salen de `common:fields`
   ([D1](./ux-ui/rules.md#d1-el-sistema-de-diseño-primero)).
 - **El marco y las páginas genéricas:** el menú (`common:nav.*`), la pestaña
-  del navegador (`common:documentTitle`, «{{title}} · %%APP_NAME%%»), la
+  del navegador (`common:documentTitle`, «{{title}} - %%APP_NAME%%»), la
+<!-- kit:if backend -->
   página que no existe, la que no se puede ver y el error
   (`common:errorPages.*`).
+<!-- kit:else -->
+  página que no existe y el error (`common:errorPages.*`).
+<!-- kit:end -->
 - **Una clave nueva de `common:`** se crea solo si la usa una pieza de la raíz
   o la repiten varias features igual.
-<!-- kit:else -->
-## Textos
-
-Sin i18n no hay claves: los textos van escritos en el componente que los pinta
-([Textos](./standards.md#textos)). Lo que sí se mantiene:
-
-- **El texto de una pieza compartida sube con ella:** al `common` de su
-  familia, a su dominio o a la raíz. El contenido de una feature se queda en
-  la feature.
-- **Lo que repite toda la app** (las acciones «Guarda» y «Cancela», la
-  descripción de un fallo, el aviso de cambios sin guardar) lo escribe una
-  sola pieza de la raíz, y las features la usan en lugar de copiarlo.
-- **Las formas no cambian:** un número que concuerda tiene su forma en
-  singular y en plural; un fallo es «No se ha podido …»; un vacío,
-  «Todavía no hay …» ([D11](./ux-ui/rules.md#d11-textos-y-formato)).
-- **Para pasar a varios idiomas,** la skill `zaius-languages` lleva los
-  textos a catálogos con las claves de esta página.
-<!-- kit:end -->
 
 ## JSDoc
 
@@ -693,17 +780,24 @@ forma:
 - **`@param`:** uno por parámetro, en una línea.
 - **`@returns`:** si devuelve algo, en una línea. Los casos especiales (`null`,
   `''`) van aquí.
+<!-- kit:if backend -->
 - **`@throws`:** si lanza, con el código de la API, en una línea.
+<!-- kit:else -->
+- **`@throws`:** si lanza, en una línea.
+<!-- kit:end -->
 
 El bloque ocupa de 6 a 8 líneas como máximo. Si no cabe, la función hace
 demasiado o su nombre no es claro.
 
+<!-- kit:if backend -->
 - **En los services**, la descripción empieza por el endpoint.
+<!-- kit:end -->
 - **No llevan JSDoc** las funciones internas de un hook o de un componente, ni
   los objetos sin comportamiento (schemas, configuración, constantes), que
   tampoco llevan otro comentario: su nombre dice lo que son.
 - **Idioma:** castellano, y sin referencias a otros proyectos.
 
+<!-- kit:if backend -->
 Un método de un service:
 
 ```ts
@@ -738,6 +832,30 @@ export const orderCloseUtils = {
   buildOrderCloseRequest,
 }
 ```
+<!-- kit:else -->
+Las funciones de un objeto de utils, sueltas y reunidas al final:
+
+```ts
+/**
+ * Dice si un pedido se puede cerrar: está enviado y tiene transportista.
+ * @param order El pedido.
+ * @returns `true` si se puede cerrar.
+ */
+function isOrderClosable (order: Order): boolean { … }
+
+/**
+ * Arma los valores con los que empieza el formulario de cierre de un pedido.
+ * @param order El pedido.
+ * @returns Los valores del formulario; el comentario, vacío.
+ */
+function buildOrderCloseFormValues (order: Order): OrderCloseFormValues { … }
+
+export const orderCloseUtils = {
+  isOrderClosable,
+  buildOrderCloseFormValues,
+}
+```
+<!-- kit:end -->
 
 ## Revisar los nombres
 
@@ -754,31 +872,41 @@ página, y cómo se mueve cada cosa en esta app sin romper nada.
    un componente y el fichero, que se llama como lo que exporta
    ([Prefijo de origen](#prefijo-de-origen), [Componentes](#componentes) y
    [Ficheros](#ficheros)).
+<!-- kit:if backend -->
 3. **Hooks, stores, utils, constantes, schemas, services y sus métodos, y las
    claves de consulta**
    ([Funciones, hooks, tipos, constantes y stores](#funciones-hooks-tipos-constantes-y-stores)
    y [Services, schemas y claves de consulta](#services-schemas-y-claves-de-consulta)).
-<!-- kit:if i18n -->
+<!-- kit:else -->
+3. **Hooks, stores, utils, constantes y schemas**
+   ([Funciones, hooks, tipos, constantes y stores](#funciones-hooks-tipos-constantes-y-stores)).
+<!-- kit:end -->
 4. **Los textos:** el namespace de cada carpeta y las claves del menú
    ([Textos (i18n)](#textos-i18n)).
 5. **Los tests,** que se llaman como su fichero.
-<!-- kit:else -->
-4. **Los tests,** que se llaman como su fichero.
-<!-- kit:end -->
 
 **Cómo se mueve cada cosa:**
 
+<!-- kit:if git -->
 - **Con `git mv`,** la carpeta de la feature y cada fichero, para conservar
   su historia; y con ellos, lo que exporta cada fichero y cada import que lo
   usa, en todo `src/`, también en los tests.
+<!-- kit:else -->
+- **La carpeta de la feature y cada fichero,** y con ellos, lo que exporta
+  cada fichero y cada import que lo usa, en todo `src/`, también en los
+  tests.
+<!-- kit:end -->
 - **Las rutas:** su `<feature>Routes.tsx` y su import en
+<!-- kit:if backend -->
   `router/appRoutes.tsx` o, las de la entrada, en `router/rootRoutes.tsx`; y
   su entrada en el menú, en `router/navigation.config.ts`.
-<!-- kit:if i18n -->
+<!-- kit:else -->
+  `router/appRoutes.tsx`; y su entrada en el menú, en
+  `router/navigation.config.ts`.
+<!-- kit:end -->
 - **Los textos:** el namespace es la carpeta, así que cada `t()` de la
   feature cambia de namespace; y las claves del menú (`common:nav.*`), en
   cada idioma.
-<!-- kit:end -->
 - **Sus documentos:** el de la pantalla, en `docs/features/<familia>/`, su
   fila en el índice de [Features](./features/README.md#índice) y las
   historias de `docs/specs/` que la citan.

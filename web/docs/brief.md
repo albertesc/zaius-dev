@@ -13,7 +13,15 @@ Su estado va en la cabecera: «pendiente» hasta que `zaius-init` lo escribe,
 («Estado: aprobado el AAAA-MM-DD»). Cada apartado dice «Pendiente» hasta que
 se rellena.
 
-**En esta página:** [Para qué](#para-qué) · [Para quién](#para-quién) · [Tono](#tono) · [Contenido](#contenido) · [Idiomas y legales](#idiomas-y-legales) · [Objetivos](#objetivos) · [Al publicar](#al-publicar) · [Pendiente de preguntar](#pendiente-de-preguntar)
+**En esta página:** [La idea](#la-idea), [Para qué](#para-qué), [Para quién](#para-quién), [Tono](#tono), [Contenido](#contenido), [Idiomas y legales](#idiomas-y-legales), [Objetivos](#objetivos), [Al publicar](#al-publicar), [Pendiente de preguntar](#pendiente-de-preguntar)
+
+## La idea
+
+Pendiente.
+
+*Lo que cuenta la persona al lanzar `/zaius-init`, copiado tal cual, con la
+fecha. El resto del brief sale de aquí y de sus respuestas, nunca del nombre
+del proyecto.*
 
 ## Para qué
 

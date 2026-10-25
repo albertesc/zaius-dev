@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { join, sep } from 'node:path'
 import { afterEach, beforeEach, describe, it } from 'node:test'
 import { chooseCommand, runChangeCommand, runInitCommand, runStatusCommand, runUpdateCommand } from './cliCommands.mjs'
 import { readManifest, readOptionalFile } from './projectManifest.mjs'
@@ -10,6 +10,7 @@ let kitDir
 let workDir
 let projectDir
 let configPath
+let git
 
 /**
  * Crea un módulo de preguntas falso que apunta todo lo que se escribe y elige lo que se le da.
@@ -38,7 +39,26 @@ function createPrompts (choice = null) {
   }
 }
 
+/**
+ * Crea un git falso, que no lanza git: dice si está instalado y si una carpeta está en un repositorio, y apunta dónde se inicia uno.
+ * @param options `installed`, y `repos`, las carpetas que ya son repositorios.
+ * @returns El git falso, con `inits`, las carpetas en las que se ha iniciado un repositorio, que desde entonces lo son.
+ */
+function createGit ({ installed = true, repos = [] } = {}) {
+  const inits = []
+  return {
+    inits,
+    isInstalled: () => Promise.resolve(installed),
+    isInsideRepo: (dir) => Promise.resolve([...repos, ...inits].some((repo) => dir === repo || dir.startsWith(`${repo}${sep}`))),
+    init: (dir) => {
+      inits.push(dir)
+      return Promise.resolve({ ok: true, output: '' })
+    },
+  }
+}
+
 beforeEach(async () => {
+  git = createGit()
   kitDir = await mkdtemp(join(tmpdir(), 'kit-cli-'))
   workDir = await mkdtemp(join(tmpdir(), 'kit-cli-work-'))
   projectDir = join(workDir, 'mi-proyecto')
@@ -83,9 +103,9 @@ describe('runInitCommand', () => {
     await writeFile(join(workDir, 'package.json'), JSON.stringify({ dependencies: { astro: '^7.4.2', '@astrojs/vercel': '^11.0.16', '@astrojs/mdx': '^8.1.1' } }))
     const prompts = createPrompts()
 
-    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts }), 0)
     const { answers } = await readManifest(workDir)
-    assert.deepEqual([answers.existing, answers.type, answers.server, answers.content, answers.privateArea, answers.api, answers.mocks], [true, 'web', true, true, false, null, null])
+    assert.deepEqual([answers.existing, answers.type, answers.server, answers.content, answers.privateArea, answers.backend, answers.mocks], [true, 'web', true, true, false, false, null])
     assert.ok(hasMessage(prompts, 'Es un proyecto Astro: lo trato como una web, con lo que se lee de su configuración.'))
     assert.equal(await readFile(join(workDir, 'docs/web.md'), 'utf8'), '4321\n')
     assert.equal(await readOptionalFile(join(workDir, 'docs/app.md')), null)
@@ -95,9 +115,9 @@ describe('runInitCommand', () => {
     await writeFile(join(workDir, 'package.json'), JSON.stringify({ dependencies: { react: '^19.2.8' } }))
     const prompts = createPrompts()
 
-    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts }), 0)
     const { answers } = await readManifest(workDir)
-    assert.deepEqual([answers.type, answers.api, answers.mocks, answers.server, answers.content, answers.privateArea], ['app', true, true, null, null, null])
+    assert.deepEqual([answers.type, answers.backend, answers.mocks, answers.server, answers.content, answers.privateArea], ['app', true, true, null, null, null])
     assert.ok(hasMessage(prompts, 'Es un proyecto React: lo trato como una app.'))
     assert.equal(await readFile(join(workDir, 'docs/app.md'), 'utf8'), '5173\n')
     assert.equal(await readOptionalFile(join(workDir, 'docs/web.md')), null)
@@ -107,7 +127,7 @@ describe('runInitCommand', () => {
     await writeFile(configPath, JSON.stringify({ name: 'Pedidos', i18n: true, languages: ['es', 'ca'] }))
     const prompts = createPrompts()
 
-    const code = await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts })
+    const code = await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts })
 
     assert.equal(code, 0)
     assert.equal(await readFile(join(workDir, 'pedidos/AGENTS.md'), 'utf8'), '# Pedidos\n')
@@ -119,15 +139,15 @@ describe('runInitCommand', () => {
   })
 
   it('un proyecto nuevo es una web si no se dice otra cosa, y una app si se pide', async () => {
-    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() }), 0)
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
     await writeFile(configPath, JSON.stringify({ name: 'Gestión', type: 'app', mocks: false }))
-    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() }), 0)
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
 
     const web = await readManifest(projectDir)
     const app = await readManifest(join(workDir, 'gestion'))
     assert.deepEqual([web.answers.type, web.answers.server, web.answers.privateArea], ['web', false, false])
     assert.notEqual(await readOptionalFile(join(projectDir, 'docs/web.md')), null)
-    assert.deepEqual([app.answers.type, app.answers.api, app.answers.mocks], ['app', true, false])
+    assert.deepEqual([app.answers.type, app.answers.backend, app.answers.mocks], ['app', true, false])
     assert.notEqual(await readOptionalFile(join(workDir, 'gestion/docs/app.md')), null)
     assert.equal(await readOptionalFile(join(workDir, 'gestion/docs/web.md')), null)
   })
@@ -136,7 +156,7 @@ describe('runInitCommand', () => {
     await mkdir(projectDir)
     await writeFile(join(projectDir, '.gitkeep'), '')
 
-    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() }), 0)
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
     assert.notEqual(await readManifest(projectDir), null)
   })
 
@@ -145,7 +165,7 @@ describe('runInitCommand', () => {
     await writeFile(join(projectDir, 'notas.txt'), 'mías\n')
     const prompts = createPrompts()
 
-    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts }), 1)
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts }), 1)
     assert.ok(hasMessage(prompts, 'Ya hay una carpeta mi-proyecto con ficheros'))
     assert.equal(await readManifest(projectDir), null)
   })
@@ -154,7 +174,7 @@ describe('runInitCommand', () => {
     await writeFile(join(workDir, 'package.json'), '{ "name": "legacy" }\n')
     const prompts = createPrompts()
 
-    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts }), 0)
     assert.equal((await readManifest(workDir)).answers.existing, true)
     assert.ok(!hasMessage(prompts, 'cd '))
   })
@@ -164,27 +184,27 @@ describe('runInitCommand', () => {
     await writeKitFile('shared/AGENTS.md', '`%%KIT_RUN%% change` y `%%KIT_UPDATE%%`\n')
     const prompts = createPrompts()
 
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts })
 
     assert.equal(await readFile(join(projectDir, 'AGENTS.md'), 'utf8'), '`npx github:albertesc/zaius-dev#v0.1.0 change` y `npx github:albertesc/zaius-dev#v<versión> update`\n')
     assert.ok(hasMessage(prompts, 'npx github:albertesc/zaius-dev#v0.1.0 status'))
   })
 
   it('no vuelve a instalar en un proyecto que ya tiene el kit', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     const prompts = createPrompts()
 
-    assert.equal(await runInitCommand({ projectDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts }), 1)
+    assert.equal(await runInitCommand({ projectDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts }), 1)
     assert.ok(hasMessage(prompts, 'ya tiene el kit'))
   })
 })
 
 describe('runChangeCommand', () => {
   it('cambia una respuesta y añade lo que pide', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ i18n: true, languages: ['es', 'en'] }))
 
-    const code = await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() })
+    const code = await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
 
     assert.equal(code, 0)
     assert.notEqual(await readOptionalFile(join(projectDir, 'src/i18n/en.json')), null)
@@ -192,36 +212,36 @@ describe('runChangeCommand', () => {
   })
 
   it('apunta una respuesta nueva aunque no cambie ningún fichero', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ content: true }))
     const prompts = createPrompts()
 
-    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts }), 0)
     assert.equal((await readManifest(projectDir)).answers.content, true)
     assert.ok(!hasMessage(prompts, 'no hay nada que cambiar'))
   })
 
   it('pide el kit instalado', async () => {
-    assert.equal(await runChangeCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() }), 1)
+    assert.equal(await runChangeCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() }), 1)
   })
 
   it('no cambia el tipo de un proyecto que ya tiene el código del kit', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ type: 'app' }))
     const prompts = createPrompts()
 
-    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, prompts }), 1)
+    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts }), 1)
     assert.ok(hasMessage(prompts, 'el código del kit de una web: el tipo no se cambia con change'))
     assert.equal((await readManifest(projectDir)).answers.type, 'web')
     assert.equal(await readOptionalFile(join(projectDir, 'docs/app.md')), null)
   })
 
   it('añade una zona privada a una web, con su servidor', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ privateArea: true }))
     const prompts = createPrompts()
 
-    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts }), 0)
     const { answers } = await readManifest(projectDir)
     assert.deepEqual([answers.privateArea, answers.server], [true, true])
     assert.match(await readFile(join(projectDir, 'docs/web.md'), 'utf8'), /zona privada/)
@@ -230,11 +250,11 @@ describe('runChangeCommand', () => {
 
   it('quita la zona privada y el servidor de una web, avisando de lo que deja de funcionar', async () => {
     await writeFile(configPath, JSON.stringify({ privateArea: true }))
-    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ privateArea: false, server: false }))
     const prompts = createPrompts()
 
-    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts }), 0)
     const { answers } = await readManifest(projectDir)
     assert.deepEqual([answers.privateArea, answers.server], [false, false])
     assert.doesNotMatch(await readFile(join(projectDir, 'docs/web.md'), 'utf8'), /zona privada/)
@@ -244,59 +264,128 @@ describe('runChangeCommand', () => {
 
   it('al quitar solo la zona privada, la web conserva su servidor', async () => {
     await writeFile(configPath, JSON.stringify({ privateArea: true }))
-    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ privateArea: false }))
     const prompts = createPrompts()
 
-    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts }), 0)
     assert.equal((await readManifest(projectDir)).answers.server, true)
     assert.ok(!hasMessage(prompts, 'Sin servidor'))
   })
 
   it('en un proyecto en migración, deja elegir el tipo', async () => {
     await writeFile(join(workDir, 'package.json'), '{ "name": "legacy" }\n')
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ type: 'app' }))
 
     assert.equal((await readManifest(workDir)).answers.type, 'web')
-    assert.equal(await runChangeCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() }), 0)
+    assert.equal(await runChangeCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
     const { answers } = await readManifest(workDir)
-    assert.deepEqual([answers.type, answers.api, answers.mocks, answers.server], ['app', true, true, null])
+    assert.deepEqual([answers.type, answers.backend, answers.mocks, answers.server], ['app', true, true, null])
     assert.notEqual(await readOptionalFile(join(workDir, 'docs/app.md')), null)
     assert.equal(await readOptionalFile(join(workDir, 'docs/web.md')), null)
   })
 
   it('al terminar la migración enseña los pasos siguientes', async () => {
     await writeFile(join(workDir, 'package.json'), '{ "name": "legacy" }\n')
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ existing: false }))
     const prompts = createPrompts()
 
-    assert.equal(await runChangeCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts }), 0)
+    assert.equal(await runChangeCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts }), 0)
     assert.equal((await readManifest(workDir)).answers.existing, false)
     assert.ok(hasMessage(prompts, '/zaius-backlog'))
   })
 
   it('no sigue con un kit más antiguo que el del proyecto, y dice con qué versión lanzarlo', async () => {
     await writeFile(join(kitDir, 'package.json'), JSON.stringify({ version: '0.2.0', repository: 'github:albertesc/zaius-dev' }))
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(join(kitDir, 'package.json'), JSON.stringify({ version: '0.1.0', repository: 'github:albertesc/zaius-dev' }))
     const prompts = createPrompts()
 
-    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts }), 1)
-    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, prompts }), 1)
+    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts }), 1)
+    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git, prompts }), 1)
     assert.ok(hasMessage(prompts, '«npx github:albertesc/zaius-dev#v0.2.0 change»'))
     assert.equal((await readManifest(projectDir)).kitVersion, '0.2.0')
   })
 })
 
+describe('git', () => {
+  it('en un proyecto nuevo, con git instalado, inicia su repositorio, sin commits, y lo apunta', async () => {
+    const prompts = createPrompts()
+
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts }), 0)
+    assert.deepEqual(git.inits, [projectDir])
+    assert.equal((await readManifest(projectDir)).answers.git, true)
+    assert.ok(hasMessage(prompts, 'Repositorio git iniciado, sin ningún commit'))
+    assert.ok(hasMessage(prompts, '/zaius-git'))
+  })
+
+  it('con git: false no inicia ningún repositorio, ni habla de él al terminar', async () => {
+    await writeFile(configPath, JSON.stringify({ git: false }))
+    const prompts = createPrompts()
+
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts }), 0)
+    assert.deepEqual(git.inits, [])
+    assert.equal((await readManifest(projectDir)).answers.git, false)
+    assert.ok(!hasMessage(prompts, '/zaius-git'))
+  })
+
+  it('si la carpeta ya está en un repositorio, no inicia otro y lo apunta como git: sí', async () => {
+    await writeFile(configPath, JSON.stringify({ git: false }))
+    const inRepo = createGit({ repos: [workDir] })
+
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git: inRepo, prompts: createPrompts() }), 0)
+    assert.deepEqual(inRepo.inits, [])
+    assert.equal((await readManifest(projectDir)).answers.git, true)
+  })
+
+  it('sin git instalado, avisa y va sin historial aunque se pida', async () => {
+    await writeFile(configPath, JSON.stringify({ git: true }))
+    const missing = createGit({ installed: false })
+    const prompts = createPrompts()
+
+    assert.equal(await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git: missing, prompts }), 0)
+    assert.deepEqual(missing.inits, [])
+    assert.equal((await readManifest(projectDir)).answers.git, false)
+    assert.ok(hasMessage(prompts, 'git no está instalado en este equipo'))
+  })
+
+  it('change lo añade a un proyecto sin él, y update nunca inicia uno', async () => {
+    await writeFile(configPath, JSON.stringify({ git: false }))
+    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
+    await writeKitFile('shared/AGENTS.md', '# %%APP_NAME%%\n\nNuevo.\n')
+    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
+    assert.deepEqual(git.inits, [])
+
+    await writeFile(configPath, JSON.stringify({ git: true }))
+    assert.equal(await runChangeCommand({ projectDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
+    assert.deepEqual(git.inits, [projectDir])
+    assert.equal((await readManifest(projectDir)).answers.git, true)
+  })
+
+  it('update toma git de lo que hay: un repositorio iniciado a mano lo pone, y sin él lo quita', async () => {
+    await writeFile(configPath, JSON.stringify({ git: false }))
+    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
+    await writeKitFile('shared/AGENTS.md', '# %%APP_NAME%%\n<!-- kit:if git -->\ncon git\n<!-- kit:end -->\n')
+
+    await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git: createGit({ repos: [projectDir] }), prompts: createPrompts() })
+    assert.equal((await readManifest(projectDir)).answers.git, true)
+    assert.match(await readFile(join(projectDir, 'AGENTS.md'), 'utf8'), /con git/)
+
+    await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git, prompts: createPrompts() })
+    assert.equal((await readManifest(projectDir)).answers.git, false)
+    assert.doesNotMatch(await readFile(join(projectDir, 'AGENTS.md'), 'utf8'), /con git/)
+  })
+})
+
 describe('runUpdateCommand', () => {
   it('pasa a la versión nueva del kit con las mismas respuestas', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(join(kitDir, 'package.json'), JSON.stringify({ version: '0.2.0' }))
     await writeKitFile('shared/AGENTS.md', '# %%APP_NAME%%\n\nNuevo.\n')
 
-    const code = await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, prompts: createPrompts() })
+    const code = await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git, prompts: createPrompts() })
 
     assert.equal(code, 0)
     assert.match(await readFile(join(projectDir, 'AGENTS.md'), 'utf8'), /Nuevo/)
@@ -304,13 +393,13 @@ describe('runUpdateCommand', () => {
   })
 
   it('completa las respuestas que el manifiesto no tiene, con el gestor de paquetes del proyecto', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     const { packageManager, ...answers } = (await readManifest(projectDir)).answers
     await writeFile(join(projectDir, 'zaius-dev.json'), JSON.stringify({ ...await readManifest(projectDir), answers }))
     await writeFile(join(projectDir, 'yarn.lock'), '')
     await writeKitFile('shared/AGENTS.md', '# %%APP_NAME%%\n\n%%PM%% run test\n')
 
-    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, prompts: createPrompts() }), 0)
+    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
     assert.equal(packageManager, 'npm')
     assert.equal((await readManifest(projectDir)).answers.packageManager, 'yarn')
     assert.match(await readFile(join(projectDir, 'AGENTS.md'), 'utf8'), /yarn run test/)
@@ -318,24 +407,25 @@ describe('runUpdateCommand', () => {
 
   it('completa las respuestas de su tipo que el manifiesto no tiene', async () => {
     await writeFile(configPath, JSON.stringify({ type: 'app', mocks: false }))
-    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() })
-    const { api, ...answers } = (await readManifest(projectDir)).answers
-    await writeFile(join(projectDir, 'zaius-dev.json'), JSON.stringify({ ...await readManifest(projectDir), answers }))
+    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
+    const { backend, ...answers } = (await readManifest(projectDir)).answers
+    await writeFile(join(projectDir, 'zaius-dev.json'), JSON.stringify({ ...await readManifest(projectDir), answers: { ...answers, api: true } }))
     await writeKitFile('shared/AGENTS.md', '# %%APP_NAME%%\n\nNuevo.\n')
 
-    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, prompts: createPrompts() }), 0)
+    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
     const updated = (await readManifest(projectDir)).answers
-    assert.equal(api, true)
-    assert.deepEqual([updated.type, updated.api, updated.mocks, updated.server, updated.privateArea], ['app', true, false, null, null])
+    assert.equal(backend, true)
+    assert.deepEqual([updated.type, updated.backend, updated.mocks, updated.server, updated.privateArea], ['app', true, false, null, null])
+    assert.equal('api' in updated, false)
   })
 
   it('el tipo es el del manifiesto, aunque el código del proyecto diga otro', async () => {
     await writeFile(configPath, JSON.stringify({ type: 'app' }))
-    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(join(projectDir, 'package.json'), JSON.stringify({ dependencies: { astro: '^7.4.2', '@astrojs/node': '^11.1.9' } }))
     await writeKitFile('shared/AGENTS.md', '# %%APP_NAME%%\n\nNuevo.\n')
 
-    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, prompts: createPrompts() }), 0)
+    assert.equal(await runUpdateCommand({ projectDir, kitDir, yes: true, skipInstall: true, git, prompts: createPrompts() }), 0)
     const { answers } = await readManifest(projectDir)
     assert.deepEqual([answers.type, answers.server], ['app', null])
     assert.equal(await readOptionalFile(join(projectDir, 'docs/web.md')), null)
@@ -344,13 +434,13 @@ describe('runUpdateCommand', () => {
 
 describe('runStatusCommand', () => {
   it('enseña el estado de un proyecto con el kit', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     const prompts = createPrompts()
 
     assert.equal(await runStatusCommand({ projectDir, kitDir, prompts }), 0)
     assert.match(prompts.messages.at(-1), /Kit en el proyecto: 0\.1\.0 \(al día\)/)
     assert.ok(prompts.messages.at(-1).includes(`Carpeta del kit: ${kitDir}`))
-    assert.match(prompts.messages.at(-1), /Tipo: web \(Astro\) · servidor: no · blog: no · API: no · zona privada: no/)
+    assert.match(prompts.messages.at(-1), /Tipo: web \(Astro\)\. Servidor: no\. Blog: no\. API: no\. Zona privada: no\./)
   })
 
   it('pide el kit instalado', async () => {
@@ -365,19 +455,19 @@ describe('chooseCommand', () => {
   it('instala en un proyecto sin el kit y pregunta en uno con el kit', async () => {
     assert.equal(await chooseCommand({ projectDir: workDir, prompts: createPrompts() }), 'init')
 
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
 
     assert.equal(await chooseCommand({ projectDir, prompts: createPrompts('status') }), 'status')
   })
 
   it('dice qué se puede cambiar según el tipo del proyecto o si sigue en migración', async () => {
-    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
     await writeFile(configPath, JSON.stringify({ name: 'Gestión', type: 'app' }))
-    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: workDir, kitDir, configPath, yes: true, skipInstall: true, git, prompts: createPrompts() })
     const legacyDir = join(workDir, 'legacy')
     await mkdir(legacyDir)
     await writeFile(join(legacyDir, 'package.json'), '{ "name": "legacy" }\n')
-    await runInitCommand({ projectDir: legacyDir, kitDir, configPath: null, yes: true, skipInstall: true, prompts: createPrompts() })
+    await runInitCommand({ projectDir: legacyDir, kitDir, configPath: null, yes: true, skipInstall: true, git, prompts: createPrompts() })
 
     const changeHint = async (dir) => {
       const prompts = createPrompts('change')
@@ -385,8 +475,8 @@ describe('chooseCommand', () => {
       return prompts.selects[0].options.find(({ value }) => value === 'change').hint
     }
 
-    assert.equal(await changeHint(projectDir), 'La zona privada, la API, el servidor, el blog o multiidioma')
-    assert.equal(await changeHint(join(workDir, 'gestion')), 'Multiidioma, mocks o los documentos de la API')
+    assert.equal(await changeHint(projectDir), 'La zona privada, la API, el servidor, el blog, multiidioma o git')
+    assert.equal(await changeHint(join(workDir, 'gestion')), 'La API, los mocks, multiidioma o git')
     assert.equal(await changeHint(legacyDir), 'También para terminar la migración')
   })
 })

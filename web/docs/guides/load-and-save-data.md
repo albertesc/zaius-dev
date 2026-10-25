@@ -55,10 +55,10 @@ están en [Piezas por papel](../ux-ui/design-system.md#piezas-por-papel).
 **En esta página:**
 
 <!-- kit:if privateArea -->
-- **Cargar:** [1. La página y sus datos](#1-la-página-y-sus-datos) · [2. Un dato](#2-un-dato) · [3. Carga, error y vacío](#3-carga-error-y-vacío) · [4. Los catálogos](#4-los-catálogos) · [5. Varios datos a la vez](#5-varios-datos-a-la-vez) · [6. El estado de la pantalla en la URL](#6-el-estado-de-la-pantalla-en-la-url) · [7. Listas paginadas y filtros](#7-listas-paginadas-y-filtros)
-- **Guardar:** [1. El guardado](#1-el-guardado) · [2. El fallo del guardado](#2-el-fallo-del-guardado) · [3. La exportación](#3-la-exportación)
+- **Cargar:** [1. La página y sus datos](#1-la-página-y-sus-datos), [2. Un dato](#2-un-dato), [3. Carga, error y vacío](#3-carga-error-y-vacío), [4. Los catálogos](#4-los-catálogos), [5. Varios datos a la vez](#5-varios-datos-a-la-vez), [6. El estado de la pantalla en la URL](#6-el-estado-de-la-pantalla-en-la-url), [7. Listas paginadas y filtros](#7-listas-paginadas-y-filtros)
+- **Guardar:** [1. El guardado](#1-el-guardado), [2. El fallo del guardado](#2-el-fallo-del-guardado), [3. La exportación](#3-la-exportación)
 <!-- kit:else -->
-- **Cargar:** [1. La página y sus datos](#1-la-página-y-sus-datos) · [2. Un dato](#2-un-dato) · [3. Carga, error y vacío](#3-carga-error-y-vacío) · [4. Los catálogos](#4-los-catálogos) · [5. Varios datos a la vez](#5-varios-datos-a-la-vez)
+- **Cargar:** [1. La página y sus datos](#1-la-página-y-sus-datos), [2. Un dato](#2-un-dato), [3. Carga, error y vacío](#3-carga-error-y-vacío), [4. Los catálogos](#4-los-catálogos), [5. Varios datos a la vez](#5-varios-datos-a-la-vez)
 <!-- kit:end -->
 - [Errores comunes](#errores-comunes)
 
@@ -200,28 +200,19 @@ lleva dentro su error y su vacío. ROOMS, con el dato del paso anterior:
 import RoomsAvailabilitySection from '@/components/RoomsAvailabilitySection.astro'
 import RoomsList from '@/components/RoomsList.astro'
 import { ROOMS } from '@/constants/rooms'
-<!-- kit:if i18n -->
 import { getI18nT } from '@/i18n/i18n'
-<!-- kit:end -->
 import AppLayout from '@/layouts/AppLayout.astro'
 import { bookingsService } from '@/services/bookings/bookingsService'
 
 export const prerender = false
 
-<!-- kit:if i18n -->
 const t = getI18nT(Astro.currentLocale)
-<!-- kit:end -->
 const [result] = await Promise.allSettled([bookingsService.getBookingsAvailability()])
 const availability = result.status === 'fulfilled' ? result.value : null
 ---
 
-<!-- kit:if i18n -->
 <AppLayout title={t('rooms.title')}>
   <h1>{t('rooms.title')}</h1>
-<!-- kit:else -->
-<AppLayout title='Habitaciones'>
-  <h1>Habitaciones</h1>
-<!-- kit:end -->
   <RoomsList rooms={ROOMS} />
   <RoomsAvailabilitySection rooms={ROOMS} availability={availability} />
 </AppLayout>
@@ -247,24 +238,18 @@ gestión de una reserva, con el dato del paso anterior:
 
 ```astro
 ---
-<!-- kit:if i18n -->
 import { getRelativeLocaleUrl } from 'astro:i18n'
-<!-- kit:end -->
 import AccountBookingsEditForm from '@/components/AccountBookingsEditForm.astro'
-<!-- kit:if i18n -->
 import { APP_DEFAULT_LANGUAGE } from '@/constants/appLanguages'
 import { getI18nT } from '@/i18n/i18n'
-<!-- kit:end -->
 import AppLayout from '@/layouts/AppLayout.astro'
 import { bookingsService } from '@/services/bookings/bookingsService'
 import { apiErrorUtils } from '@/utils/apiErrorUtils'
 
 export const prerender = false
 
-<!-- kit:if i18n -->
 const t = getI18nT(Astro.currentLocale)
 const locale = Astro.currentLocale ?? APP_DEFAULT_LANGUAGE
-<!-- kit:end -->
 const id = Number(Astro.params.id)
 if (!Number.isInteger(id)) return Astro.rewrite('/404')
 const [booking] = await Promise.allSettled([bookingsService.getBookingDetail(id)])
@@ -275,7 +260,6 @@ const isLoaded = booking.status === 'fulfilled'
 if (isNotFound) Astro.response.status = 404
 ---
 
-<!-- kit:if i18n -->
 <AppLayout title={t('account.bookingsEdit.documentTitle', { id })} noindex>
   {isNotFound
     ? <EmptyState title={t('account.bookingsEdit.notFound.title')} action={{ label: t('account.bookingsEdit.notFound.action'), href: getRelativeLocaleUrl(locale, '/account/bookings') }} />
@@ -283,15 +267,6 @@ if (isNotFound) Astro.response.status = 404
       ? <AccountBookingsEditForm booking={booking.value} />
       : <ErrorState title={t('common.errorState.title')} retryLabel={t('common.errorState.retry')} retryHref={Astro.url.href} />}
 </AppLayout>
-<!-- kit:else -->
-<AppLayout title={`Reserva #${id}`} noindex>
-  {isNotFound
-    ? <EmptyState title='Esta reserva no existe' action={{ label: 'Vuelve a tus reservas', href: '/account/bookings' }} />
-    : isLoaded
-      ? <AccountBookingsEditForm booking={booking.value} />
-      : <ErrorState title='No se ha podido cargar la reserva' retryLabel='Vuelve a intentarlo' retryHref={Astro.url.href} />}
-</AppLayout>
-<!-- kit:end -->
 ```
 
 - **Solo la rama de `isLoaded` lee `booking.value`:** ahí TypeScript sabe
@@ -402,7 +377,6 @@ if (!canView) Astro.response.status = 403
 if (isNotFound) Astro.response.status = 404
 ```
 
-<!-- kit:if i18n -->
 ```astro
 {!canView
   ? <EmptyState title={t('common.errorPages.forbidden.title')} />
@@ -412,17 +386,6 @@ if (isNotFound) Astro.response.status = 404
       ? <AccountBookingsEditForm booking={booking.value} cancelReasons={cancelReasons.value} readOnly={!canEdit} />
       : <ErrorState title={t('common.errorState.title')} retryLabel={t('common.errorState.retry')} retryHref={Astro.url.href} />}
 ```
-<!-- kit:else -->
-```astro
-{!canView
-  ? <EmptyState title='No tienes acceso a esta página' />
-  : isNotFound
-    ? <EmptyState title='Esta reserva no existe' action={{ label: 'Vuelve a tus reservas', href: '/account/bookings' }} />
-    : isLoaded
-      ? <AccountBookingsEditForm booking={booking.value} cancelReasons={cancelReasons.value} readOnly={!canEdit} />
-      : <ErrorState title='No se ha podido cargar la reserva' retryLabel='Vuelve a intentarlo' retryHref={Astro.url.href} />}
-```
-<!-- kit:end -->
 
 - **A la vez, nunca uno detrás de otro:** dos `await` seguidos esperan al
   primero para pedir el segundo.
@@ -540,21 +503,12 @@ if (lastPage !== null && request.page > lastPage) return Astro.redirect(paginati
   página 1; el tamaño va en un campo oculto, para conservarlo
   ([D8](../ux-ui/rules.md#d8-listados-y-tablas)):
 
-<!-- kit:if i18n -->
   ```astro
   <form method='get' role='search'>
     <input type='search' name='search' value={request.search} aria-label={t('account.bookings.search.label')} />
     <input type='hidden' name='pageSize' value={request.pageSize} />
   </form>
   ```
-<!-- kit:else -->
-  ```astro
-  <form method='get' role='search'>
-    <input type='search' name='search' value={request.search} aria-label='Busca tus reservas' />
-    <input type='hidden' name='pageSize' value={request.pageSize} />
-  </form>
-  ```
-<!-- kit:end -->
 
 - **La búsqueda se lanza con Enter,** al enviar el formulario.
 - **La paginación son enlaces,** con la misma query y otra `page`, y ofrece
@@ -690,7 +644,6 @@ La página lee el resultado
 (`Astro.getActionResult(actions.account.updateBookingArrival)`) y pasa su
 `error` al formulario, que pinta el aviso encima de la barra de acciones:
 
-<!-- kit:if i18n -->
 ```astro
 ---
 const hasFailure = error !== undefined && !isInputError(error)
@@ -699,16 +652,6 @@ const isNotFound = error?.code === 'NOT_FOUND'
 
 {hasFailure ? <PageAlert tone='error' title={t('account.bookingsEdit.failure')}>{isNotFound ? t('account.bookingsEdit.failureNotFound') : t('common.failure.generic')}</PageAlert> : null}
 ```
-<!-- kit:else -->
-```astro
----
-const hasFailure = error !== undefined && !isInputError(error)
-const isNotFound = error?.code === 'NOT_FOUND'
----
-
-{hasFailure ? <PageAlert tone='error' title='No se ha podido guardar la reserva'>{isNotFound ? 'Esta reserva ya no existe.' : 'Vuelve a intentarlo dentro de un rato.'}</PageAlert> : null}
-```
-<!-- kit:end -->
 
 - **El error de un campo** (`isInputError(error)`) no va en el aviso: va bajo
   su campo ([Crear un formulario](./create-a-form.md#4-enviar-el-formulario)).

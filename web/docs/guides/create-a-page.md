@@ -24,7 +24,7 @@ proyecto están en [Piezas por papel](../ux-ui/design-system.md#piezas-por-papel
 - [6. Los permisos](#6-los-permisos)
 - [7. Los datos y el guardado](#7-los-datos-y-el-guardado)
 - [8. Los tests](#8-los-tests)
-- [Buscadores y compartir](#buscadores-y-compartir) · [Imágenes y vídeo](#imágenes-y-vídeo) · [Las animaciones](#las-animaciones)
+- [Buscadores y compartir](#buscadores-y-compartir), [Imágenes y vídeo](#imágenes-y-vídeo), [Las animaciones](#las-animaciones)
 - [La página terminada](#la-página-terminada)
 - [Errores comunes](#errores-comunes)
 
@@ -49,9 +49,9 @@ documento dice siempre lo que hace el código.
 El esqueleto, con los apartados de la plantilla en su orden:
 
 ```markdown
-# ROOMS · Las habitaciones
+# ROOMS: Las habitaciones
 
-URL: `/rooms` · Estado: por aprobar el AAAA-MM-DD
+URL: `/rooms`. Estado: por aprobar el AAAA-MM-DD
 
 ## Para qué
 
@@ -65,7 +65,7 @@ disponibilidad», que lleva a `/contact`.
 ## Rendimiento
 ## Tests
 
-| Test | Nivel | ✓ |
+| Test | Nivel | En verde |
 |---|---|---|
 | Enseña cada habitación con sus personas y su precio por noche | página | |
 
@@ -96,13 +96,8 @@ mayúsculas, con un guion entre palabras:
 | `/account/bookings/1287/edit` | `src/pages/account/bookings/[id]/edit.astro` | `accountBookingsEdit` | ACCOUNT-BOOKINGS-EDIT |
 <!-- kit:end -->
 
-<!-- kit:if i18n -->
 Con ese prefijo se llaman sus componentes (`RoomsList.astro`), el grupo de
 sus textos (`rooms.*`) y, con su nombre, su documento (`docs/pages/ROOMS.md`).
-<!-- kit:else -->
-Con ese prefijo se llaman sus componentes (`RoomsList.astro`) y, con su
-nombre, su documento (`docs/pages/ROOMS.md`).
-<!-- kit:end -->
 
 - **Una página sin sección** es un fichero suelto (`src/pages/rooms.astro`);
   cuando tiene páginas debajo, su carpeta (`src/pages/blog/index.astro`).
@@ -148,20 +143,14 @@ es la de ROOMS (`src/pages/rooms.astro`):
 
 ```astro
 ---
-<!-- kit:if i18n -->
 import { getRelativeLocaleUrl } from 'astro:i18n'
-<!-- kit:end -->
 <!-- kit:if backend -->
 import RoomsAvailabilitySection from '@/components/RoomsAvailabilitySection.astro'
 <!-- kit:end -->
 import RoomsList from '@/components/RoomsList.astro'
-<!-- kit:if i18n -->
 import { APP_DEFAULT_LANGUAGE } from '@/constants/appLanguages'
-<!-- kit:end -->
 import { ROOMS } from '@/constants/rooms'
-<!-- kit:if i18n -->
 import { getI18nT } from '@/i18n/i18n'
-<!-- kit:end -->
 import AppLayout from '@/layouts/AppLayout.astro'
 <!-- kit:if backend -->
 import { bookingsService } from '@/services/bookings/bookingsService'
@@ -171,10 +160,8 @@ export const prerender = false
 <!-- kit:end -->
 <!-- kit:end -->
 
-<!-- kit:if i18n -->
 const t = getI18nT(Astro.currentLocale)
 const locale = Astro.currentLocale ?? APP_DEFAULT_LANGUAGE
-<!-- kit:end -->
 <!-- kit:if backend -->
 <!-- kit:if server -->
 const [result] = await Promise.allSettled([bookingsService.getBookingsAvailability()])
@@ -185,7 +172,6 @@ const availability = await bookingsService.getBookingsAvailability()
 <!-- kit:end -->
 ---
 
-<!-- kit:if i18n -->
 <AppLayout title={t('rooms.title')} description={t('rooms.description')} image='/share/rooms.png'>
   <PageHeader title={t('rooms.title')} />
   <RoomsList rooms={ROOMS} />
@@ -194,16 +180,6 @@ const availability = await bookingsService.getBookingsAvailability()
 <!-- kit:end -->
   <CallToAction href={getRelativeLocaleUrl(locale, '/contact')}>{t('rooms.cta')}</CallToAction>
 </AppLayout>
-<!-- kit:else -->
-<AppLayout title='Habitaciones' description='Tres habitaciones de piedra y madera, para dos o para cuatro personas.' image='/share/rooms.png'>
-  <PageHeader title='Habitaciones' />
-  <RoomsList rooms={ROOMS} />
-<!-- kit:if backend -->
-  <RoomsAvailabilitySection availability={availability} />
-<!-- kit:end -->
-  <CallToAction href='/contact'>Pide disponibilidad</CallToAction>
-</AppLayout>
-<!-- kit:end -->
 ```
 
 <!-- kit:if backend -->
@@ -232,7 +208,7 @@ pinta.
   `src/pages/404.astro`, dentro del marco
   ([Normativa](../standards.md#rutas-y-navegación)). Las demás páginas solo
   lo usan.
-- **El título** va al layout, y la pestaña del navegador dice «Habitaciones ·
+- **El título** va al layout, y la pestaña del navegador dice «Habitaciones -
   %%APP_NAME%%». El de una página del menú es el texto de su entrada
   ([D10](../ux-ui/rules.md#d10-navegación)).
 - **La cabecera es `PageHeader`,** con el `h1`. En la portada (HOME) es su
@@ -253,11 +229,7 @@ sus estilos, en su `<style>`, con los tokens del sistema de diseño
 <!-- kit:if backend -->
 Nunca llama a un service.
 <!-- kit:end -->
-<!-- kit:if i18n -->
 Sus textos salen de `t()`, que pide en su frontmatter.
-<!-- kit:else -->
-Sus textos van escritos en él.
-<!-- kit:end -->
 `RoomsList` pinta una `RoomCard` por habitación, y la tarjeta
 (`src/components/RoomCard.astro`), que usan ROOMS y HOME, lleva la entidad
 delante ([Prefijo de origen](../naming.md#prefijo-de-origen)):
@@ -266,9 +238,7 @@ delante ([Prefijo de origen](../naming.md#prefijo-de-origen)):
 ---
 import { Image } from 'astro:assets'
 import { ROOM_TYPE } from '@/constants/rooms'
-<!-- kit:if i18n -->
 import { getI18nT } from '@/i18n/i18n'
-<!-- kit:end -->
 import type { Room } from '@/types/room'
 import { formatUtils } from '@/utils/formatUtils'
 
@@ -277,27 +247,18 @@ interface Props {
 }
 
 const { room } = Astro.props
-<!-- kit:if i18n -->
 const t = getI18nT(Astro.currentLocale)
-<!-- kit:end -->
 const [cover] = room.photos
 const isFamily = room.type === ROOM_TYPE.family
-<!-- kit:if !i18n -->
-const isForOne = room.capacity === 1
-<!-- kit:end -->
 const price = formatUtils.formatPrice(room.pricePerNight)
 ---
 
 <article>
   <Image src={cover.src} alt={cover.alt} width={640} height={427} />
   <h3>{room.name}</h3>
-<!-- kit:if i18n -->
   {isFamily ? <StatusBadge label={t('room.family')} /> : null}
-  <p>{t('room.capacity', { count: room.capacity })} · {t('room.pricePerNight', { value: price })}</p>
-<!-- kit:else -->
-  {isFamily ? <StatusBadge label='Familiar' /> : null}
-  <p>{isForOne ? '1 persona' : `${room.capacity} personas`} · {price} la noche</p>
-<!-- kit:end -->
+  <p>{t('room.capacity', { count: room.capacity })}</p>
+  <p>{t('room.pricePerNight', { value: price })}</p>
 </article>
 
 <style>
@@ -336,7 +297,6 @@ const price = formatUtils.formatPrice(room.pricePerNight)
 
 ## 4. Los textos
 
-<!-- kit:if i18n -->
 Cada idioma de la web (%%LANGUAGES%%) tiene un solo catálogo,
 `src/i18n/<idioma>.json`. Lo de una página sin sección cuelga de su prefijo
 (`rooms`); lo de una pieza de negocio que usan varias, de su entidad
@@ -378,22 +338,6 @@ se agrupan por sección de la página. Lo de ROOMS en
   [comprobación de la estructura](../standards.md#comprobar-la-estructura).
   Las reglas de nombres de las claves están en
   [Nomenclatura](../naming.md#textos-i18n).
-<!-- kit:else -->
-La web tiene un solo idioma, así que los textos van escritos en el componente
-que los pinta, y en ningún otro sitio: un util devuelve datos (un precio, un
-recuento), y el componente los convierte en texto
-([Normativa](../standards.md#textos)). Así, quitar una página es quitar sus
-textos con ella.
-
-- **Un número que concuerda** elige su forma con una constante con nombre, y
-  la cifra sale de `formatUtils`
-  ([D11](../ux-ui/rules.md#d11-textos-y-formato)), como las personas de
-  `RoomCard`: «1 persona», «4 personas».
-- **Lo que repite toda la web** («Pide disponibilidad», «Vuelve a
-  intentarlo») lo escribe una sola pieza, y las páginas la usan.
-- **Si la web pasa a varios idiomas,** la skill `zaius-languages` lleva los
-  textos a los catálogos.
-<!-- kit:end -->
 
 ## 5. El menú
 
@@ -403,7 +347,6 @@ Si la página es destino del menú, se añade su entrada en
 pie, con las páginas legales. Los pinta `AppLayout.astro`, que marca la
 entrada activa con `Astro.url.pathname`:
 
-<!-- kit:if i18n -->
 ```ts
 export const APP_NAVIGATION: NavEntry[] = [
   { href: '/', labelKey: 'common.nav.home' },
@@ -427,28 +370,6 @@ export const APP_FOOTER_NAVIGATION: NavEntry[] = [
 
 La etiqueta de cada entrada es `common.nav.<prefijo>` (`common.nav.rooms`,
 «Habitaciones»).
-<!-- kit:else -->
-```ts
-export const APP_NAVIGATION: NavEntry[] = [
-  { href: '/', label: 'Inicio' },
-  { href: '/rooms', label: 'Habitaciones' },
-  { href: '/area', label: 'El entorno' },
-<!-- kit:if content -->
-  { href: '/blog', label: 'Blog' },
-<!-- kit:end -->
-  { href: '/contact', label: 'Contacto' },
-<!-- kit:if privateArea -->
-  { href: '/account/bookings', label: 'Mis reservas', permission: 'BOOKINGS.VIEW' },
-<!-- kit:end -->
-]
-
-export const APP_FOOTER_NAVIGATION: NavEntry[] = [
-  { href: '/legal/notice', label: 'Aviso legal' },
-  { href: '/privacy', label: 'Privacidad' },
-  { href: '/cookies', label: 'Cookies' },
-]
-```
-<!-- kit:end -->
 
 - **El orden es el del mapa del sitio,** el del [backlog](../backlog.md),
   y el texto de la entrada es también el título de la página
@@ -583,11 +504,11 @@ Cada página solo le da su contenido, por props, a través del marco
 (`AppLayout` recibe las mismas y se las pasa), y el documento de la página lo
 dice en «Buscadores y compartir»:
 
-- **`title`,** único: «Habitaciones», y la pestaña dice «Habitaciones ·
+- **`title`,** único: «Habitaciones», y la pestaña dice «Habitaciones -
   %%APP_NAME%%».
 - **`description`,** una o dos frases (unos 150 caracteres) que dicen qué hay
   en la página.
-- **`image`,** la imagen para compartir: 1200 × 630 px, en
+- **`image`,** la imagen para compartir: 1200 por 630 px, en
   `public/share/<prefijo>.png` (`public/share/rooms.png`), con la foto o el
   título bien grande. Sin una propia, la de la portada.
 <!-- kit:if privateArea -->
@@ -718,26 +639,24 @@ resto está en las secciones de su documento.
 docs/pages/ROOMS.md                    su documento
 public/share/rooms.png                 la imagen para compartir
 src/
-├── pages/rooms.astro                  ROOMS
-├── layouts/AppLayout.astro            el marco, que nace con la primera página
-├── components/
-│   ├── AppFooter.astro                el pie del sitio, del marco
-│   ├── AppHeader.astro                la cabecera del sitio, del marco
+    pages/rooms.astro                  ROOMS
+    layouts/AppLayout.astro            el marco, que nace con la primera página
+    components/
+        AppFooter.astro                el pie del sitio, del marco
+        AppHeader.astro                la cabecera del sitio, del marco
 <!-- kit:if backend -->
-│   ├── RoomsAvailabilitySection.astro las noches libres
+        RoomsAvailabilitySection.astro las noches libres
 <!-- kit:end -->
-│   ├── RoomCard.astro                 también la usa HOME
-│   └── RoomsList.astro
-├── assets/roomsEncina1.jpg            las fotos de cada habitación
-├── constants/
-│   ├── appNavigation.ts               la entrada de «Habitaciones»
-│   └── rooms.ts                       ROOMS y ROOM_TYPE
-<!-- kit:if i18n -->
-├── i18n/                              rooms.*, room.* y common.nav.rooms, en cada idioma
-<!-- kit:end -->
-├── types/room.ts                      Room
-├── utils/formatUtils.ts               formatPrice, con la primera página que formatea un dato
-└── tests/pages/rooms.test.ts
+        RoomCard.astro                 también la usa HOME
+        RoomsList.astro
+    assets/roomsEncina1.jpg            las fotos de cada habitación
+    constants/
+        appNavigation.ts               la entrada de «Habitaciones»
+        rooms.ts                       ROOMS y ROOM_TYPE
+    i18n/                              rooms.*, room.* y common.nav.rooms, en cada idioma
+    types/room.ts                      Room
+    utils/formatUtils.ts               formatPrice, con la primera página que formatea un dato
+    tests/pages/rooms.test.ts
 ```
 <!-- kit:if backend -->
 
@@ -762,8 +681,8 @@ también podrán usar otras páginas.
 <!-- kit:if privateArea -->
 | `/account/bookings/1287` no existe | Una reserva no tiene esa ruta: su página es `/account/bookings/1287/edit`. |
 <!-- kit:end -->
-<!-- kit:if i18n -->
 | Se ven las claves (`rooms.title`) en lugar de los textos | Falta la clave en el catálogo del idioma, o no coincide entera. |
+<!-- kit:if i18n -->
 | Un enlace en otro idioma lleva a la página en el de por defecto | El enlace no lleva el idioma: se arma con `getRelativeLocaleUrl`. |
 <!-- kit:end -->
 | La entrada del menú no se marca | Su `href` no coincide con el principio de la ruta de la página. |

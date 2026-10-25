@@ -23,7 +23,7 @@ export const INSTALL_QUESTIONS = {
     message: '¿Qué vas a construir?',
     options: [
       { value: 'web', label: 'Una web (Astro)', hint: 'Páginas que se leen y se encuentran en los buscadores: un negocio, un blog. Una zona privada pequeña se puede añadir después' },
-      { value: 'app', label: 'Una app (React)', hint: 'Pantallas de trabajo con datos, para usuarios que entran con su cuenta, como una herramienta de gestión' },
+      { value: 'app', label: 'Una app (React)', hint: 'Pantallas de trabajo con datos, como una herramienta de gestión, con una API o sin ella' },
     ],
   },
   name: {
@@ -38,11 +38,18 @@ export const INSTALL_QUESTIONS = {
       { value: 'bun', label: 'bun' },
     ],
   },
+  git: {
+    message: '¿Guardamos el historial de cambios con git?',
+    options: [
+      { value: YES, label: 'Sí', hint: 'Inicio un repositorio git, sin ningún commit. Los commits y los push los haces tú; la IA te propone el mensaje y solo los hace si se lo pides' },
+      { value: NO, label: 'No', hint: 'Sin historial de cambios; se añade después con change' },
+    ],
+  },
   i18n: {
     message: '¿Va a estar en más de un idioma?',
     options: [
-      { value: NO, label: 'No', hint: 'Un solo idioma; se puede pasar a varios más adelante' },
-      { value: YES, label: 'Sí', hint: 'Cada texto, traducido a cada idioma (con i18next)' },
+      { value: NO, label: 'No', hint: 'Un solo idioma; sus textos van igual en un catálogo, y se añaden idiomas cuando haga falta' },
+      { value: YES, label: 'Sí', hint: 'Cada texto, en el catálogo de cada idioma, con sus direcciones (/en/…)' },
     ],
   },
   languages: {
@@ -85,11 +92,11 @@ export const INSTALL_QUESTIONS = {
       { value: 'cloudflare', label: 'Cloudflare', hint: 'Workers, con wrangler' },
     ],
   },
-  api: {
-    message: '¿Quieres apuntar cómo es la API, el sistema del que la app saca los datos: qué da y qué le falta a la app?',
+  appBackend: {
+    message: '¿La app saca sus datos de una API, la de un sistema que ya existe o una que se hará?',
     options: [
-      { value: YES, label: 'Sí', hint: 'Cada llamada, en docs/api/, y lo que la app necesita que cambie, en api-requests.md' },
-      { value: NO, label: 'No', hint: 'Sin documentos de la API' },
+      { value: YES, label: 'Sí', hint: 'Con el transporte, los services, la sesión y los permisos; la API se documenta en docs/api/' },
+      { value: NO, label: 'No', hint: 'Sin API: lo que la app guarde se decide en zaius-init (en el navegador, por ejemplo); la API se añade después con change' },
     ],
   },
   mocks: {
@@ -101,7 +108,9 @@ export const INSTALL_QUESTIONS = {
   },
 }
 
-const TYPE_QUESTIONS = { web: ['server', 'content'], app: ['api', 'mocks'] }
+const TYPE_QUESTIONS = { web: ['server', 'content'], app: ['backend', 'mocks'] }
+
+const APP_QUESTIONS = { backend: 'appBackend' }
 
 const KNOWN_LABELS = { type: 'tipo', packageManager: 'gestor', server: 'servidor', content: 'contenido', backend: 'API', platform: 'plataforma' }
 
@@ -136,7 +145,26 @@ async function askSelect (prompts, question, current) {
  */
 function logKnownAnswers (prompts, known) {
   const parts = Object.entries(known).map(([key, value]) => `${KNOWN_LABELS[key]}: ${value === true ? 'sí' : value}`)
-  if (parts.length > 0) prompts.log?.info(`Tomado del proyecto, sin preguntarlo: ${parts.join(' · ')}.`)
+  if (parts.length > 0) prompts.log?.info(`Tomado del proyecto, sin preguntarlo: ${parts.join(', ')}.`)
+}
+
+/**
+ * Pregunta si el proyecto guarda su historial con git, solo si se puede elegir: un proyecto que ya está en un repositorio lo tiene, y sin git instalado no se puede iniciar uno.
+ * @param prompts El módulo de preguntas.
+ * @param state `installed` e `inRepo`, de `detectProject`.
+ * @param current La respuesta que se marca de entrada.
+ * @returns `true` o `false`, o `null` si se cancela.
+ */
+async function askGit (prompts, state, current) {
+  if (state.inRepo) {
+    prompts.log?.info('La carpeta ya está en un repositorio git: el proyecto guarda su historial en él.')
+    return true
+  }
+  if (!state.installed) {
+    prompts.log?.info('git no está instalado en este equipo: el proyecto va sin historial de cambios. Cuando lo instales, «change» lo añade.')
+    return false
+  }
+  return askYesNo(prompts, INSTALL_QUESTIONS.git, current)
 }
 
 /**
@@ -158,17 +186,23 @@ async function askLanguages (prompts, current) {
 }
 
 /**
- * Hace las preguntas de sí o no del tipo del proyecto que no fija ya su código, con la respuesta actual marcada o, si no la hay (se acaba de elegir el tipo), la de por defecto del tipo. En `change`, una web pregunta también por la API, por la zona privada y, con servidor, por la plataforma en la que se publica.
+ * Hace las preguntas de sí o no del tipo del proyecto que no fija ya su código, con la respuesta actual marcada o, si no la hay (se acaba de elegir el tipo), la de por defecto del tipo. Una app pregunta primero si tiene API y, solo con ella, por los mocks. En `change`, una web pregunta también por la API, por la zona privada y, con servidor, por la plataforma en la que se publica.
  * @param prompts El módulo de preguntas.
  * @param answers Las respuestas de partida, con el tipo ya elegido.
- * @param options `mode` y `known`, las que fija el proyecto.
+ * @param options `mode`, `known` (las que fija el proyecto) y `typeChanged`, si el tipo no es el de las respuestas de partida, que entonces no valen para él.
  * @returns Las respuestas del tipo, o `null` si se cancela.
  */
-async function askTypeQuestions (prompts, answers, { mode, known }) {
+async function askTypeQuestions (prompts, answers, { mode, known, typeChanged }) {
   const names = [...TYPE_QUESTIONS[answers.type], ...(answers.type === 'web' && mode === 'change' ? ['backend', 'privateArea'] : [])]
   const result = {}
   for (const name of names) {
-    const answer = known[name] ?? await askYesNo(prompts, INSTALL_QUESTIONS[name], answers[name] ?? TYPE_DEFAULTS[answers.type][name])
+    if (answers.type === 'app' && name === 'mocks' && !result.backend) {
+      result.mocks = false
+      continue
+    }
+    const question = INSTALL_QUESTIONS[answers.type === 'app' ? APP_QUESTIONS[name] ?? name : name]
+    const current = typeChanged ? TYPE_DEFAULTS[answers.type][name] : answers[name] ?? TYPE_DEFAULTS[answers.type][name]
+    const answer = known[name] ?? await askYesNo(prompts, question, current)
     if (answer === null) return null
     result[name] = answer
   }
@@ -182,10 +216,10 @@ async function askTypeQuestions (prompts, answers, { mode, known }) {
 /**
  * Hace las preguntas de la instalación, con las respuestas por defecto (o las actuales) marcadas. No pregunta lo que ya se sabe.
  * @param defaults Las respuestas de partida.
- * @param options `mode`: `init` pregunta si es nuevo o existente, solo si la carpeta tiene `package.json` (sin él, solo puede ser nuevo); `change`, en un proyecto existente, si ha terminado la migración, y no pregunta el tipo a uno que ya tiene el código del kit. `known`: lo que el código de un proyecto existente ya fija (el tipo, el gestor, el servidor, el contenido), que en un existente no se pregunta. `hasPackageJson`. `validateName`: comprueba el nombre de un proyecto nuevo al escribirlo y da el motivo si no vale. `prompts`, el módulo de preguntas.
+ * @param options `mode`: `init` pregunta si es nuevo o existente, solo si la carpeta tiene `package.json` (sin él, solo puede ser nuevo); `change`, en un proyecto existente, si ha terminado la migración, y no pregunta el tipo a uno que ya tiene el código del kit. `known`: lo que el código de un proyecto existente ya fija (el tipo, el gestor, el servidor, el contenido), que en un existente no se pregunta. `git`: lo que se sabe de git (`installed`, `inRepo`). `hasPackageJson`. `validateName`: comprueba el nombre de un proyecto nuevo al escribirlo y da el motivo si no vale. `prompts`, el módulo de preguntas.
  * @returns Las respuestas, sin comprobar con `normalizeAnswers`, o `null` si se cancela.
  */
-export async function askInstallQuestions (defaults, { mode = 'init', prompts = clack, known = {}, hasPackageJson = true, validateName = () => undefined } = {}) {
+export async function askInstallQuestions (defaults, { mode = 'init', prompts = clack, known = {}, git = { installed: true, inRepo: false }, hasPackageJson = true, validateName = () => undefined } = {}) {
   const answers = { ...defaults }
   if (mode === 'init') {
     answers.existing = hasPackageJson ? await askYesNo(prompts, INSTALL_QUESTIONS.existing, defaults.existing) : false
@@ -211,10 +245,12 @@ export async function askInstallQuestions (defaults, { mode = 'init', prompts = 
   answers.name = name
   answers.packageManager = fixed.packageManager ?? await askSelect(prompts, INSTALL_QUESTIONS.packageManager, defaults.packageManager)
   if (answers.packageManager === null) return null
+  answers.git = await askGit(prompts, git, defaults.git)
+  if (answers.git === null) return null
   answers.i18n = await askYesNo(prompts, INSTALL_QUESTIONS.i18n, defaults.i18n)
   if (answers.i18n === null) return null
   answers.languages = answers.i18n ? await askLanguages(prompts, defaults.languages) : defaults.languages.slice(0, 1)
   if (answers.languages === null) return null
-  const typeAnswers = await askTypeQuestions(prompts, answers, { mode, known: fixed })
+  const typeAnswers = await askTypeQuestions(prompts, answers, { mode, known: fixed, typeChanged: answers.type !== defaults.type })
   return typeAnswers === null ? null : { ...answers, ...typeAnswers }
 }

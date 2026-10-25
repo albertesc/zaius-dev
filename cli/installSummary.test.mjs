@@ -27,6 +27,10 @@ describe('buildInstallQuestion', () => {
     assert.equal(buildInstallQuestion(buildResult({ create: ['a'], kitNew: ['b', 'c'], remove: ['d'] })), 'Voy a crear 1 ficheros, dejar 2 versiones nuevas al lado (.kit-new) y quitar 1. ¿Sigo?')
   })
 
+  it('dice que inicia el repositorio git, si lo va a iniciar', () => {
+    assert.equal(buildInstallQuestion(buildResult({ create: ['a'] }), { initGit: true }), 'Voy a crear 1 ficheros e iniciar el repositorio git. ¿Sigo?')
+  })
+
   it('si solo cambian las respuestas, dice que las apunta', () => {
     assert.equal(buildInstallQuestion({ ...buildResult({ same: ['a'] }), answersChanged: true }), 'No cambia ningún fichero: voy a apuntar las respuestas nuevas en zaius-dev.json. ¿Sigo?')
   })
@@ -56,8 +60,8 @@ describe('buildInstallWarnings', () => {
 })
 
 describe('findFixedAnswerChange', () => {
-  const web = { type: 'web', server: true, content: false, privateArea: true, api: null, mocks: null }
-  const app = { type: 'app', server: null, content: null, privateArea: null, api: true, mocks: true }
+  const web = { type: 'web', server: true, content: false, privateArea: true, backend: true, mocks: null }
+  const app = { type: 'app', server: null, content: null, privateArea: null, backend: true, mocks: true }
 
   it('no deja cambiar el tipo', () => {
     assert.match(findFixedAnswerChange(web, app), /el código del kit de una web: el tipo no se cambia/)
@@ -66,13 +70,13 @@ describe('findFixedAnswerChange', () => {
 
   it('deja cambiar lo demás', () => {
     assert.equal(findFixedAnswerChange(web, { ...web, server: false, content: true, privateArea: false }), null)
-    assert.equal(findFixedAnswerChange(app, { ...app, api: false, mocks: false }), null)
+    assert.equal(findFixedAnswerChange(app, { ...app, backend: false, mocks: false }), null)
   })
 })
 
 describe('buildChangeWarnings', () => {
-  const web = { type: 'web', server: true, content: false, privateArea: true, api: null, mocks: null }
-  const app = { type: 'app', server: null, content: null, privateArea: null, api: true, mocks: true }
+  const web = { type: 'web', server: true, content: false, privateArea: true, backend: true, mocks: null }
+  const app = { type: 'app', server: null, content: null, privateArea: null, backend: true, mocks: true }
 
   it('avisa al quitar la zona privada de una web', () => {
     const warnings = buildChangeWarnings(web, { ...web, privateArea: false })
@@ -95,6 +99,7 @@ describe('buildChangeWarnings', () => {
   it('no avisa sin cambios que rompan, al añadir, ni en una app', () => {
     assert.deepEqual(buildChangeWarnings(web, { ...web, content: true }), [])
     assert.deepEqual(buildChangeWarnings({ ...web, server: false, privateArea: false }, web), [])
-    assert.deepEqual(buildChangeWarnings(app, { ...app, api: false, mocks: false }), [])
+    assert.deepEqual(buildChangeWarnings(app, { ...app, mocks: false }), [])
+    assert.match(buildChangeWarnings(app, { ...app, backend: false, mocks: false }).join(), /Sin API, se quitan el transporte, los services, la sesión y los permisos/)
   })
 })

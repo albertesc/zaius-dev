@@ -71,28 +71,16 @@ su texto. Su nombre, en inglés y en kebab-case, es el final de su URL:
 `src/assets/`, con el prefijo de la página que las pinta
 (`blogPostAutumnRoutes.jpg`).
 
-<!-- kit:if i18n -->
 ```text
 src/
-├── content.config.ts
-├── assets/blogPostAutumnRoutes.jpg
-└── content/blogPosts/
-    └── <idioma>/
-        ├── autumn-routes.md
-        └── village-guide.mdx
+    content.config.ts
+    assets/blogPostAutumnRoutes.jpg
+    content/blogPosts/
+        <idioma>/
+            autumn-routes.md
+            village-guide.mdx
 ```
-<!-- kit:else -->
-```text
-src/
-├── content.config.ts
-├── assets/blogPostAutumnRoutes.jpg
-└── content/blogPosts/
-    ├── autumn-routes.md
-    └── village-guide.mdx
-```
-<!-- kit:end -->
 
-<!-- kit:if i18n -->
 ```md
 ---
 title: Cinco rutas para el otoño
@@ -105,20 +93,6 @@ imageAlt: Un camino entre robles con las hojas amarillas
 Las cinco salen de la puerta de la casa y están señaladas. La más corta llega
 al molino viejo en una hora, y la más larga sube al mirador del valle.
 ```
-<!-- kit:else -->
-```md
----
-title: Cinco rutas para el otoño
-description: Cinco paseos desde la casa, de una a cuatro horas, para ver cómo cambian de color los robles.
-date: 2026-10-02
-image: ../../assets/blogPostAutumnRoutes.jpg
-imageAlt: Un camino entre robles con las hojas amarillas
----
-
-Las cinco salen de la puerta de la casa y están señaladas. La más corta llega
-al molino viejo en una hora, y la más larga sube al mirador del valle.
-```
-<!-- kit:end -->
 
 - **Markdown (`.md`)** para el texto; **MDX (`.mdx`)** solo si la entrada
   pinta un componente de `src/components/` dentro (un mapa, una galería).
@@ -127,13 +101,11 @@ al molino viejo en una hora, y la más larga sube al mirador del valle.
   en imperativo y entre «» ([D11](../ux-ui/rules.md#d11-textos-y-formato)).
 - **Quién escribe las entradas** lo dice el brief, en «Contenido»; una que
   falta no se inventa: se pregunta.
-<!-- kit:if i18n -->
 - **Una carpeta por idioma** (%%LANGUAGES%%), con las mismas entradas y el
   mismo nombre de fichero en todas:
   `src/content/blogPosts/%%DEFAULT_LANGUAGE%%/autumn-routes.md`. El idioma va
   delante en el nombre de la entrada (`%%DEFAULT_LANGUAGE%%/autumn-routes`),
   y la página lo quita de la URL.
-<!-- kit:end -->
 
 ## 3. Leerla en una página
 
@@ -142,7 +114,6 @@ recibe lo que pinta por props. El índice del blog,
 `src/pages/blog/index.astro` (BLOG), con una tarjeta por entrada, la más
 reciente primero:
 
-<!-- kit:if i18n -->
 ```astro
 ---
 import { getCollection } from 'astro:content'
@@ -169,29 +140,6 @@ const hasPosts = posts.length > 0
     : <EmptyState title={t('blog.index.emptyTitle')} />}
 </AppLayout>
 ```
-<!-- kit:else -->
-```astro
----
-import { getCollection } from 'astro:content'
-import BlogPostCard from '@/components/BlogPostCard.astro'
-import AppLayout from '@/layouts/AppLayout.astro'
-
-const posts = (await getCollection('blogPosts')).sort((first, second) => second.data.date.getTime() - first.data.date.getTime())
-const hasPosts = posts.length > 0
----
-
-<AppLayout title='Blog' description='Rutas, pueblos y lo que pasa en la casa, contado por quien la lleva.'>
-  <PageHeader title='Blog' />
-  {hasPosts
-    ? (
-        <ul>
-          {posts.map((post) => <li><BlogPostCard post={post.data} href={`/blog/${post.id}`} /></li>)}
-        </ul>
-      )
-    : <EmptyState title='Todavía no hay ninguna entrada' />}
-</AppLayout>
-```
-<!-- kit:end -->
 
 - **Se ordena a propósito,** con un campo del schema (`date`):
   `getCollection` da las entradas en el orden de los ficheros.
@@ -201,11 +149,9 @@ const hasPosts = posts.length > 0
   ([Prefijo de origen](../naming.md#prefijo-de-origen)).
 - **Sin entradas,** su vacío: «Todavía no hay ninguna entrada»
   ([D3](../ux-ui/rules.md#d3-estados-de-carga-error-y-vacío)).
-<!-- kit:if i18n -->
 - **Se leen las del idioma de la página,** por el principio de su nombre, y
   los enlaces se arman con `getRelativeLocaleUrl`, como todos los de la web
   ([Rutas y navegación](../standards.md#rutas-y-navegación)).
-<!-- kit:end -->
 <!-- kit:if server -->
 - **Se genera al compilar,** como toda página sin `prerender = false`: el
   contenido no cambia de una petición a otra, y una entrada nueva sale en el
@@ -232,10 +178,9 @@ Cada entrada tiene su página, que sale de su nombre:
 `src/pages/blog/[...slug].astro` (BLOG-POST) genera una al compilar por cada
 entrada, con `getStaticPaths`, y la pinta con `render`. Su título, su
 descripción y su imagen son los de la entrada, también para los buscadores y
-las redes: la imagen para compartir es la suya, recortada a 1200 × 630 px con
+las redes: la imagen para compartir es la suya, recortada a 1200 por 630 px con
 `getImage`.
 
-<!-- kit:if i18n -->
 ```astro
 ---
 import type { GetStaticPaths } from 'astro'
@@ -274,36 +219,6 @@ const shareImage = await getImage({ src: post.data.image, width: 1200, height: 6
   él, Astro le da el tipo `never` y su test no la puede pintar.
 - **Si a un idioma le falta la entrada,** su URL da la página que no existe,
   y el build lo avisa.
-<!-- kit:else -->
-```astro
----
-import type { GetStaticPaths } from 'astro'
-import { getImage, Image } from 'astro:assets'
-import { getCollection, render } from 'astro:content'
-import AppLayout from '@/layouts/AppLayout.astro'
-import { formatUtils } from '@/utils/formatUtils'
-
-/** Una página por entrada del blog, con el nombre de su fichero, al compilar. */
-export const getStaticPaths = (async () => {
-  const posts = await getCollection('blogPosts')
-  return posts.map((post) => ({ params: { slug: post.id }, props: { post } }))
-}) satisfies GetStaticPaths
-
-const { post } = Astro.props
-const { Content } = await render(post)
-const shareImage = await getImage({ src: post.data.image, width: 1200, height: 630, fit: 'cover' })
----
-
-<AppLayout title={post.data.title} description={post.data.description} image={shareImage.src}>
-  <PageHeader title={post.data.title} subtitle={formatUtils.formatDate(post.data.date)} />
-  <Image src={post.data.image} alt={post.data.imageAlt} loading='eager' fetchpriority='high' />
-  <Content />
-</AppLayout>
-```
-
-- **La entrada llega por props,** desde `getStaticPaths`: la página no la
-  vuelve a buscar.
-<!-- kit:end -->
 - **`[...slug]` admite subcarpetas:** una entrada en
   `src/content/blogPosts/<tema>/…` tiene su URL con ese tema delante.
 - **El título de la entrada** es el de la página y el de la pestaña
@@ -331,7 +246,6 @@ que el test cambia lo que lee de `astro:content` por uno de prueba, con
 comprueba su schema. La imagen de una entrada de prueba es la de cualquier
 fichero (`src`, `width`, `height` y `format`).
 
-<!-- kit:if i18n -->
 ```ts
 import { getCollection } from 'astro:content'
 import { describe, expect, it, vi } from 'vitest'
@@ -385,65 +299,6 @@ describe('/blog/[...slug]', () => {
 
 - **Las páginas se pintan en el idioma por defecto,** como en todos los tests
   ([La escritura de un test](./write-tests.md#3-la-escritura-de-un-test)).
-<!-- kit:else -->
-```ts
-import { getCollection } from 'astro:content'
-import { describe, expect, it, vi } from 'vitest'
-import BlogPage from '@/pages/blog/index.astro'
-import { testUtils } from '@/tests/testUtils'
-
-const IMAGE = { src: '/blogPostAutumnRoutes.jpg', width: 1600, height: 1067, format: 'jpg' as const }
-
-vi.mock('astro:content', async (importOriginal) => ({ ...await importOriginal<object>(), getCollection: vi.fn() }))
-
-describe('/blog', () => {
-  it('enlaza las entradas, la más reciente primero', async () => {
-    vi.mocked(getCollection).mockResolvedValue([
-      { id: 'village-guide', collection: 'blogPosts', data: { title: 'Qué ver en el pueblo', description: 'La iglesia, el lavadero y la plaza.', date: new Date('2026-06-14'), image: IMAGE, imageAlt: 'La plaza del pueblo' } },
-      { id: 'autumn-routes', collection: 'blogPosts', data: { title: 'Cinco rutas para el otoño', description: 'Cinco paseos desde la casa.', date: new Date('2026-10-02'), image: IMAGE, imageAlt: 'Un camino entre robles' } },
-    ])
-
-    const view = await testUtils.renderAstro(BlogPage)
-
-    expect(view.getByRole('link', { name: 'Cinco rutas para el otoño' })).toHaveAttribute('href', '/blog/autumn-routes')
-    expect(view.getByRole('main').textContent).toMatch(/Cinco rutas para el otoño.*Qué ver en el pueblo/s)
-  })
-})
-```
-
-El de una entrada no necesita `vi.mock`: le pasa la entrada por props, como
-`getStaticPaths`, con su texto ya pintado en `rendered.html`, que `render`
-pinta como el de una entrada de verdad:
-
-```ts
-import type { CollectionEntry } from 'astro:content'
-import { describe, expect, it } from 'vitest'
-import BlogPostPage from '@/pages/blog/[...slug].astro'
-import { testUtils } from '@/tests/testUtils'
-
-const POST: CollectionEntry<'blogPosts'> = {
-  id: 'autumn-routes',
-  collection: 'blogPosts',
-  data: {
-    title: 'Cinco rutas para el otoño',
-    description: 'Cinco paseos desde la casa.',
-    date: new Date('2026-10-02'),
-    image: { src: '/blogPostAutumnRoutes.jpg', width: 1600, height: 1067, format: 'jpg' },
-    imageAlt: 'Un camino entre robles',
-  },
-  rendered: { html: '<p>Las cinco salen de la puerta de la casa.</p>' },
-}
-
-describe('/blog/[...slug]', () => {
-  it('pinta la entrada', async () => {
-    const view = await testUtils.renderAstro(BlogPostPage, { props: { post: POST } })
-
-    expect(view.getByRole('heading', { level: 1, name: 'Cinco rutas para el otoño' })).toBeInTheDocument()
-    expect(view.getByText('Las cinco salen de la puerta de la casa.')).toBeInTheDocument()
-  })
-})
-```
-<!-- kit:end -->
 - **`vi.restoreAllMocks` no deshace lo que se da a un `vi.fn`:** cada `it`
   da sus entradas.
 - **El título, la descripción y la imagen para compartir** de una entrada se
@@ -467,6 +322,4 @@ describe('/blog/[...slug]', () => {
 | Una entrada para los huéspedes se ve sin entrar | Se genera al compilar, y el middleware no pasa por ella: lo que solo pueden ver quienes entran se pinta en cada petición, en `/account/`. |
 <!-- kit:end -->
 | En un test, la colección sale vacía, o con entradas que el test no ha dado | Vitest no sincroniza las colecciones: el test da sus entradas con `vi.mock('astro:content', …)`. |
-<!-- kit:if i18n -->
 | El test de una entrada no compila: «Argument of type '(_props: never) => any'…» | La página no declara sus props: lleva `type Props = Record<string, never>`. |
-<!-- kit:end -->

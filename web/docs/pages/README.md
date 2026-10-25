@@ -12,7 +12,7 @@ Lo crea `/zaius-backlog` al apuntar la página, en «pendiente»; lo escribe
 ([El flujo](../process.md#el-flujo)). Lo que depende de un documento cambia
 con él: las normas, las guías y el [backlog](../backlog.md).
 
-**En esta página:** [El nombre y el fichero](#el-nombre-y-el-fichero) · [Plantilla](#plantilla) · [Cómo se escribe](#cómo-se-escribe) · [Índice](#índice) · [Lo que no es una página](#lo-que-no-es-una-página)
+**En esta página:** [El nombre y el fichero](#el-nombre-y-el-fichero), [Plantilla](#plantilla), [Cómo se escribe](#cómo-se-escribe), [Índice](#índice), [Lo que no es una página](#lo-que-no-es-una-página)
 
 ## El nombre y el fichero
 
@@ -24,7 +24,7 @@ con él: las normas, las guías y el [backlog](../backlog.md).
   empieza por su nombre, para que el `@` de la IA lo liste
   (`/zaius-build @docs/pages/RO`).
 - **Su estado** va en su cabecera, con la fecha, y el backlog lo repite:
-  pendiente → por aprobar → aprobada → en curso → por cerrar → hecha
+  pendiente, por aprobar, aprobada, en curso, por cerrar y hecha
   ([Los estados](../process.md#los-estados-de-una-página)).
 
 ## Plantilla
@@ -34,14 +34,16 @@ sin dudas abiertas: las que salen se resuelven con la persona en el momento y
 quedan escritas.
 
 ```markdown
-# ROOMS · Las habitaciones
+# ROOMS: Las habitaciones
 
-URL: `/rooms` · Estado: por aprobar el AAAA-MM-DD
+URL: `/rooms`. Estado: por aprobar el AAAA-MM-DD
 
 ## Para qué
 
-Elegir habitación y pedir disponibilidad. Llamada a la acción: «Pide
-disponibilidad», que lleva a `/contact`.
+Como pareja que busca una escapada, quiero ver cada habitación con sus fotos,
+cuántos caben y su precio, para elegir la mía y pedir disponibilidad.
+
+Llamada a la acción: «Pide disponibilidad», que lleva a `/contact`.
 
 ## Secciones
 
@@ -76,7 +78,7 @@ disponibilidad», que lleva a `/contact`.
 
 ## Tests
 
-| Test | Nivel | ✓ |
+| Test | Nivel | En verde |
 |---|---|---|
 | Enseña una tarjeta por habitación, con su precio por noche | página | |
 | Lleva su título, su descripción y su imagen para compartir | página | |
@@ -93,12 +95,12 @@ La rellena `zaius-review`.
 
 Lo que lleva cada apartado:
 
-- **La cabecera:** el nombre y el título de la página, separados por «·», y
-  debajo su URL y su estado con la fecha. Una página con parámetro lo dice
-  en la URL (`/blog/[...slug]`).
-- **Para qué:** el objetivo de la página y su llamada a la acción, lo que se
-  quiere que haga quien llega (llamar, pedir disponibilidad, leer más), en
-  dos o tres líneas.
+- **La cabecera:** el nombre y el título de la página, separados por dos puntos,
+  y debajo su URL y su estado con la fecha. Una página con parámetro lo dice en
+  la URL (`/blog/[...slug]`).
+- **Para qué:** su historia, la del backlog («Como…, quiero…, para…»), y su
+  llamada a la acción: lo que se quiere que haga quien llega (llamar, pedir
+  disponibilidad, leer más), con su texto y adónde lleva.
 - **Secciones:** de arriba abajo, cada una con lo que enseña y la pieza que
   la pinta, por su papel
   ([Piezas por papel](../ux-ui/design-system.md#piezas-por-papel)). El
@@ -135,13 +137,14 @@ Lo que lleva cada apartado:
   ([D14](../ux-ui/rules.md#d14-buscadores-y-compartir)).
 - **Rendimiento:** qué imagen carga enseguida, el vídeo y, si la página lleva
   JavaScript, qué y por qué.
-- **Tests:** la lista, `Test | Nivel | ✓`, que es la especificación: cada
+- **Tests:** la lista, `Test | Nivel | En verde`, que es la especificación: cada
   cosa que la página tiene que hacer, con su test en el nivel más alto que se
   pueda (la página antes que un componente o un util), en una frase, como se
-  escribirá en el código; y «verificación manual» para lo que no se
-  automatiza bien (cómo se ve a 360 px, el lector de pantalla). La aprueba la
-  persona; `zaius-build` la construye de un test en uno y marca cada uno en
-  verde ([Lo que se prueba](../guides/write-tests.md#1-lo-que-se-prueba)).
+  escribirá en el código; y «verificación manual» para lo que no se automatiza
+  bien (cómo se ve a 360 px, el lector de pantalla). La aprueba la persona;
+  `zaius-build` la construye de un test en uno y marca cada uno en verde, con
+  «sí» en su columna
+  ([Lo que se prueba](../guides/write-tests.md#1-lo-que-se-prueba)).
 - **Decisiones:** lo que se decide al construirla, con su fecha
   («2026-11-03: los precios, sin decimales»), lo apunta `zaius-build` en cada
   parada, con su test en la lista si hace falta.

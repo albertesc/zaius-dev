@@ -60,23 +60,35 @@ describe('getDefaultAnswers', () => {
 
   it('es una web si no se sabe el tipo, con lo mínimo y sin las respuestas de una app', () => {
     assert.equal(defaults.type, 'web')
-    assert.deepEqual([defaults.server, defaults.content, defaults.privateArea], [false, false, false])
-    assert.deepEqual([defaults.api, defaults.mocks], [null, null])
+    assert.deepEqual([defaults.server, defaults.content, defaults.privateArea, defaults.backend], [false, false, false, false])
+    assert.equal(defaults.mocks, null)
   })
 
   it('en una web, marca lo que se lee del proyecto', () => {
     const detected = getDefaultAnswers({ folderName: 'x', hasPackageJson: true, type: 'web', web: { server: true, content: true } })
 
     assert.deepEqual([detected.server, detected.content, detected.privateArea], [true, true, false])
-    assert.deepEqual([detected.api, detected.mocks], [null, null])
+    assert.equal(detected.mocks, null)
   })
 
   it('en una app, marca la API y los mocks, sin las respuestas de una web aunque se lean', () => {
     const app = getDefaultAnswers({ folderName: 'x', hasPackageJson: true, type: 'app', web: { server: true, content: true } })
 
     assert.equal(app.type, 'app')
-    assert.deepEqual([app.api, app.mocks], [true, true])
+    assert.deepEqual([app.backend, app.mocks], [true, true])
     assert.deepEqual([app.server, app.content, app.privateArea], [null, null, null])
+  })
+})
+
+describe('getDefaultAnswers', () => {
+  it('marca git: sí en un proyecto nuevo con git instalado y en uno que ya está en un repositorio; si no, o sin mirarlo, no', () => {
+    const git = (installed, inRepo) => ({ installed, inRepo })
+
+    assert.equal(getDefaultAnswers({ folderName: 'pedidos', hasPackageJson: false, git: git(true, false) }).git, true)
+    assert.equal(getDefaultAnswers({ folderName: 'pedidos', hasPackageJson: false, git: git(false, false) }).git, false)
+    assert.equal(getDefaultAnswers({ folderName: 'pedidos', hasPackageJson: true, git: git(true, false) }).git, false)
+    assert.equal(getDefaultAnswers({ folderName: 'pedidos', hasPackageJson: true, git: git(true, true) }).git, true)
+    assert.equal(defaults.git, false)
   })
 })
 
@@ -100,6 +112,7 @@ describe('normalizeAnswers', () => {
     assert.throws(() => normalizeAnswers({ name: '' }, defaults), /Falta el nombre/)
     assert.throws(() => normalizeAnswers({ packageManager: 'deno' }, defaults), /«packageManager» tiene que ser npm, pnpm, yarn o bun/)
     assert.throws(() => normalizeAnswers({ type: 'next' }, defaults), /«type» tiene que ser web o app/)
+    assert.throws(() => normalizeAnswers({ git: 'sí' }, defaults), /«git» tiene que ser true o false/)
   })
 
   it('no pierde ninguna respuesta', () => {
@@ -108,23 +121,28 @@ describe('normalizeAnswers', () => {
   })
 
   it('en una web, deja a null las respuestas de una app', () => {
-    const answers = normalizeAnswers({ api: false, mocks: 'sí' }, defaults)
+    const answers = normalizeAnswers({ mocks: 'sí' }, defaults)
 
-    assert.deepEqual([answers.api, answers.mocks], [null, null])
+    assert.equal(answers.mocks, null)
+    assert.equal('api' in answers, false)
   })
 
   it('en una app, deja a null las respuestas de una web', () => {
     const answers = normalizeAnswers({ type: 'app', server: true, content: true, privateArea: true }, defaults)
 
     assert.deepEqual([answers.server, answers.content, answers.privateArea], [null, null, null])
-    assert.deepEqual([answers.api, answers.mocks], [true, true])
+    assert.deepEqual([answers.backend, answers.mocks], [true, true])
+  })
+
+  it('una app sin API no tiene mocks', () => {
+    assert.deepEqual(normalizeAnswers({ backend: false, mocks: true }, appDefaults).mocks, false)
   })
 
   it('al cambiar de tipo, completa las del tipo nuevo con las de por defecto', () => {
     const web = normalizeAnswers({ type: 'web' }, appDefaults)
 
-    assert.deepEqual([web.server, web.content, web.privateArea], [false, false, false])
-    assert.deepEqual([web.api, web.mocks], [null, null])
+    assert.deepEqual([web.server, web.content, web.privateArea, web.backend], [false, false, false, false])
+    assert.equal(web.mocks, null)
   })
 
   it('una web con zona privada tiene servidor', () => {
@@ -142,7 +160,7 @@ describe('normalizeAnswers', () => {
   })
 
   it('en una app, falla con una respuesta que no vale', () => {
-    assert.throws(() => normalizeAnswers({ api: 'sí' }, appDefaults), /«api» tiene que ser true o false/)
+    assert.throws(() => normalizeAnswers({ backend: 'sí' }, appDefaults), /«backend» tiene que ser true o false/)
     assert.throws(() => normalizeAnswers({ mocks: 'sí' }, appDefaults), /«mocks» tiene que ser true o false/)
   })
 })
@@ -152,6 +170,7 @@ describe('buildConditions', () => {
     assert.deepEqual(buildConditions(defaults), {
       existing: false,
       i18n: false,
+      git: false,
       npm: true,
       pnpm: false,
       yarn: false,
@@ -198,8 +217,12 @@ describe('buildConditions', () => {
     assert.deepEqual([conditions.backend, conditions.mocks, conditions.server, conditions.privateArea], [true, true, false, false])
   })
 
-  it('en una app, los datos salen siempre de una API', () => {
-    assert.equal(buildConditions(appDefaults).backend, true)
+  it('en una app, los datos salen de una API si la tiene, y con ella van sus documentos', () => {
+    const withApi = buildConditions(appDefaults)
+    const withoutApi = buildConditions(normalizeAnswers({ backend: false }, appDefaults))
+
+    assert.deepEqual([withApi.backend, withApi.api, withApi.mocks], [true, true, true])
+    assert.deepEqual([withoutApi.backend, withoutApi.api, withoutApi.mocks], [false, false, false])
   })
 
   it('en una app, da la API y los mocks, con las de una web falsas', () => {
@@ -211,7 +234,7 @@ describe('buildConditions', () => {
   })
 
   it('las de un tipo son falsas en el otro aunque las respuestas digan que sí', () => {
-    const web = buildConditions({ ...defaults, api: true, mocks: true })
+    const web = buildConditions({ ...defaults, mocks: true })
     const app = buildConditions({ ...appDefaults, server: true, content: true, privateArea: true })
 
     assert.deepEqual([web.api, web.mocks, web.backend], [false, false, false])

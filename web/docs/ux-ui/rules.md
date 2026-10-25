@@ -21,9 +21,9 @@ aceptarse, se escribe aquí y en la sección «Diseño y UX» de AGENTS.md. Nada
 entra aquí directamente, ni se aplica en el código antes.
 
 <!-- kit:if privateArea -->
-**En esta página:** [D1](#d1-el-sistema-de-diseño-primero) · [D2](#d2-sin-textos-explicativos) · [D3](#d3-estados-de-carga-error-y-vacío) · [D4](#d4-avisos-y-fallos) · [D5](#d5-acciones) · [D6](#d6-formularios) · [D7](#d7-un-registro-una-pantalla) · [D8](#d8-listados-y-tablas) · [D9](#d9-modales) · [D10](#d10-navegación) · [D11](#d11-textos-y-formato) · [D12](#d12-accesibilidad) · [D13](#d13-movimiento) · [D14](#d14-buscadores-y-compartir)
+**En esta página:** [D1](#d1-el-sistema-de-diseño-primero), [D2](#d2-sin-textos-explicativos), [D3](#d3-estados-de-carga-error-y-vacío), [D4](#d4-avisos-y-fallos), [D5](#d5-acciones), [D6](#d6-formularios), [D7](#d7-un-registro-una-pantalla), [D8](#d8-listados-y-tablas), [D9](#d9-modales), [D10](#d10-navegación), [D11](#d11-textos-y-formato), [D12](#d12-accesibilidad), [D13](#d13-movimiento), [D14](#d14-buscadores-y-compartir), [D15](#d15-jerarquía-espacios-y-columnas), [D16](#d16-lo-que-no-se-hace)
 <!-- kit:else -->
-**En esta página:** [D1](#d1-el-sistema-de-diseño-primero) · [D2](#d2-sin-textos-explicativos) · [D3](#d3-estados-de-carga-error-y-vacío) · [D4](#d4-avisos-y-fallos) · [D5](#d5-acciones) · [D6](#d6-formularios) · [D10](#d10-navegación) · [D11](#d11-textos-y-formato) · [D12](#d12-accesibilidad) · [D13](#d13-movimiento) · [D14](#d14-buscadores-y-compartir)
+**En esta página:** [D1](#d1-el-sistema-de-diseño-primero), [D2](#d2-sin-textos-explicativos), [D3](#d3-estados-de-carga-error-y-vacío), [D4](#d4-avisos-y-fallos), [D5](#d5-acciones), [D6](#d6-formularios), [D10](#d10-navegación), [D11](#d11-textos-y-formato), [D12](#d12-accesibilidad), [D13](#d13-movimiento), [D14](#d14-buscadores-y-compartir), [D15](#d15-jerarquía-espacios-y-columnas), [D16](#d16-lo-que-no-se-hace)
 
 D7, D8 y D9 (un registro, una pantalla; listados y tablas; modales) son las
 de una zona privada, y llegan con ella.
@@ -115,8 +115,9 @@ reintentar, quitar los filtros o volver.
   - en un campo, bajo el campo, en su nota;
 <!-- kit:if privateArea -->
   - en un modal, al final de su cuerpo, con el modal abierto y lo escrito;
-  - en una acción inmediata (descargar una factura), en el aviso de página
-    bajo la cabecera, que nombra lo que ha fallado y se cierra con la ×.
+  - en una acción inmediata (descargar una factura), en el aviso de página bajo
+    la cabecera, que nombra lo que ha fallado y se cierra con su botón de
+    cerrar.
 <!-- kit:end -->
 - **Nunca en un aviso efímero:** se va solo, y un fallo hay que poder
   releerlo.
@@ -269,8 +270,8 @@ listado llevan a la misma página, y no hay dos versiones que mantener.
 - **El buscador espera 400 ms** desde la última tecla si busca en el
   servidor; Enter lo lanza al momento.
 - **Como mucho dos acciones por fila,** y la última, la que abre el registro
-  («Gestiona»). El resto, tras el menú ⋮, siempre el último de la fila, con la
-  destructiva al final.
+  («Gestiona»). El resto, tras el menú de más acciones, siempre el último de la
+  fila, con la destructiva al final.
 - **La fila no se abre al pulsarla:** se abre con su acción.
 - **Filtros, página y orden van en la URL,** nunca en el `sessionStorage`:
   sobreviven a navegar y a recargar.
@@ -281,7 +282,7 @@ en el mismo sitio; y al volver de un registro, la lista está como se dejó.
 | Mal | Bien |
 |---|---|
 | Una columna «Nota» con el texto entero | La nota, en la gestión de la reserva |
-| Cuatro botones en cada fila | «Gestiona» y el ⋮ con el resto |
+| Cuatro botones en cada fila | «Gestiona» y el menú de más acciones con el resto |
 | Pulsar la fila abre la reserva | La abre «Gestiona» |
 | Los filtros y la página, en el `sessionStorage` | `/account/bookings?status=confirmed&page=2` |
 | Una búsqueda en el servidor con cada tecla | Una búsqueda a los 400 ms de la última |
@@ -298,10 +299,10 @@ en el mismo sitio; y al volver de un registro, la lista está como se dejó.
   confirmación, cuyo título es una pregunta: «¿Quieres cancelar la
   reserva?». Quitar algo que aún no se ha guardado no se confirma.
 - **Una confirmación se cierra sin preguntar.** Un formulario en un modal solo
-  pregunta si se cierra con cambios por la ×, Escape o pulsando fuera; su
-  «Cancela» cierra sin preguntar.
-- **Mientras actúa, se bloquea entero,** también la × y Escape, y su fallo va
-  al final del cuerpo, con el modal abierto y lo escrito
+  pregunta si se cierra con cambios por su botón de cerrar, Escape o pulsando
+  fuera; su «Cancela» cierra sin preguntar.
+- **Mientras actúa, se bloquea entero,** también su botón de cerrar y Escape, y
+  su fallo va al final del cuerpo, con el modal abierto y lo escrito
   ([D4](#d4-avisos-y-fallos)).
 - **Al cerrarse, el foco vuelve al control que lo abrió.**
 
@@ -326,12 +327,12 @@ qué pide y su botón dice qué va a pasar.
   la que se está (`aria-current="page"`).
 - **El título de una página del menú es el de su entrada.**
 <!-- kit:if privateArea -->
-- **La pestaña del navegador dice «<título> · %%APP_NAME%%»,** sin datos
-  personales: en la gestión de una reserva, «Reserva #1287 · %%APP_NAME%%».
+- **La pestaña del navegador dice «<título> - %%APP_NAME%%»,** sin datos
+  personales: en la gestión de una reserva, «Reserva #1287 - %%APP_NAME%%».
 - **Volver lleva a donde se estaba,** con su URL entera: una lista vuelve con
   sus filtros. Nunca lleva a una página sin permiso.
 <!-- kit:else -->
-- **La pestaña del navegador dice «<título> · %%APP_NAME%%».**
+- **La pestaña del navegador dice «<título> - %%APP_NAME%%».**
 <!-- kit:end -->
 <!-- kit:if server -->
 - **La página que no existe y el error** se pintan dentro de la web, con su
@@ -355,7 +356,7 @@ dónde está y cómo salir.
 | La página en blanco del servidor para una ruta que no existe | «Esta página no existe», dentro de la web, con «Vuelve al inicio» |
 | Una entrada del menú que aún no lleva a ninguna parte | La entrada no está hasta que su página existe |
 <!-- kit:if privateArea -->
-| La pestaña «Reserva de Marta Puig · %%APP_NAME%%» | «Reserva #1287 · %%APP_NAME%%» |
+| La pestaña «Reserva de Marta Puig - %%APP_NAME%%» | «Reserva #1287 - %%APP_NAME%%» |
 <!-- kit:end -->
 
 ## D11. Textos y formato
@@ -382,15 +383,15 @@ dónde está y cómo salir.
   ([Textos](../standards.md#textos)): las fechas, con su función; los miles,
   siempre («1.500»); los precios, con su moneda y sin decimales si son
   enteros («95 €»); los porcentajes, enteros y con espacio («10 %»).
-<!-- kit:if i18n -->
 - **Los plurales, con `count`:** «1 noche», «2 noches».
-<!-- kit:else -->
-- **Los plurales, según la cifra:** «1 noche», «2 noches».
-<!-- kit:end -->
 - **Lo que falta es «-».**
 <!-- kit:if privateArea -->
 - **Un registro es «#1287» en una tabla y «Reserva #1287» fuera de ella.**
 <!-- kit:end -->
+- **Sin los signos ni las frases de la IA:** ni «·», «→», «—», «✓» ni
+  emojis, ni «¡Descubre…!», ni «no solo…, sino también…»
+  ([Escribir como una persona](../process.md#escribir-como-una-persona)). Dos
+  datos seguidos se separan con el diseño, no con un carácter.
 
 **Por qué:** la web habla con una sola voz: el mismo verbo hace siempre lo
 mismo, y un dato se lee igual en todas las páginas.
@@ -403,6 +404,7 @@ mismo, y un dato se lee igual en todas las páginas.
 | «95.00€», «1500», «0.1» | «95 €», «1.500», «10 %» |
 | «1 noches» | «1 noche» |
 | Un dato vacío, o «null» | «-» |
+| «Hasta 14 · Piscina · Jardín», «Reserva → Confirmada» | «Hasta 14 personas», «Piscina» y «Jardín», cada uno en su sitio; «Reserva confirmada» |
 
 ## D12. Accesibilidad
 
@@ -417,7 +419,7 @@ mismo, y un dato se lee igual en todas las páginas.
 - **Cada imagen lleva su `alt`,** que dice lo que se ve; la que solo adorna,
   `alt=''`.
 - **Todo se hace con teclado,** también la galería y el menú del móvil.
-- **Nada que se pulse mide menos de 24 × 24 px.**
+- **Nada que se pulse mide menos de 24 por 24 px.**
 - **Contraste:** solo combinaciones de tokens que lo cumplen, también el
   texto sobre una foto.
 - **Un fallo se anuncia** (`role="alert"`); un recuento o un progreso, sin
@@ -444,6 +446,11 @@ zoom; lo que solo funciona con el ratón deja fuera a alguien.
 - **El movimiento explica:** de dónde viene algo y qué ha cambiado (un menú
   que se abre, una foto que pasa, un aviso que llega). En lo que se usa,
   corto: de 150 a 300 ms.
+- **Lo que se pulsa responde al ratón y al teclado:** cada botón, enlace, tarjeta que lleva a otra página, foto de una galería y
+  enlace del menú cambian al pasar por encima (su color, su fondo,
+  su sombra o un pequeño desplazamiento) y con el foco, con
+  `--motion-fast`. Con «nada», el mismo cambio, sin transición. Nada que se
+  pulse se queda igual.
 - **En una web vistosa, también presenta:** una sección que aparece al
   llegar a ella, la foto de la portada que entra al cargar. Hasta unos
   600 ms, y una sola vez: lo que ya se ha visto no vuelve a animarse.
@@ -466,13 +473,14 @@ distrae, cansa y, a algunas personas, las marea.
 | El contenido empieza invisible y aparece con un script | El contenido se ve sin script; el script solo añade la entrada |
 | Un vídeo de fondo en bucle, sin forma de pararlo | El mismo vídeo, con su botón de pausa |
 | La animación sigue igual con «reducir movimiento» | Con «reducir movimiento», solo un fundido |
+| Las tarjetas de las habitaciones no cambian al pasar por encima | La tarjeta sube un poco y su título cambia de color, en 200 ms; igual con el foco |
 
 ## D14. Buscadores y compartir
 
 - **Cada página pública tiene su título y su descripción,** únicos, que
   dicen qué hay en ella: el título, en la pestaña y en los buscadores; la
   descripción, de una o dos frases, debajo del título en los resultados.
-- **Y su imagen para compartir,** de 1200 × 630 px, la que sale al pegar el
+- **Y su imagen para compartir,** de 1200 por 630 px, la que sale al pegar el
   enlace en una red o en un chat. Sin una propia, la de la portada.
 - **La web dice su dirección final:** `site`, en `astro.config.ts`, que usan
   la dirección canónica de cada página, la imagen para compartir y el mapa
@@ -498,14 +506,100 @@ resto es contenido de cada página.
 
 | Mal | Bien |
 |---|---|
-| Todas las páginas con el mismo título, el de la web | «Habitaciones · %%APP_NAME%%», «Contacto · %%APP_NAME%%» |
-| El enlace sale en WhatsApp sin imagen ni descripción | La imagen de 1200 × 630 px y la descripción de la página |
+| Todas las páginas con el mismo título, el de la web | «Habitaciones - %%APP_NAME%%», «Contacto - %%APP_NAME%%» |
+| El enlace sale en WhatsApp sin imagen ni descripción | La imagen de 1200 por 630 px y la descripción de la página |
 | «Para ver las habitaciones, pulsa aquí» | «Mira las habitaciones» |
 <!-- kit:if privateArea -->
 | «Mis reservas» aparece en Google | «Mis reservas», con `noindex` |
 <!-- kit:else -->
 | La página que no existe aparece en Google | La página que no existe, con `noindex` |
 <!-- kit:end -->
+
+## D15. Jerarquía, espacios y columnas
+
+- **Lo que más importa, primero y más grande.** Cada página tiene una sola
+  cosa principal, y cada sección, una sola entrada (su título o su foto); lo
+  demás va en su orden: lo que menos importa, más pequeño, más suave o más
+  abajo.
+- **Pocos niveles, y bien distintos:** el título de la página, el de una
+  sección, el texto y la nota, cada uno de la escala de la letra y distinto
+  de los otros por su tamaño y su peso, no solo por su color. Nunca dos
+  títulos que compiten ni todo en negrita.
+- **Las acciones, en su orden:** el primario se ve el primero
+  ([D5](#d5-acciones)), el secundario menos y el discreto apenas.
+- **Lo que va junto, cerca; lo que no, separado.** La distancia dice qué va
+  con qué: la etiqueta, pegada a su campo; el título, cerca de su texto y con
+  aire encima; los botones de una acción, juntos. Entre dos grupos, siempre
+  más espacio que dentro de cada uno.
+- **Cada relación tiene su espacio, siempre el mismo,** de la escala de los
+  tokens: dentro de un grupo, entre grupos y entre secciones, igual en toda
+  la web. Nunca un valor a ojo, ni todo con el mismo espacio.
+- **Nada pegado:** ningún texto toca el borde de su caja ni el de la
+  pantalla; en el móvil, con el margen de los lados de «Anchos».
+- **Una rejilla para toda la página:** la cabecera, cada sección y el pie,
+  con el mismo ancho máximo y los mismos márgenes. El logo empieza donde
+  empieza el texto, y el menú acaba donde acaba; lo que va a sangre (la foto
+  de una portada) lo dice el boceto.
+- **Las columnas siguen la rejilla:** las tarjetas, un texto con su foto, el
+  pie; con el mismo hueco entre ellas y los bordes de los bloques en las
+  mismas líneas.
+- **La cabecera:** el logo a un lado, y el menú y la llamada a la acción al
+  otro, centrados en vertical; en el móvil, el logo y el botón del menú.
+- **El pie, en columnas:** cada grupo (el contacto, el menú, lo legal) en la
+  suya, alineadas con la rejilla; en el móvil, una debajo de otra, en el
+  orden en que se buscan, con la última línea (©, aviso legal, privacidad)
+  aparte.
+- **En el móvil, una columna,** en el orden de lectura y con la misma
+  jerarquía de espacios: se encogen, pero lo que va junto sigue más cerca que
+  lo que no. Nunca columnas tan estrechas que partan las palabras.
+
+**Por qué:** la jerarquía, los espacios y las columnas son lo primero que
+ordena una página: bien puestos, se ve qué importa y qué va con qué antes de
+leer; mal puestos, todo compite, o parece suelto o amontonado.
+
+| Mal | Bien |
+|---|---|
+| Tres titulares del mismo tamaño en la portada | Uno grande; los demás, en su nivel |
+| Todo en negrita para que destaque | Solo lo que más importa, con más peso |
+| La etiqueta de un campo, igual de lejos de su campo que del campo de arriba | La etiqueta, pegada a su campo; entre campos, más espacio |
+| El título de una sección, más cerca de la sección de arriba que de su texto | El título, cerca de su texto, con aire encima |
+| Tres tarjetas, con 16, 20 y 24 px entre ellas | El mismo token entre todas |
+| El logo, más a la izquierda que el texto de la portada | El logo y el texto, en la misma línea de la rejilla |
+| El pie, con los enlaces sueltos en una fila larga | El pie en columnas: el contacto, el menú y lo legal |
+
+## D16. Lo que no se hace
+
+Salvo que la persona lo pida (y entonces se apunta, con su motivo, en
+«Identidad» del sistema de diseño), nunca:
+
+- **Un borde o una franja de color a la izquierda:** en una tarjeta, un
+  aviso, una cita, una fila o el enlace activo de un menú. Está demasiado
+  visto: lo que destaca se destaca con su fondo, su peso o su sitio.
+- **Lo que delata un diseño hecho por IA,** cada punto por sí solo:
+  - un fondo crema, títulos con serifa y un acento terracota o teja;
+  - un fondo casi negro con un único acento verde ácido o bermellón;
+  - todo en tarjetas iguales, con el mismo radio y la misma sombra gris, y
+    degradados de adorno;
+  - una etiqueta en mayúsculas espaciadas encima de cada título; datos
+    unidos con puntos medios en la página («Hasta 14 · Piscina · Jardín»;
+    la pestaña, aparte); una flecha («→») al final de los enlaces;
+  - números 01, 02, 03 en lo que no es una secuencia;
+  - una palabra del título en cursiva o en otro color;
+  - una cifra enorme con una etiqueta pequeña y un degradado, como portada;
+  - cada sección que entra desde abajo al llegar a ella: un solo momento de
+    movimiento se nota más que muchos;
+  - una forma sin referente (una mancha, una nube, un borde ondulado) como
+    adorno o separador.
+
+**Por qué:** son las soluciones que salen sin decidir: una web que las usa se
+parece a todas y deja de parecerse a la suya.
+
+| Mal | Bien |
+|---|---|
+| Un aviso con una franja roja a la izquierda | El aviso, con su fondo, su icono y su texto |
+| «NUESTRAS HABITACIONES», pequeño y espaciado, encima de «Las habitaciones» | Solo el título |
+| «Ver más →» | «Mira las habitaciones» |
+| El enlace activo del menú, con una barra a su izquierda | El enlace activo, con su peso o su fondo |
 
 Lo que es propio de cada proyecto (colores con significado, anchos, iconos de
 cada acción, impresión) se añade como norma nueva con una propuesta.

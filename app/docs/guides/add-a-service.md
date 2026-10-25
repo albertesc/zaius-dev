@@ -33,7 +33,7 @@ proyecto están en
 - [5. Los tests](#5-los-tests)
 <!-- kit:end -->
 - [La llamada terminada](#la-llamada-terminada)
-- **Casos especiales:** [Subir y descargar ficheros](#subir-y-descargar-ficheros) · [Errores de la API](#errores-de-la-api)
+- **Casos especiales:** [Subir y descargar ficheros](#subir-y-descargar-ficheros), [Errores de la API](#errores-de-la-api)
 - [Puntos de adaptación a la API](#puntos-de-adaptación-a-la-api)
 - [Errores comunes](#errores-comunes)
 
@@ -117,8 +117,8 @@ export type OrdersFilters = z.infer<typeof ordersFiltersSchema>
 ```
 
 - **Un campo que la API manda `null`** pero que se usa como recuento, lista o
-  texto se normaliza aquí con `.transform` (`null` → `0`, `[]` o `''`), para
-  que nadie más tenga que comprobarlo.
+  texto se normaliza aquí con `.transform` (`null` pasa a `0`, `[]` o `''`),
+  para que nadie más tenga que comprobarlo.
 - **Un enumerado numérico de la API** se declara como objeto `as const` con
   nombres de la app, en el fichero de lo que comparten las zonas de la entidad
   (`services/orders/ordersSchema.ts`):
@@ -403,19 +403,19 @@ Con las piezas que nombra esta guía, `getOrdersFilters` queda así en
 <!-- kit:if mocks -->
 ```text
 services/orders/
-├── ordersService.ts                getOrdersFilters
-├── ordersService.test.ts           su it, contra el mock
-├── ordersFiltersSchema.ts          ordersFiltersSchema y el tipo OrdersFilters
-├── ordersFiltersSchema.test.ts     acepta su mock y rechaza lo que no tiene su forma
-└── ordersMocks.json                "GET /order/filters": la respuesta, con la forma real de la API
+    ordersService.ts                getOrdersFilters
+    ordersService.test.ts           su it, contra el mock
+    ordersFiltersSchema.ts          ordersFiltersSchema y el tipo OrdersFilters
+    ordersFiltersSchema.test.ts     acepta su mock y rechaza lo que no tiene su forma
+    ordersMocks.json                "GET /order/filters": la respuesta, con la forma real de la API
 ```
 <!-- kit:else -->
 ```text
 services/orders/
-├── ordersService.ts                getOrdersFilters
-├── ordersService.test.ts           su it, con fetch pisado
-├── ordersFiltersSchema.ts          ordersFiltersSchema y el tipo OrdersFilters
-└── ordersFiltersSchema.test.ts     acepta la respuesta de ejemplo y rechaza lo que no tiene su forma
+    ordersService.ts                getOrdersFilters
+    ordersService.test.ts           su it, con fetch pisado
+    ordersFiltersSchema.ts          ordersFiltersSchema y el tipo OrdersFilters
+    ordersFiltersSchema.test.ts     acepta la respuesta de ejemplo y rechaza lo que no tiene su forma
 ```
 <!-- kit:end -->
 
@@ -498,7 +498,6 @@ El método lo documenta en su `@throws`:
 cancelOrder: (id: number, request: CancelOrderRequest) => apiUtils.request('PUT', `/order/cancel/${id}`, z.undefined(), request),
 ```
 
-<!-- kit:if i18n -->
 El hook lo compara con la constante y elige la descripción del aviso;
 cualquier otro fallo, la común (`common:failure.network` o
 `common:failure.generic`). Es de la familia (`orders/common`), porque cancelan
@@ -540,55 +539,6 @@ con el título fijo de la acción («No se ha podido cancelar el pedido»,
 ```tsx
 {hasFailure ? <PageAlert tone='error' title={t('orders:cancel.failure')}>{failure}</PageAlert> : null}
 ```
-<!-- kit:else -->
-El hook lo compara con la constante y da el motivo del fallo: el código concreto
-o, en cualquier otro caso, el de `apiErrorUtils.getRequestFailure`. Es de la
-familia (`orders/common`), porque cancelan el listado y la gestión:
-
-```ts
-import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { ORDER_ERROR_CODE } from '@/services/orders/ordersSchema'
-import type { CancelOrderRequest } from '@/services/orders/ordersEditSchema'
-import { ordersService } from '@/services/orders/ordersService'
-import { apiErrorUtils } from '@/utils/apiErrorUtils'
-import { orderQueryUtils } from '../utils/orderQueryUtils'
-
-/**
- * Cancela un pedido con su motivo.
- * @param id Id del pedido.
- * @returns La mutación de TanStack Query y `failure`, el motivo del fallo (`alreadyShipped`, `network` o `generic`) o `null`.
- */
-export function useOrderCancel (id: number) {
-  const queryClient = useQueryClient()
-  const mutation = useMutation({
-    mutationFn: (request: CancelOrderRequest) => ordersService.cancelOrder(id, request),
-    onSuccess: () => orderQueryUtils.invalidateOrdersQueries(queryClient),
-  })
-  const isShipped = apiErrorUtils.isApiError(mutation.error) && mutation.error.code === ORDER_ERROR_CODE.alreadyShipped
-  const failure = isShipped ? 'alreadyShipped' : apiErrorUtils.getRequestFailure(mutation.error)
-
-  return { ...mutation, failure: mutation.isError ? failure : null }
-}
-```
-
-El componente, que pinta el aviso, escribe sus textos: al final del cuerpo
-del modal, encima del pie, el título fijo de la acción y la descripción que
-toca. El modal sigue abierto ([D9](../ux-ui/rules.md#d9-modales)):
-
-```tsx
-const hasFailure = failure !== null
-const isShipped = failure === 'alreadyShipped'
-const isOffline = failure === 'network'
-
-{hasFailure
-  ? (
-    <PageAlert tone='error' title='No se ha podido cancelar el pedido'>
-      {isShipped ? 'El pedido ya ha salido del almacén.' : isOffline ? 'Comprueba la conexión y vuelve a intentarlo.' : 'Vuelve a intentarlo dentro de un rato.'}
-    </PageAlert>
-    )
-  : null}
-```
-<!-- kit:end -->
 
 Qué hace un guardado con un fallo, en general:
 [El fallo del guardado](./load-and-save-data.md#2-el-fallo-del-guardado).
@@ -604,7 +554,7 @@ resto de la app no se entera:
 |---|---|---|
 | El idioma que se manda a la API | `getHeaders`, en `apiUtils.ts` | No se manda |
 | La forma del cuerpo de error | `readErrorCode`, en `apiErrorUtils.ts` | `{ code }` |
-| Qué estado cierra la sesión | `endOnError`, en `apiSessionUtils.ts` | 401 → `expired` |
+| Qué estado cierra la sesión | `endOnError`, en `apiSessionUtils.ts` | 401 da `expired` |
 <!-- kit:if mocks -->
 | La forma de una página | El schema de página de `commonSchema.ts` y las páginas de los `*Mocks.json` | `{ items, page, pageSize, totalItems, totalPages }` |
 <!-- kit:else -->

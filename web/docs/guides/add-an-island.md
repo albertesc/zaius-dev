@@ -15,7 +15,7 @@ Lo que guarda sale de la gestión de una reserva, ACCOUNT-BOOKINGS-EDIT.
 **En esta página:**
 
 - [1. ¿Hace falta una isla?](#1-hace-falta-una-isla)
-- [2. React y el sitio](#2-react-y-el-sitio): [Con la primera isla](#con-la-primera-isla) · [El nombre y el sitio](#el-nombre-y-el-sitio)
+- [2. React y el sitio](#2-react-y-el-sitio): [Con la primera isla](#con-la-primera-isla), [El nombre y el sitio](#el-nombre-y-el-sitio)
 - [3. La directiva](#3-la-directiva)
 - [4. Las props](#4-las-props)
 <!-- kit:if privateArea -->
@@ -171,11 +171,11 @@ en verde. Las islas siguientes ya lo tienen todo.
 
 ```text
 src/
-├── components/
-│   ├── RoomsSearch.module.css
-│   ├── RoomsSearch.test.tsx
-│   └── RoomsSearch.tsx
-└── pages/rooms.astro                  la página que la pinta
+    components/
+        RoomsSearch.module.css
+        RoomsSearch.test.tsx
+        RoomsSearch.tsx
+    pages/rooms.astro                  la página que la pinta
 ```
 
 ## 3. La directiva
@@ -198,21 +198,15 @@ import { RoomsSearch } from '@/components/RoomsSearch'
 import { ROOMS } from '@/constants/rooms'
 
 const rooms = ROOMS.map(({ slug, name, capacity, pricePerNight }) => ({ slug, name, capacity, pricePerNight }))
-<!-- kit:if i18n -->
 const labels = {
   arrival: t('rooms.search.arrival'),
   departure: t('rooms.search.departure'),
   guests: t('rooms.search.guests'),
   empty: t('rooms.search.empty'),
 }
-<!-- kit:end -->
 ---
 
-<!-- kit:if i18n -->
 <RoomsSearch client:visible rooms={rooms} labels={labels} />
-<!-- kit:else -->
-<RoomsSearch client:visible rooms={rooms} />
-<!-- kit:end -->
 ```
 
 - **Sin directiva no es una isla:** se pinta en el servidor y no hace nada en
@@ -255,13 +249,9 @@ escribe en el HTML para pasárselo al navegador. Por eso:
   directo o a través de otro fichero. Lo mira la revisión
   ([Qué se revisa](../standards.md#qué-se-revisa)). Los utils puros sí:
   corren igual en el navegador.
-<!-- kit:if i18n -->
 - **Los textos le llegan traducidos:** la isla no usa i18n. La página le pasa
   cada uno con `t()` (`labels`), con las claves de su página
   ([Textos (i18n)](../naming.md#textos-i18n)).
-<!-- kit:else -->
-- **Los textos van escritos en la isla,** como en cualquier componente.
-<!-- kit:end -->
 
 La isla, en `src/components/RoomsSearch.tsx`:
 
@@ -274,16 +264,10 @@ import styles from './RoomsSearch.module.css'
 
 interface RoomsSearchProps {
   rooms: Array<{ slug: string, name: string, capacity: number, pricePerNight: number }>
-<!-- kit:if i18n -->
   labels: { arrival: string, departure: string, guests: string, empty: string }
-<!-- kit:end -->
 }
 
-<!-- kit:if i18n -->
 export function RoomsSearch ({ rooms, labels }: RoomsSearchProps) {
-<!-- kit:else -->
-export function RoomsSearch ({ rooms }: RoomsSearchProps) {
-<!-- kit:end -->
   const [arrival, setArrival] = useState('')
   const [departure, setDeparture] = useState('')
   const [guests, setGuests] = useState(2)
@@ -295,39 +279,23 @@ export function RoomsSearch ({ rooms }: RoomsSearchProps) {
   return (
     <div className={styles.search}>
       <label>
-<!-- kit:if i18n -->
         {labels.arrival}
-<!-- kit:else -->
-        Llegada
-<!-- kit:end -->
         <input type='date' value={arrival} onChange={(event) => setArrival(event.target.value)} />
       </label>
       <label>
-<!-- kit:if i18n -->
         {labels.departure}
-<!-- kit:else -->
-        Salida
-<!-- kit:end -->
         <input type='date' value={departure} onChange={(event) => setDeparture(event.target.value)} />
       </label>
       <label>
-<!-- kit:if i18n -->
         {labels.guests}
-<!-- kit:else -->
-        Personas
-<!-- kit:end -->
         <input type='number' min={1} value={guests} onChange={(event) => setGuests(Number(event.target.value))} />
       </label>
-<!-- kit:if i18n -->
       {isEmpty ? <p>{labels.empty}</p> : null}
-<!-- kit:else -->
-      {isEmpty ? <p>Ninguna habitación para tantas personas</p> : null}
-<!-- kit:end -->
       <ul>
         {fittingRooms.map((room) => (
           <li key={room.slug}>
             {room.name}
-            {hasNights ? ` · ${formatUtils.formatPrice(roomPriceUtils.buildRoomStayPrice(room, nights))}` : null}
+            {hasNights ? <span className={styles.price}>{formatUtils.formatPrice(roomPriceUtils.buildRoomStayPrice(room, nights))}</span> : null}
           </li>
         ))}
       </ul>
@@ -341,6 +309,9 @@ export function RoomsSearch ({ rooms }: RoomsSearchProps) {
 - **Las cuentas, en utils puros,** con su test: las noches
   (`dateUtils.countNights`) y el precio (`roomPriceUtils.buildRoomStayPrice`).
   La isla solo pinta lo que dan.
+- **El precio, en su elemento:** lo separa del nombre el diseño
+  (`styles.price`), no un carácter
+  ([D11](../ux-ui/rules.md#d11-textos-y-formato)).
 - **El vacío dice que no hay ninguna,** sin punto
   ([D3](../ux-ui/rules.md#d3-estados-de-carga-error-y-vacío)).
 
@@ -426,41 +397,37 @@ página, y la usa con `userEvent`, como una persona:
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it } from 'vitest'
+import { testUtils } from '@/tests/testUtils'
 import { RoomsSearch } from './RoomsSearch'
 
 const ROOMS = [
   { slug: 'encina', name: 'La Encina', capacity: 2, pricePerNight: 85 },
   { slug: 'roble', name: 'El Roble', capacity: 4, pricePerNight: 140 },
 ]
-<!-- kit:if i18n -->
-const LABELS = { arrival: 'Llegada', departure: 'Salida', guests: 'Personas', empty: 'Ninguna habitación para tantas personas' }
-<!-- kit:end -->
+const LABELS = {
+  arrival: testUtils.translate('rooms.search.arrival'),
+  departure: testUtils.translate('rooms.search.departure'),
+  guests: testUtils.translate('rooms.search.guests'),
+  empty: testUtils.translate('rooms.search.empty'),
+}
 
 describe('RoomsSearch', () => {
   it('deja solo las habitaciones en las que caben las personas', async () => {
     const user = userEvent.setup()
-<!-- kit:if i18n -->
     render(<RoomsSearch rooms={ROOMS} labels={LABELS} />)
-<!-- kit:else -->
-    render(<RoomsSearch rooms={ROOMS} />)
-<!-- kit:end -->
 
-    await user.clear(screen.getByRole('spinbutton', { name: 'Personas' }))
-    await user.type(screen.getByRole('spinbutton', { name: 'Personas' }), '4')
+    await user.clear(screen.getByRole('spinbutton', { name: LABELS.guests }))
+    await user.type(screen.getByRole('spinbutton', { name: LABELS.guests }), '4')
 
     expect(screen.getAllByRole('listitem').map((item) => item.textContent)).toEqual(['El Roble'])
   })
 
   it('da el precio de la estancia con las fechas elegidas', async () => {
     const user = userEvent.setup()
-<!-- kit:if i18n -->
     render(<RoomsSearch rooms={ROOMS} labels={LABELS} />)
-<!-- kit:else -->
-    render(<RoomsSearch rooms={ROOMS} />)
-<!-- kit:end -->
 
-    await user.type(screen.getByLabelText('Llegada'), '2026-11-03')
-    await user.type(screen.getByLabelText('Salida'), '2026-11-05')
+    await user.type(screen.getByLabelText(LABELS.arrival), '2026-11-03')
+    await user.type(screen.getByLabelText(LABELS.departure), '2026-11-05')
 
     expect(screen.getByText(/La Encina/)).toHaveTextContent('170')
   })

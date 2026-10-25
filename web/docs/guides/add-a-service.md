@@ -31,7 +31,7 @@ proyecto están en
 - [5. La página que lo pide](#5-la-página-que-lo-pide)
 - [6. Los tests](#6-los-tests)
 - [La llamada terminada](#la-llamada-terminada)
-- **Casos especiales:** [Subir y descargar ficheros](#subir-y-descargar-ficheros) · [Errores de la API](#errores-de-la-api)
+- **Casos especiales:** [Subir y descargar ficheros](#subir-y-descargar-ficheros), [Errores de la API](#errores-de-la-api)
 - [Puntos de adaptación a la API](#puntos-de-adaptación-a-la-api)
 - [Errores comunes](#errores-comunes)
 
@@ -121,7 +121,7 @@ export type BookingsAvailability = z.infer<typeof bookingsAvailabilitySchema>
   tiene en `ROOMS` (`src/constants/rooms.ts`): la API da las noches libres, y
   la web, el nombre, las fotos y el precio.
 - **Un campo que la API manda `null`** pero que se usa como recuento, lista o
-  texto se normaliza aquí con `.transform` (`null` → `0`, `[]` o `''`): una
+  texto se normaliza aquí con `.transform` (`null` pasa a `0`, `[]` o `''`): una
   habitación sin noches libres llega con `freeDates: []`, y nadie más tiene
   que comprobarlo.
 - **Un enumerado numérico de la API** se declara como objeto `as const` con
@@ -220,7 +220,7 @@ mocks de su service, al lado del service:
   "GET /booking/detail/1287": { "id": 1287, "roomSlug": "encina", "arrivalDate": "2026-11-03", "departureDate": "2026-11-05", "guests": 2, "status": 1, "arrivalTime": "18:00", "note": "Llegamos con un perro pequeño." },
   "GET /booking/detail/:id": { "id": 1288, "roomSlug": "roble", "arrivalDate": "2026-12-26", "departureDate": "2026-12-30", "guests": 4, "status": 0, "arrivalTime": null, "note": null },
   "PUT /booking/cancel/:id": null,
-  "GET /booking/invoice/:id": "Casa del Roble · Factura de la reserva #1287",
+  "GET /booking/invoice/:id": "Casa del Roble, factura de la reserva #1287",
 <!-- kit:end -->
   "GET /booking/availability": {
     "from": "2026-11-01",
@@ -370,11 +370,11 @@ Con las piezas que nombra esta guía, `getBookingsAvailability` queda así en
 
 ```text
 services/bookings/
-├── bookingsService.ts                   getBookingsAvailability
-├── bookingsService.test.ts              su it, contra el mock
-├── bookingsAvailabilitySchema.ts        bookingsAvailabilitySchema y el tipo BookingsAvailability
-├── bookingsAvailabilitySchema.test.ts   acepta su mock y rechaza lo que no tiene su forma
-└── bookingsMocks.json                   "GET /booking/availability": la respuesta, con la forma real de la API
+    bookingsService.ts                   getBookingsAvailability
+    bookingsService.test.ts              su it, contra el mock
+    bookingsAvailabilitySchema.ts        bookingsAvailabilitySchema y el tipo BookingsAvailability
+    bookingsAvailabilitySchema.test.ts   acepta su mock y rechaza lo que no tiene su forma
+    bookingsMocks.json                   "GET /booking/availability": la respuesta, con la forma real de la API
 ```
 
 La llamada no está en `services/`: la hace la página que pide el dato, ROOMS
@@ -500,7 +500,6 @@ try {
 }
 ```
 
-<!-- kit:if i18n -->
 La página lee el resultado
 (`Astro.getActionResult(actions.account.cancelBooking)`) y pasa su `error` al
 modal (`BookingCancelModal.astro`), que pinta el aviso al final del cuerpo,
@@ -516,28 +515,6 @@ const isTooLate = error?.code === 'CONFLICT'
 
 {hasFailure ? <PageAlert tone='error' title={t('booking.cancel.failure')}>{isTooLate ? t('booking.cancel.failureTooLate') : t('common.failure.generic')}</PageAlert> : null}
 ```
-<!-- kit:else -->
-La página lee el resultado
-(`Astro.getActionResult(actions.account.cancelBooking)`) y pasa su `error` al
-modal (`BookingCancelModal.astro`), que escribe sus textos: al final del
-cuerpo, encima del pie, el título fijo de la acción y la descripción que
-toca. El modal sigue abierto ([D9](../ux-ui/rules.md#d9-modales)):
-
-```astro
----
-const hasFailure = error !== undefined
-const isTooLate = error?.code === 'CONFLICT'
----
-
-{hasFailure
-  ? (
-    <PageAlert tone='error' title='No se ha podido cancelar la reserva'>
-      {isTooLate ? 'Ya ha pasado el plazo para cancelarla: llámanos y lo vemos.' : 'Vuelve a intentarlo dentro de un rato.'}
-    </PageAlert>
-    )
-  : null}
-```
-<!-- kit:end -->
 
 Qué hace un guardado con un fallo, en general:
 [El fallo del guardado](./load-and-save-data.md#2-el-fallo-del-guardado).
@@ -562,7 +539,7 @@ resto de la web no se entera:
 | La forma del cuerpo de error | `readErrorCode`, en `apiErrorUtils.ts` | `{ code }` |
 <!-- kit:if privateArea -->
 | Cómo va el token | `getHeaders`, en `apiUtils.ts` | `Authorization: Bearer <token>`, si hay sesión |
-| Qué estado cierra la sesión | `endOnError`, en `apiSessionUtils.ts` | 401 → `expired` |
+| Qué estado cierra la sesión | `endOnError`, en `apiSessionUtils.ts` | 401 da `expired` |
 | La forma de una página | El schema de página de `commonSchema.ts` y las páginas de los `*Mocks.json` | `{ items, page, pageSize, totalItems, totalPages }` |
 <!-- kit:end -->
 

@@ -1,10 +1,12 @@
 <!doctype html>
 <!-- Arranque de esta plantilla, además del de zaius-sketch: data-motion, el nivel de «Movimiento» del sistema de diseño (none, subtle o rich); con rich, lo que entra al llegar a ello lleva data-reveal, y la plantilla ya lo anima y respeta «reducir movimiento». Para una pantalla de trabajo (la zona privada, un formulario largo), el marco es el mismo, con una sola columna. -->
-<html lang="%%DEFAULT_LANGUAGE%%" data-fidelity="high" data-width="mobile" data-theme="light" data-state="content" data-motion="subtle">
+<!-- Fotos de muestra: https://unsplash.com/photos/a-stone-building-with-a-tree-in-front-of-it-uzQPblEd7_c -->
+<html lang="%%DEFAULT_LANGUAGE%%" data-width="mobile" data-theme="light" data-state="content" data-motion="subtle">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Boceto · Portada · %%APP_NAME%%</title>
+  <!-- La letra de la identidad, de Google Fonts: <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=<Familia>:wght@400;700&display=swap"> -->
+  <title>Boceto de la portada - %%APP_NAME%%</title>
   <style>
     :root {
       --brand: #1d4ed8;
@@ -14,31 +16,59 @@
       --surface: #ffffff;
       --surface-alt: #f3f4f6;
       --border: #d1d5db;
-      --line: solid;
       --font: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
       --font-display: var(--font);
+      --font-display-weight: 700;
       --radius: 6px;
       --space: 8px;
       --motion-fast: 200ms;
       --motion-slow: 600ms;
       --motion-ease: cubic-bezier(0.2, 0, 0, 1);
-      --width-desktop: 1280px;
       --width-mobile: 360px;
-      --toolbar: #111827;
-      --toolbar-text: #f9fafb;
+      --width-tablet: 768px;
+      --width-desktop: 1280px;
+      --bar-accent: var(--brand);
+      --bar-accent-text: var(--brand-text);
+      --bar-text: var(--text);
+      --bar-muted: var(--text-muted);
+      --bar-surface: var(--surface);
+      --bar-track: var(--surface-alt);
+      --bar-border: var(--border);
+      --bar-font: var(--font);
+      --bar-radius: min(var(--radius), 12px);
+      --stage: color-mix(in srgb, var(--bar-text) 8%, var(--bar-surface));
     }
     [data-theme='dark'] { --text: #f3f4f6; --text-muted: #9ca3af; --surface: #111827; --surface-alt: #1f2937; --border: #374151; }
-    [data-fidelity='mid'] { --brand: #4b5563; }
-    [data-fidelity='low'] { --brand: #9ca3af; --brand-text: #111827; --font: system-ui, sans-serif; --font-display: var(--font); --radius: 0; --line: dashed; }
     * { box-sizing: border-box; }
-    body { margin: 0; background: var(--surface-alt); font-family: var(--font); color: var(--text); }
-    .toolbar { position: sticky; top: 0; z-index: 1; display: flex; flex-wrap: wrap; gap: calc(var(--space) * 2); align-items: center; padding: var(--space) calc(var(--space) * 2); background: var(--toolbar); color: var(--toolbar-text); font: 14px system-ui, sans-serif; }
-    .toolbar select { margin-left: 4px; }
-    .stage { overflow-x: auto; padding: calc(var(--space) * 3); }
-    .mockup { margin: 0 auto; width: var(--width-desktop); background: var(--surface); border: 1px var(--line) var(--border); }
-    [data-width='mobile'] .mockup { width: var(--width-mobile); }
-    .site-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space); padding: calc(var(--space) * 2) calc(var(--space) * 4); border-bottom: 1px var(--line) var(--border); }
-    .logo { font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+    body { margin: 0; background: var(--bar-surface); color: var(--bar-text); font-family: var(--bar-font); }
+    [data-width='mobile'] body, [data-width='tablet'] body { background: var(--stage); }
+    .bar { position: sticky; top: 0; z-index: 10; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 32px; padding: 12px 24px; border-bottom: 1px solid var(--bar-border); background: color-mix(in srgb, var(--bar-surface) 88%, transparent); backdrop-filter: blur(12px); font: 14px/1.3 var(--bar-font); }
+    .bar-title { display: flex; align-items: center; gap: 10px; margin: 0; }
+    .bar-title::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--bar-accent); }
+    .bar-title span { color: var(--bar-muted); }
+    .bar-controls { display: flex; flex-wrap: wrap; gap: 8px 16px; }
+    .control { display: flex; align-items: center; gap: 8px; }
+    .control-label { color: var(--bar-muted); font-size: 13px; }
+    .segmented { display: flex; gap: 2px; padding: 3px; border-radius: calc(var(--bar-radius) + 3px); background: var(--bar-track); }
+    .segmented label { position: relative; }
+    .segmented input { position: absolute; inset: 0; margin: 0; opacity: 0; cursor: pointer; }
+    .segmented span { display: block; padding: 6px 10px; border-radius: var(--bar-radius); color: var(--bar-muted); white-space: nowrap; transition: background-color 150ms, color 150ms; }
+    .segmented label:hover span { color: var(--bar-text); }
+    .segmented input:checked + span { background: var(--bar-accent); color: var(--bar-accent-text); }
+    .segmented input:focus-visible + span { outline: 2px solid var(--bar-accent); outline-offset: 2px; }
+    @media (max-width: 720px) {
+      .bar { padding: 10px 16px; }
+      .bar-controls { flex-wrap: nowrap; width: calc(100% + 32px); margin: 0 -16px; padding: 0 16px 2px; overflow-x: auto; scrollbar-width: none; }
+    }
+    .stage { overflow-x: auto; }
+    .mockup { width: 100%; min-width: var(--width-desktop); background: var(--surface); color: var(--text); font-family: var(--font); }
+    [data-width='mobile'] { --frame: var(--width-mobile); }
+    [data-width='tablet'] { --frame: var(--width-tablet); }
+    [data-width='mobile'] .stage, [data-width='tablet'] .stage { padding: 32px max(0px, min(24px, (100% - var(--frame)) / 2)) 48px; }
+    [data-width='mobile'] .mockup, [data-width='tablet'] .mockup { width: var(--frame); min-width: 0; margin: 0 auto; overflow: clip; border-radius: calc(var(--bar-radius) * 2); box-shadow: 0 0 0 1px color-mix(in srgb, var(--bar-text) 10%, transparent), 0 16px 40px color-mix(in srgb, var(--bar-text) 14%, transparent); }
+    .site-header { display: flex; align-items: center; justify-content: space-between; gap: var(--space); padding: calc(var(--space) * 2) calc(var(--space) * 4); border-bottom: 1px solid var(--border); }
+    .logo { display: flex; align-items: center; gap: var(--space); font-family: var(--font-display); font-weight: var(--font-display-weight); font-size: 20px; }
+    .logo-mark { width: 28px; height: 28px; fill: var(--brand); }
     .site-nav { display: flex; gap: calc(var(--space) * 3); }
     .site-nav a { color: inherit; text-decoration: none; }
     .menu-button { display: none; }
@@ -48,52 +78,80 @@
     .band { padding: calc(var(--space) * 8) calc(var(--space) * 4); display: flex; flex-direction: column; gap: calc(var(--space) * 2); }
     [data-width='mobile'] .band { padding: calc(var(--space) * 5) calc(var(--space) * 2); }
     .band--alt { background: var(--surface-alt); }
-    .hero { display: grid; grid-template-columns: 1fr 1fr; gap: calc(var(--space) * 4); align-items: center; }
+    .hero { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--space) * 4); align-items: center; }
     [data-width='mobile'] .hero { grid-template-columns: 1fr; }
     .hero-text { display: flex; flex-direction: column; gap: calc(var(--space) * 2); }
-    h1, h2 { margin: 0; font-family: var(--font-display); line-height: 1.15; }
+    h1, h2 { margin: 0; font-family: var(--font-display); font-weight: var(--font-display-weight); line-height: 1.15; }
     h1 { font-size: 44px; }
     [data-width='mobile'] h1 { font-size: 32px; }
     h2 { font-size: 28px; }
     p { margin: 0; line-height: 1.55; }
     .lead { color: var(--text-muted); font-size: 18px; }
-    .image { aspect-ratio: 4 / 3; border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface-alt); display: grid; place-items: center; color: var(--text-muted); font-size: 14px; }
-    .cta { display: inline-block; align-self: flex-start; padding: calc(var(--space) * 1.5) calc(var(--space) * 3); border: 1px var(--line) var(--brand); border-radius: var(--radius); background: var(--brand); color: var(--brand-text); font-weight: 600; text-decoration: none; }
-    .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: calc(var(--space) * 2); }
+    .photo { aspect-ratio: 3 / 2; overflow: hidden; border-radius: var(--radius); background: color-mix(in srgb, var(--text) 12%, var(--surface)); }
+    .photo img { display: block; width: 100%; height: 100%; object-fit: cover; color: var(--text-muted); font-size: 14px; }
+    .cta { display: inline-block; align-self: flex-start; padding: calc(var(--space) * 1.5) calc(var(--space) * 3); border: 1px solid var(--brand); border-radius: var(--radius); background: var(--brand); color: var(--brand-text); font-weight: 600; text-decoration: none; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: calc(var(--space) * 2); }
     [data-width='mobile'] .cards { grid-template-columns: 1fr; }
-    .card { display: flex; flex-direction: column; gap: var(--space); padding: calc(var(--space) * 2.5); border: 1px var(--line) var(--border); border-radius: var(--radius); background: var(--surface); }
+    .card { display: flex; flex-direction: column; gap: var(--space); padding: calc(var(--space) * 2.5); border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+    .card { color: inherit; text-decoration: none; }
     .card strong { font-size: 20px; }
-    .empty { padding: calc(var(--space) * 4); border: 1px var(--line) var(--border); border-radius: var(--radius); text-align: center; color: var(--text-muted); }
-    .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: calc(var(--space) * 2); padding: calc(var(--space) * 4); border-top: 1px var(--line) var(--border); color: var(--text-muted); font-size: 14px; }
+    .empty { padding: calc(var(--space) * 4); border: 1px solid var(--border); border-radius: var(--radius); text-align: center; color: var(--text-muted); }
+    .site-footer { display: flex; flex-wrap: wrap; justify-content: space-between; gap: calc(var(--space) * 2); padding: calc(var(--space) * 4); border-top: 1px solid var(--border); color: var(--text-muted); font-size: 14px; }
     .site-footer nav { display: flex; flex-wrap: wrap; gap: calc(var(--space) * 2); }
     .site-footer a { color: inherit; }
     a:focus-visible, button:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
     [data-for-state][hidden] { display: none; }
-    .cta, .card { transition: transform var(--motion-fast) var(--motion-ease); }
-    .cta:hover, .card:hover { transform: translateY(-2px); }
-    [data-motion='none'] .cta, [data-motion='none'] .card { transition: none; }
+    .site-nav a, .site-footer a, .cta, .card { transition: color var(--motion-fast) var(--motion-ease), border-color var(--motion-fast) var(--motion-ease), transform var(--motion-fast) var(--motion-ease); }
+    .site-nav a:hover, .site-footer a:hover { color: var(--brand); }
+    .cta:hover, .cta:focus-visible { transform: translateY(-2px); }
+    .card:hover, .card:focus-visible { border-color: var(--brand); transform: translateY(-2px); }
+    [data-motion='none'] :is(.site-nav a, .site-footer a, .cta, .card) { transition: none; }
     [data-motion='rich'].has-motion [data-reveal] { opacity: 0; transform: translateY(16px); transition: opacity var(--motion-slow) var(--motion-ease), transform var(--motion-slow) var(--motion-ease); }
     [data-motion='rich'].has-motion [data-reveal].is-visible { opacity: 1; transform: none; }
     @media (prefers-reduced-motion: reduce) {
-      .cta, .card { transition: none; }
-      .cta:hover, .card:hover { transform: none; }
+      .segmented span, .site-nav a, .site-footer a, .cta, .card { transition: none; }
+      .cta:hover, .cta:focus-visible, .card:hover, .card:focus-visible { transform: none; }
       [data-motion='rich'].has-motion [data-reveal] { transform: none; }
     }
   </style>
 </head>
 <body>
-  <header class="toolbar">
-    <strong>Boceto: Portada</strong>
-    <label>Nivel <select data-control="fidelity"><option value="low">Baja</option><option value="mid">Media</option><option value="high">Alta</option></select></label>
-    <label>Ancho <select data-control="width"><option value="mobile">Móvil</option><option value="desktop">Ordenador</option></select></label>
-    <label>Tema <select data-control="theme"><option value="light">Claro</option><option value="dark">Oscuro</option></select></label>
-    <label>Movimiento <select data-control="motion"><option value="none">Nada</option><option value="subtle">Lo justo</option><option value="rich">Vistoso</option></select></label>
-    <label>Estado <select data-control="state"></select></label>
+  <header class="bar">
+    <p class="bar-title"><strong>Portada</strong> <span>Boceto - %%APP_NAME%%</span></p>
+    <div class="bar-controls">
+      <div class="control" role="radiogroup" aria-labelledby="control-width">
+        <span class="control-label" id="control-width">Ancho</span>
+        <span class="segmented">
+          <label><input type="radio" name="width" value="mobile"><span>Móvil</span></label>
+          <label><input type="radio" name="width" value="tablet"><span>Tableta</span></label>
+          <label><input type="radio" name="width" value="desktop"><span>Ordenador</span></label>
+        </span>
+      </div>
+      <div class="control" role="radiogroup" aria-labelledby="control-theme">
+        <span class="control-label" id="control-theme">Tema</span>
+        <span class="segmented">
+          <label><input type="radio" name="theme" value="light"><span>Claro</span></label>
+          <label><input type="radio" name="theme" value="dark"><span>Oscuro</span></label>
+        </span>
+      </div>
+      <div class="control" role="radiogroup" aria-labelledby="control-motion">
+        <span class="control-label" id="control-motion">Movimiento</span>
+        <span class="segmented">
+          <label><input type="radio" name="motion" value="none"><span>Nada</span></label>
+          <label><input type="radio" name="motion" value="subtle"><span>Lo justo</span></label>
+          <label><input type="radio" name="motion" value="rich"><span>Vistoso</span></label>
+        </span>
+      </div>
+      <div class="control" role="radiogroup" aria-labelledby="control-state" data-states>
+        <span class="control-label" id="control-state">Estado</span>
+        <span class="segmented"></span>
+      </div>
+    </div>
   </header>
   <div class="stage">
     <div class="mockup">
       <header class="site-header">
-        <span class="logo">%%APP_NAME%%</span>
+        <span class="logo"><svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c4.4 0 8 2.9 8 6.5H4C4 5.9 7.6 3 12 3Z"/><path d="M5.5 11h13c0 5.5-3 10-6.5 10s-6.5-4.5-6.5-10Z" opacity=".6"/></svg>%%APP_NAME%%</span>
         <nav class="site-nav" aria-label="Menú">
           <a href="#">Habitaciones</a>
           <a href="#">El entorno</a>
@@ -108,14 +166,14 @@
             <p class="lead">Cuatro habitaciones con chimenea, a una hora de la ciudad, con el desayuno del pueblo incluido.</p>
             <a class="cta" href="#">Reserva tus fechas</a>
           </div>
-          <div class="image" data-reveal>Foto de la casa · 4:3</div>
+          <div class="photo" data-reveal><img src="https://images.unsplash.com/photo-1637600425561-018a24d55095?w=1600&q=80&auto=format&fit=crop" width="1600" height="1067" alt="El muro de piedra de la casa, entre las hojas de un árbol"></div>
         </section>
         <section class="band band--alt">
           <h2 data-reveal>Las habitaciones</h2>
           <div data-for-state="content" data-label="Con habitaciones" class="cards">
-            <article class="card" data-reveal><span>La Solana</span><strong>85 € la noche</strong><p>Para 2 personas, con vistas al robledal.</p></article>
-            <article class="card" data-reveal><span>El Pajar</span><strong>120 € la noche</strong><p>Para 4 personas, con chimenea.</p></article>
-            <article class="card" data-reveal><span>El Desván</span><strong>140 € la noche</strong><p>Para 5 personas, bajo las vigas.</p></article>
+            <a class="card" href="#" data-reveal><span>La Solana</span><strong>85 € la noche</strong><p>Para 2 personas, con vistas al robledal.</p></a>
+            <a class="card" href="#" data-reveal><span>El Pajar</span><strong>120 € la noche</strong><p>Para 4 personas, con chimenea.</p></a>
+            <a class="card" href="#" data-reveal><span>El Desván</span><strong>140 € la noche</strong><p>Para 5 personas, bajo las vigas.</p></a>
           </div>
           <div data-for-state="empty" data-label="Sin habitaciones" class="empty">Todavía no hay habitaciones.</div>
         </section>
@@ -129,9 +187,15 @@
   <script>
     const root = document.documentElement
     const sections = [...document.querySelectorAll('[data-for-state]')]
-    const stateControl = document.querySelector('[data-control="state"]')
-    for (const section of sections) stateControl.add(new Option(section.dataset.label, section.dataset.forState))
-    if (sections.length === 0) stateControl.closest('label').remove()
+    const states = document.querySelector('[data-states]')
+    for (const section of sections) {
+      const option = document.createElement('label')
+      option.innerHTML = '<input type="radio" name="state"><span></span>'
+      option.firstChild.value = section.dataset.forState
+      option.lastChild.textContent = section.dataset.label
+      states.querySelector('.segmented').append(option)
+    }
+    if (sections.length === 0) states.remove()
     const showState = () => sections.forEach((section) => { section.hidden = section.dataset.forState !== root.dataset.state })
     const revealed = [...document.querySelectorAll('[data-reveal]')]
     const observer = new IntersectionObserver((entries) => {
@@ -143,12 +207,12 @@
       }
     })
     const replayReveal = () => revealed.forEach((element) => { element.classList.remove('is-visible'); observer.observe(element) })
-    for (const control of document.querySelectorAll('[data-control]')) {
-      control.value = root.dataset[control.dataset.control]
-      control.addEventListener('change', () => {
-        root.dataset[control.dataset.control] = control.value
+    for (const input of document.querySelectorAll('.bar input')) {
+      input.checked = input.value === root.dataset[input.name]
+      input.addEventListener('change', () => {
+        root.dataset[input.name] = input.value
         showState()
-        if (control.dataset.control === 'motion') requestAnimationFrame(replayReveal)
+        if (input.name === 'motion') requestAnimationFrame(replayReveal)
       })
     }
     root.classList.add('has-motion')

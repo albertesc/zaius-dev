@@ -37,8 +37,12 @@ disable-model-invocation: true
    tipos, lint y tests en verde, y el nombre viejo no sale en ningún sitio.
    Espera el OK del plan.
 4. **Cada bloque,** con su OK:
+<!-- kit:if git -->
    - **mueve con `git mv`** cada fichero y cada carpeta, para conservar su
      historia;
+<!-- kit:else -->
+   - **mueve** cada fichero y cada carpeta;
+<!-- kit:end -->
    - **cambia lo que exporta** cada fichero y cada import que lo usa, también
      en los tests;
    - lo demás que arrastra, como dice «Revisar los nombres» (las rutas, el
@@ -52,7 +56,11 @@ disable-model-invocation: true
 
 - [ ] La tabla, con la regla de cada nombre y lo que arrastra.
 - [ ] Ninguna URL cambiada sin el OK de la persona.
+<!-- kit:if git -->
 - [ ] Cada bloque, con `git mv`, sus imports, sus textos y sus documentos.
+<!-- kit:else -->
+- [ ] Cada bloque, con sus imports, sus textos y sus documentos.
+<!-- kit:end -->
 - [ ] El nombre viejo no sale en ningún sitio.
 - [ ] Tipos, lint y tests, en verde después de cada bloque.
 

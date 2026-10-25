@@ -9,11 +9,7 @@
     "typescript": "~6.0.2",
     "vitest": "^5.0.1"
   },
-  "when": {
-    "i18n": {
-      "dependencies": {
-        "i18next": "^26.5.2"
-      }
-    }
+  "dependencies": {
+    "i18next": "^26.5.2"
   }
 }

@@ -6,9 +6,9 @@ import { after, describe, it } from 'node:test'
 import { hashContent } from './projectManifest.mjs'
 import { buildStatusReport, getProjectStatus, isOlderVersion } from './projectStatus.mjs'
 
-const answers = { existing: false, type: 'app', name: 'Pedidos', packageManager: 'pnpm', i18n: true, languages: ['es', 'ca'], server: null, content: null, privateArea: null, api: true, mocks: false }
+const answers = { existing: false, type: 'app', name: 'Pedidos', packageManager: 'pnpm', git: true, i18n: true, languages: ['es', 'ca'], server: null, content: null, privateArea: null, backend: true, mocks: false }
 
-const webAnswers = { ...answers, type: 'web', server: true, content: false, privateArea: true, backend: true, platform: 'vercel', api: null, mocks: null }
+const webAnswers = { ...answers, type: 'web', server: true, content: false, privateArea: true, backend: true, platform: 'vercel', mocks: null }
 
 describe('getProjectStatus', () => {
   let projectDir
@@ -36,8 +36,8 @@ describe('buildStatusReport', () => {
 
     assert.match(report, /hay una versión nueva: 0\.2\.0; «npx github:albertesc\/zaius-dev#v0\.2\.0 update»/)
     assert.match(report, /Carpeta del kit: \/kits\/zaius-dev/)
-    assert.match(report, /Proyecto: Pedidos · nuevo · gestor de paquetes: pnpm\nTipo: app \(React\) · API: sí · mocks: no\n/)
-    assert.match(report, /Idiomas: es, ca · multiidioma: sí\n/)
+    assert.match(report, /Proyecto: Pedidos \(nuevo\)\. Gestor de paquetes: pnpm\. Git: sí\.\nTipo: app \(React\)\. API: sí\. Mocks: no\.\n/)
+    assert.match(report, /Idiomas: es, ca\. Multiidioma: sí\.\n/)
     assert.match(report, /cambiado:\n {2}AGENTS\.md\nFicheros del kit que faltan:\n {2}ninguno/)
   })
 
@@ -46,15 +46,15 @@ describe('buildStatusReport', () => {
     const report = buildStatusReport({ kitVersion: '0.1.0', answers: webAnswers }, { changed: [], missing: [], kitNew: [] }, kit).join('\n')
     const publicReport = buildStatusReport({ kitVersion: '0.1.0', answers: { ...webAnswers, server: false, content: true, privateArea: false, backend: false } }, { changed: [], missing: [], kitNew: [] }, kit).join('\n')
 
-    assert.match(report, /\nTipo: web \(Astro\) · servidor: sí, en vercel · blog: no · API: sí · zona privada: sí\nIdiomas/)
-    assert.match(publicReport, /Tipo: web \(Astro\) · servidor: no · blog: sí · API: no · zona privada: no/)
+    assert.match(report, /\nTipo: web \(Astro\)\. Servidor: sí, en vercel\. Blog: no\. API: sí\. Zona privada: sí\.\nIdiomas/)
+    assert.match(publicReport, /Tipo: web \(Astro\)\. Servidor: no\. Blog: sí\. API: no\. Zona privada: no\./)
     assert.doesNotMatch(report, /mocks/)
   })
 
   it('dice si el proyecto existe y sigue en migración', () => {
     const report = buildStatusReport({ kitVersion: '0.1.0', answers: { ...answers, existing: true } }, { changed: [], missing: [], kitNew: [] }, { version: '0.1.0', dir: '/kits/zaius-dev', run: 'zaius-dev' })
 
-    assert.match(report[2], /Proyecto: Pedidos · existente, en migración/)
+    assert.match(report[2], /Proyecto: Pedidos \(existente, en migración\)/)
   })
 
   it('dice que está al día con la misma versión', () => {

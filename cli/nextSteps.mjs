@@ -11,9 +11,10 @@ export function buildNextSteps (answers, kitRun, folder = null) {
   const steps = answers.existing
     ? [
         '1. Abre la IA en esta carpeta (claude u opencode).',
-        '2. Escribe /zaius-init',
-        '   (en opencode: «usa la skill zaius-init»).',
-        `   Te preguntará por la ${web ? 'web' : 'app'} y por cómo se verá, y después`,
+        `2. Escribe /zaius-init y, detrás, de qué va la ${web ? 'web' : 'app'}, con`,
+        '   tus palabras: la plantilla está en el README, «Contar de qué va»',
+        '   (en opencode: «usa la skill zaius-init» y lo mismo).',
+        '   Te preguntará lo que falte y por cómo se verá, y después',
         '   analizará el proyecto y propondrá cómo traerlo, por bloques.',
         '   Hasta entonces, la IA no empezará ninguna otra tarea.',
         '3. Revisa con la IA los ficheros .kit-new: son las versiones',
@@ -24,9 +25,10 @@ export function buildNextSteps (answers, kitRun, folder = null) {
       ]
     : [
         '1. Abre la IA en esta carpeta (claude u opencode).',
-        '2. Escribe /zaius-init',
-        '   (en opencode: «usa la skill zaius-init»).',
-        `   Te preguntará por la ${web ? 'web' : 'app'} y por cómo se verá, y lo dejará`,
+        `2. Escribe /zaius-init y, detrás, de qué va la ${web ? 'web' : 'app'}, con`,
+        '   tus palabras: la plantilla está en el README, «Contar de qué va»',
+        '   (en opencode: «usa la skill zaius-init» y lo mismo).',
+        '   Te preguntará lo que falte y cómo se verá, y lo dejará',
         '   escrito, con una guía visual; no hace falta saber programar.',
         `3. /zaius-backlog: ${web ? 'las páginas y el mapa del sitio' : 'las épicas y las historias de usuario'}.`,
         `4. Para cada ${web ? 'página' : 'historia'}, tres pasos, y cada uno espera tu OK:`,
@@ -35,6 +37,13 @@ export function buildNextSteps (answers, kitRun, folder = null) {
         `   /zaius-review ${unit}  la revisa y, con tu OK, la da por hecha`,
         '5. Mira docs/next-steps.md, en «Dónde estamos»: ahí está siempre',
         '   por dónde va el trabajo, también al abrir una sesión nueva.',
+        ...(answers.git
+          ? [
+              `6. Los commits y los push los haces tú: al cerrar cada ${web ? 'página' : 'historia'}, la IA`,
+              '   te propone el mensaje. /zaius-git conecta el repositorio de',
+              '   GitHub (o GitLab, Bitbucket) y, si lo pides, monta el CI.',
+            ]
+          : []),
       ]
   const commands = answers.existing
     ? []

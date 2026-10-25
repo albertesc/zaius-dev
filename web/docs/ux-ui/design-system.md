@@ -2,13 +2,26 @@
 
 > Pendiente de definir: lo rellena la skill `zaius-init`.
 
-Con qué se construyen las páginas de %%APP_NAME%%: la librería, los tokens y
-qué pieza cumple cada papel que nombran las [normas](./rules.md). Las normas
-dicen cómo se comporta una página; este documento, con qué piezas se hace.
+Con qué se construyen las páginas de %%APP_NAME%%: su identidad, la librería,
+los tokens y qué pieza cumple cada papel que nombran las
+[normas](./rules.md). Las normas dicen cómo se comporta una página; este
+documento, con qué piezas se hace.
 Una vez escrito, se cambia con una propuesta
 ([Cómo se cambia el diseño](./README.md#cómo-se-cambia-el-diseño)).
 
-**En esta página:** [Librería y cómo se monta](#librería-y-cómo-se-monta) · [Tokens](#tokens) · [Anchos](#anchos) · [Tema](#tema) · [Movimiento](#movimiento) · [Iconos](#iconos) · [Bocetos](#bocetos) · [Piezas por papel](#piezas-por-papel) · [Lo que falta](#lo-que-falta)
+**En esta página:** [Identidad](#identidad), [Librería y cómo se monta](#librería-y-cómo-se-monta), [Tokens](#tokens), [Anchos](#anchos), [Tema](#tema), [Movimiento](#movimiento), [Iconos](#iconos), [Bocetos](#bocetos), [Piezas por papel](#piezas-por-papel), [Lo que falta](#lo-que-falta)
+
+## Identidad
+
+Pendiente.
+
+*Lo que hace reconocible a %%APP_NAME%%, elegido entre tres direcciones con
+la skill `zaius-brand`: su idea, en una frase; el logo (dónde está y si es
+provisional); los colores y su papel (uno que domina y un acento); la letra,
+con su papel y cómo se carga; las fotos (qué enseñan, cómo, y si son propias
+o de muestra); la firma, lo único que se recordará; cómo se compone; «Lo
+que no», lo genérico que se evita; y la skill de diseño de la persona, si la
+hay ([Una skill de diseño propia](./README.md#una-skill-de-diseño-propia)).*
 
 ## Librería y cómo se monta
 
@@ -26,7 +39,9 @@ Pendiente.
 *De dónde salen (los de la librería o `src/styles/tokens.css`, importado en
 `src/layouts/BaseLayout.astro`): el color de la marca, la tipografía (y cómo
 se carga: del propio proyecto, nunca de un servidor de fuera sin decirlo), la
-escala de grises, los espacios y los radios. Nunca colores sueltos.*
+escala de grises, los espacios (cada uno con lo que separa: una etiqueta de
+su campo, dentro de un grupo, entre grupos, entre secciones), el ancho
+máximo y los márgenes de la rejilla, y los radios. Nunca colores sueltos.*
 
 ## Anchos
 
@@ -47,7 +62,8 @@ Pendiente.
 Pendiente.
 
 *Cuánto se mueve la web (nada, lo justo o vistoso), sus duraciones y sus
-curvas, como tokens, y que con «reducir movimiento» solo queda un fundido
+curvas, como tokens; cómo responde lo que se pulsa al pasar por encima y con
+el foco; y que con «reducir movimiento» solo queda un fundido
 ([D13](./rules.md#d13-movimiento)).*
 
 ## Iconos
@@ -61,10 +77,10 @@ pasa un icono a una pieza.*
 
 Pendiente.
 
-*El nivel de partida de los bocetos de cada página (baja, media o alta) y la
-guía visual, `mockups/design-system.html`, que enseña las piezas con sus
-colores y su tipografía. Los hace la skill `zaius-sketch`, con los tokens de
-este documento ([Bocetos](./README.md#bocetos)).*
+*La guía visual, `mockups/design-system.html`, la documentación de este
+sistema de diseño (la identidad, los fundamentos, cada pieza con sus estados
+y sus normas, y los cambios), y la fecha en que se aprobó. Los bocetos los hace la skill `zaius-sketch`, con los tokens de este
+documento ([Bocetos](./README.md#bocetos)).*
 
 ## Piezas por papel
 
@@ -115,7 +131,7 @@ página.*
 | Cabecera de página | Pendiente | En la zona privada: título, estado y acciones (D7) |
 | Tabla | Pendiente | Acciones en su cabecera; la cabecera, siempre a la vista (D8) |
 | Buscador | Pendiente | Espera 400 ms si busca en el servidor (D8) |
-| Menú ⋮ | Pendiente | El último de su fila o su tarjeta (D8) |
+| Menú de más acciones | Pendiente | El último de su fila o su tarjeta (D8) |
 | Modal de confirmación | Pendiente | Su título es una pregunta; se bloquea mientras actúa (D9) |
 | Botón destructivo | Pendiente | Al final de su zona (D5) |
 <!-- kit:end -->

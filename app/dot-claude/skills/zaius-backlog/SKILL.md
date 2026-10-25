@@ -28,7 +28,8 @@ después, de una en una, con `/zaius-spec`.
 1. **El brief:** si su cabecera no dice «Estado: aprobado el …», para:
    primero, `/zaius-init`.
 2. **Lo que se pide:** sin historias en el backlog, se escribe entero, desde
-   el paso 1. Con historias, es un cambio:
+   el paso 1. Si está «por aprobar», se sigue desde el OK (paso 4): enséñalo
+   y pregunta. Con historias aprobadas, es un cambio:
    [Cambiar el backlog](#cambiar-el-backlog).
 <!-- kit:if existing -->
 3. **Lo que ya existe:** las historias que el proyecto ya tenía las apunta
@@ -49,6 +50,10 @@ después, de una en una, con `/zaius-spec`.
 
 - **Una línea:** «Como <quién>, quiero <qué>, para <para qué>.» Sin criterios
   ni estimaciones: los criterios llegan con `/zaius-spec`.
+- **El quién, con su nombre:** el tipo de usuario, como lo dice «Quién la
+  usa» en el brief («Como responsable de almacén», «Como cliente») o, si la
+  app tiene un solo tipo, «Como usuario». Nunca una perífrasis como «Como
+  quien usa la app».
 - **Vertical:** atraviesa todo lo que hace falta para usarla (lo que se ve,
   sus datos, lo que se guarda), y al terminarla alguien la puede usar. «La
   tabla de pedidos», sin sus datos, no es una historia; «ver los pedidos de
@@ -88,17 +93,17 @@ después, de una en una, con `/zaius-spec`.
    y ajustadas en él con la persona: así una sesión nueva sigue desde ahí.
    - `docs/backlog.md`, con la forma de su «Cómo se escribe»: el
      «Pendiente» de «Épicas», cambiado por una sección por épica,
-     `### <Épica> · <XXX>`, con una línea por historia y su estado al final:
+     `### <Épica> (<XXX>)`, con una línea por historia y su estado al final:
 
      ```markdown
-     ### Pedidos · ORD
+     ### Pedidos (ORD)
 
-     - **ORD001** Como responsable de almacén, quiero ver los pedidos de mi almacén, para saber cuáles hay que preparar hoy. · pendiente
-     - **ORD002** Como responsable de almacén, quiero filtrar los pedidos por estado, para encontrar los atrasados. Requiere: ORD001 · pendiente
+     - **ORD001** Como responsable de almacén, quiero ver los pedidos de mi almacén, para saber cuáles hay que preparar hoy. Estado: pendiente.
+     - **ORD002** Como responsable de almacén, quiero filtrar los pedidos por estado, para encontrar los atrasados. Requiere: ORD001. Estado: pendiente.
 
-     ### Facturas · INV
+     ### Facturas (INV)
 
-     - **INV001** Como responsable de facturación, quiero facturar un pedido entregado, para cobrarlo. Requiere: ORD001 · pendiente
+     - **INV001** Como responsable de facturación, quiero facturar un pedido entregado, para cobrarlo. Requiere: ORD001. Estado: pendiente.
      ```
 
    - el fichero de cada historia, `docs/specs/<código>-<tema>.md`, con el
@@ -107,12 +112,12 @@ después, de una en una, con `/zaius-spec`.
      más; lo demás lo escribe `/zaius-spec`. Empieza por el código para que
      el `@` las liste (`/zaius-spec @docs/specs/ORD`). «Requiere», en la
      cabecera, solo si lo lleva en el backlog
-     («Épica: Pedidos (ORD) · Requiere: ORD001 · Estado: …»).
+     («Épica: Pedidos (ORD). Requiere: ORD001. Estado: …»).
 
      ```markdown
      # ORD001 Ver los pedidos del almacén
 
-     Épica: Pedidos (ORD) · Estado: pendiente el AAAA-MM-DD
+     Épica: Pedidos (ORD). Estado: pendiente el AAAA-MM-DD
 
      ## Historia
 
@@ -120,11 +125,15 @@ después, de una en una, con `/zaius-spec`.
      saber cuáles hay que preparar hoy.
      ```
 
-4. **El OK:** cuéntale a la persona, en unas líneas, las épicas, cuántas
-   historias hay, la primera y lo que se podrá hacer con ella, y dónde está
-   el backlog. Lo que pida se cambia en el mismo fichero hasta su sí. Con el
-   OK, «Estado: aprobado el AAAA-MM-DD», con su fecha. Las historias siguen
-   «pendiente».
+4. **El OK:** enséñale a la persona en la pantalla el backlog, copiado del
+   fichero tal como ha quedado: cada épica con sus historias, en su orden,
+   con «Requiere» donde lo lleve; sin la explicación de arriba ni «Cómo se
+   escribe», que son para escribirlo. Si para entenderlo hace falta un «cómo
+   leerlo», lo que falta va en el backlog, y se enseña otra vez. Debajo, en
+   una línea, lo que se podrá hacer con la primera. Pregunta si lo aprueba o
+   qué cambia. Lo que pida se cambia en el mismo fichero hasta su sí, y se
+   enseña lo que ha cambiado. Con el OK, «Estado: aprobado el AAAA-MM-DD»,
+   con su fecha. Las historias siguen «pendiente».
 5. **«Dónde estamos»:** el backlog aprobado, con su fecha, y lo siguiente,
    `/zaius-spec ORD001` con la primera historia, que lanza la persona. Para:
    no especifica ninguna historia.
@@ -154,8 +163,9 @@ con la fecha nueva, y «Dónde estamos», al día.
 
 ## Comprobación
 
-- [ ] Cada historia, en una línea, «Como…, quiero…, para…», con quien usa la
-      app delante; ninguna técnica.
+- [ ] Cada historia, en una línea, «Como…, quiero…, para…», con el tipo de
+      usuario delante («Como usuario», «Como responsable de almacén»);
+      ninguna técnica.
 - [ ] La primera, el esqueleto, que ya se usa de punta a punta.
 - [ ] Cada código, con las tres letras de su épica; ninguno repetido ni
       reutilizado.

@@ -2,6 +2,7 @@ import { readdirSync } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { basename, join } from 'node:path'
 import { buildKitCommand, getDefaultAnswers, normalizeAnswers, slugifyName } from './installAnswers.mjs'
+import { GIT_TOOLS } from './gitRepo.mjs'
 import { buildChangeWarnings, findFixedAnswerChange } from './installSummary.mjs'
 import { runInstallFlow } from './installFlow.mjs'
 import { askInstallQuestions } from './installQuestions.mjs'
@@ -21,7 +22,7 @@ async function readConfigAnswers (configPath) {
 
 /**
  * Consigue las respuestas de una instalación: del fichero, las de por defecto con `--yes`, o preguntando.
- * @param options `configPath`, `yes`, `defaults`, `mode` (`init` o `change`), `prompts` y `questions`, lo que las preguntas saben ya (`known`, `hasPackageJson`, `validateName`).
+ * @param options `configPath`, `yes`, `defaults`, `mode` (`init` o `change`), `prompts` y `questions`, lo que las preguntas saben ya (`known`, `git`, `hasPackageJson`, `validateName`).
  * @returns Las respuestas normalizadas, o `null` si se cancela.
  */
 async function resolveAnswers ({ configPath, yes, defaults, mode, prompts, questions = {} }) {
@@ -113,13 +114,29 @@ function printNote (prompts, lines, title) {
 }
 
 /**
+ * Ajusta la respuesta de git a lo que hay en la carpeta, también cuando llega de `--config`: un proyecto dentro de un repositorio lo tiene, y sin git instalado no se puede iniciar uno.
+ * @param answers Las respuestas, ya normalizadas.
+ * @param state `installed` e `inRepo`, el de la carpeta en la que se instala.
+ * @param prompts El módulo de preguntas, para avisar.
+ * @returns Las respuestas, con `git` ajustado.
+ */
+function fitGitAnswer (answers, state, prompts) {
+  if (state.inRepo) return { ...answers, git: true }
+  if (answers.git && !state.installed) {
+    prompts.log.warn('git no está instalado en este equipo: el proyecto va sin historial de cambios. Cuando lo instales, «change» lo añade.')
+    return { ...answers, git: false }
+  }
+  return answers
+}
+
+/**
  * `zaius-dev init`: instala el kit en un proyecto nuevo, en una carpeta con su nombre, o en uno existente, en su carpeta.
- * @param options `projectDir`, `kitDir`, `configPath`, `yes`, `skipInstall` y `prompts`.
+ * @param options `projectDir`, `kitDir`, `configPath`, `yes`, `skipInstall`, `prompts` y `git` (lo que se hace con git; uno falso en los tests).
  * @returns El código de salida: 0 si ha ido bien.
  */
-export async function runInitCommand ({ projectDir, kitDir, configPath, yes, skipInstall, prompts }) {
+export async function runInitCommand ({ projectDir, kitDir, configPath, yes, skipInstall, prompts, git = GIT_TOOLS }) {
   const kit = await readKitInfo(kitDir)
-  const detected = await detectProject(projectDir)
+  const detected = await detectProject(projectDir, git)
   prompts.intro(`zaius-dev ${kit.version}`)
   prompts.log.info(`Carpeta: ${projectDir}${detected.isEmpty ? ' (vacía)' : ''}`)
   if (detected.manifest !== null) {
@@ -127,19 +144,20 @@ export async function runInitCommand ({ projectDir, kitDir, configPath, yes, ski
     return 1
   }
   logDetectedType(detected, prompts)
-  const questions = { known: detected.known, hasPackageJson: detected.hasPackageJson, validateName: (name) => validateNewProjectName(projectDir, name) }
-  const answers = await resolveAnswers({ configPath, yes, defaults: getDefaultAnswers(detected), mode: 'init', prompts, questions })
-  if (answers === null) {
+  const questions = { known: detected.known, git: detected.git, hasPackageJson: detected.hasPackageJson, validateName: (name) => validateNewProjectName(projectDir, name) }
+  const resolved = await resolveAnswers({ configPath, yes, defaults: getDefaultAnswers(detected), mode: 'init', prompts, questions })
+  if (resolved === null) {
     prompts.cancel('Instalación cancelada.')
     return 1
   }
-  const targetDir = resolveTargetDir(projectDir, answers)
+  const targetDir = resolveTargetDir(projectDir, resolved)
   if (targetDir === null) {
-    prompts.log.warn(validateNewProjectName(projectDir, answers.name))
+    prompts.log.warn(validateNewProjectName(projectDir, resolved.name))
     return 1
   }
   if (targetDir !== projectDir) prompts.log.info(`El proyecto va en una carpeta nueva: ${targetDir}`)
-  const outcome = await runInstallFlow({ projectDir: targetDir, kitDir, answers, yes, skipInstall, prompts })
+  const answers = fitGitAnswer(resolved, { ...detected.git, inRepo: await git.isInsideRepo(targetDir) }, prompts)
+  const outcome = await runInstallFlow({ projectDir: targetDir, kitDir, answers, yes, skipInstall, prompts, git })
   if (outcome === null) return 1
   printNote(prompts, buildNextSteps(answers, kit.run, targetDir === projectDir ? null : basename(targetDir)), 'Ahora te toca a ti')
   prompts.outro(outcome.ok ? 'Listo.' : 'Instalado, con comprobaciones por revisar.')
@@ -147,15 +165,15 @@ export async function runInitCommand ({ projectDir, kitDir, configPath, yes, ski
 }
 
 /**
- * `zaius-dev change`: cambia una respuesta (pasar a multiidioma, añadir una zona privada a una web, quitar los mocks, terminar la migración…).
- * @param options `projectDir`, `kitDir`, `configPath`, `yes`, `skipInstall` y `prompts`.
+ * `zaius-dev change`: cambia una respuesta (pasar a multiidioma, añadir una zona privada a una web, quitar los mocks, guardar el historial con git, terminar la migración…).
+ * @param options `projectDir`, `kitDir`, `configPath`, `yes`, `skipInstall`, `prompts` y `git`.
  * @returns El código de salida: 0 si ha ido bien.
  */
-export async function runChangeCommand ({ projectDir, kitDir, configPath, yes, skipInstall, prompts }) {
+export async function runChangeCommand ({ projectDir, kitDir, configPath, yes, skipInstall, prompts, git = GIT_TOOLS }) {
   const kit = await readKitInfo(kitDir)
-  const detected = await detectProject(projectDir)
+  const detected = await detectProject(projectDir, git)
   const { manifest } = detected
-  prompts.intro(`zaius-dev ${kit.version} · cambiar respuestas`)
+  prompts.intro(`zaius-dev ${kit.version}: cambiar respuestas`)
   if (manifest === null) {
     prompts.log.warn(`Este proyecto no tiene el kit: empieza con «${kit.run} init».`)
     return 1
@@ -163,20 +181,21 @@ export async function runChangeCommand ({ projectDir, kitDir, configPath, yes, s
   if (stopOlderKit(kit, manifest, 'change', prompts)) return 1
   const defaults = getProjectAnswers(detected)
   const fromConfig = await readConfigAnswers(configPath)
-  const answers = fromConfig === null
-    ? await resolveAnswers({ configPath: null, yes, defaults, mode: 'change', prompts, questions: { known: detected.known } })
-    : normalizeAnswers({ ...defaults, ...fromConfig }, defaults)
-  if (answers === null) {
+  const resolved = fromConfig === null
+    ? await resolveAnswers({ configPath: null, yes, defaults, mode: 'change', prompts, questions: { known: detected.known, git: detected.git } })
+    : normalizeAnswers(fromConfig, defaults)
+  if (resolved === null) {
     prompts.cancel('No se ha cambiado nada.')
     return 1
   }
+  const answers = fitGitAnswer(resolved, detected.git, prompts)
   const fixed = manifest.answers.existing ? null : findFixedAnswerChange(defaults, answers)
   if (fixed !== null) {
     prompts.log.warn(fixed)
     return 1
   }
   for (const warning of buildChangeWarnings(defaults, answers)) prompts.log.warn(warning)
-  const outcome = await runInstallFlow({ projectDir, kitDir, answers, yes, skipInstall, prompts })
+  const outcome = await runInstallFlow({ projectDir, kitDir, answers, yes, skipInstall, prompts, git })
   if (outcome === null) return 0
   printNote(prompts, buildMergeSteps(outcome.result.groups.kitNew), 'Por fusionar')
   if (manifest.answers.existing && !answers.existing) printNote(prompts, buildNextSteps(answers, kit.run), 'Migración terminada')
@@ -186,22 +205,22 @@ export async function runChangeCommand ({ projectDir, kitDir, configPath, yes, s
 
 /**
  * `zaius-dev update`: pasa el proyecto a la versión del kit instalada en el equipo, con las mismas respuestas.
- * @param options `projectDir`, `kitDir`, `yes`, `skipInstall` y `prompts`.
- * @returns El código de salida: 0 si ha ido bien.
+ * @param options `projectDir`, `kitDir`, `yes`, `skipInstall`, `prompts` y `git`.
+ * @returns El código de salida: 0 si ha ido bien. La respuesta de git sale de lo que hay: con repositorio, sí; sin él, no (la actualización nunca inicia uno).
  */
-export async function runUpdateCommand ({ projectDir, kitDir, yes, skipInstall, prompts }) {
+export async function runUpdateCommand ({ projectDir, kitDir, yes, skipInstall, prompts, git = GIT_TOOLS }) {
   const kit = await readKitInfo(kitDir)
-  const detected = await detectProject(projectDir)
+  const detected = await detectProject(projectDir, git)
   const { manifest } = detected
-  prompts.intro(`zaius-dev ${kit.version} · actualizar`)
+  prompts.intro(`zaius-dev ${kit.version}: actualizar`)
   if (manifest === null) {
     prompts.log.warn(`Este proyecto no tiene el kit: empieza con «${kit.run} init».`)
     return 1
   }
   if (stopOlderKit(kit, manifest, 'update', prompts)) return 1
   prompts.log.info(`Del kit ${manifest.kitVersion} al ${kit.version}. Los cambios de cada versión están en el CHANGELOG.md del kit.`)
-  const answers = normalizeAnswers(getProjectAnswers(detected), getDefaultAnswers(detected))
-  const outcome = await runInstallFlow({ projectDir, kitDir, answers, yes, skipInstall, prompts })
+  const answers = { ...normalizeAnswers(getProjectAnswers(detected), getDefaultAnswers(detected)), git: detected.git.inRepo }
+  const outcome = await runInstallFlow({ projectDir, kitDir, answers, yes, skipInstall, prompts, git })
   if (outcome === null) return 0
   printNote(prompts, buildMergeSteps(outcome.result.groups.kitNew), 'Por fusionar')
   prompts.outro(outcome.ok ? 'Listo.' : 'Actualizado, con comprobaciones por revisar.')
@@ -238,7 +257,7 @@ export async function chooseCommand ({ projectDir, prompts }) {
     message: 'Este proyecto ya tiene el kit. ¿Qué quieres hacer?',
     options: [
       { value: 'status', label: 'Ver el estado', hint: 'La versión, las respuestas y los ficheros cambiados' },
-      { value: 'change', label: 'Cambiar una respuesta', hint: manifest.answers.existing ? 'También para terminar la migración' : manifest.answers.type === 'web' ? 'La zona privada, la API, el servidor, el blog o multiidioma' : 'Multiidioma, mocks o los documentos de la API' },
+      { value: 'change', label: 'Cambiar una respuesta', hint: manifest.answers.existing ? 'También para terminar la migración' : manifest.answers.type === 'web' ? 'La zona privada, la API, el servidor, el blog, multiidioma o git' : 'La API, los mocks, multiidioma o git' },
       { value: 'update', label: 'Actualizar el kit', hint: 'A la versión instalada en el equipo, con las mismas respuestas' },
     ],
   })

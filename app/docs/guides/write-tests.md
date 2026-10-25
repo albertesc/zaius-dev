@@ -23,7 +23,11 @@ proyecto están en
 - [1. Lo que se prueba](#1-lo-que-se-prueba)
 - [2. El sitio del test](#2-el-sitio-del-test)
 - [3. La escritura de un test](#3-la-escritura-de-un-test)
-- **4. El test de cada tipo de fichero:** [Una página](#una-página) · [Un componente](#un-componente) · [Un hook](#un-hook) · [Un service](#un-service) · [Un schema, un util o un store](#un-schema-un-util-o-un-store)
+<!-- kit:if backend -->
+- **4. El test de cada tipo de fichero:** [Una página](#una-página), [Un componente](#un-componente), [Un hook](#un-hook), [Un service](#un-service), [Un schema, un util o un store](#un-schema-un-util-o-un-store)
+<!-- kit:else -->
+- **4. El test de cada tipo de fichero:** [Una página](#una-página), [Un componente](#un-componente), [Un hook](#un-hook), [Un schema, un util o un store](#un-schema-un-util-o-un-store)
+<!-- kit:end -->
 <!-- kit:if mocks -->
 - [5. Los mocks que casan](#5-los-mocks-que-casan)
 <!-- kit:end -->
@@ -39,11 +43,16 @@ un tipo de fichero se prueba, se prueban todos los de ese tipo.
 <!-- kit:if mocks -->
 | Página | Que pinta lo que tiene que pintar y que sus acciones funcionan, contra los mocks, con el foco, la validación y los textos que piden las normas ([Una página](#una-página)). |
 <!-- kit:else -->
+<!-- kit:if backend -->
 | Página | Que pinta lo que tiene que pintar y que sus acciones funcionan, con el service simulado, con el foco, la validación y los textos que piden las normas ([Una página](#una-página)). |
+<!-- kit:else -->
+| Página | Que pinta lo que tiene que pintar y que sus acciones funcionan, con el foco, la validación y los textos que piden las normas ([Una página](#una-página)). |
+<!-- kit:end -->
 <!-- kit:end -->
 | Componente | Que pinta lo que recibe y que llama a sus `onX` al interactuar. |
 | Hook | Lo que devuelve y lo que hace al llamarlo. |
 | Util | Sus casos normales y sus casos raros. |
+<!-- kit:if backend -->
 | Schema | Que acepta lo bueno y rechaza lo malo, también si solo describe una respuesta. |
 <!-- kit:if mocks -->
 | Service | Que cada método responde con su mock y pasa su schema. |
@@ -52,6 +61,10 @@ un tipo de fichero se prueba, se prueban todos los de ese tipo.
 <!-- kit:end -->
 | Store | Su estado inicial, sus acciones y que vuelve al inicial al cerrar la sesión. |
 | Regla de permisos (`<feature>Permissions.ts`) | Cada regla, con el permiso y sin él. |
+<!-- kit:else -->
+| Schema | Que acepta lo bueno y rechaza lo malo. |
+| Store | Su estado inicial y sus acciones. |
+<!-- kit:end -->
 
 **Sin test** solo están los ficheros que declaran y no hacen nada, y el código
 base que trae el kit. Es una lista cerrada, por tipo de fichero, y la misma
@@ -59,32 +72,32 @@ que aplica la
 [comprobación de la estructura](../standards.md#comprobar-la-estructura):
 
 - los tipos y las constantes: `types/`, `constants/` y los `*.d.ts`;
+<!-- kit:if backend -->
 - la configuración (`*.config.ts`) y el arranque (`main.tsx`): lo que decide
   una regla dentro de una configuración (las reglas `allowed` del menú) lo
   recorre el test del componente que la usa, con varios juegos de permisos;
+<!-- kit:else -->
+- la configuración (`*.config.ts`) y el arranque (`main.tsx`);
+<!-- kit:end -->
 - las rutas (`*Routes.tsx`): las recorre el test de su página;
 <!-- kit:if mocks -->
 - los JSON de los mocks (`*Mocks.json`): los valida el test del schema de su
   método;
 <!-- kit:end -->
 - los ayudantes de `src/tests/`;
-<!-- kit:if i18n -->
+<!-- kit:if backend -->
 - el código base que trae el kit, el transporte (`utils/api*Utils.ts`) y lo
   de i18n (`i18n/i18n.ts`, `utils/languageUtils.ts`): lo prueba el propio
   kit, y si el proyecto lo cambia (la forma del error de su API), le escribe
   su test.
 <!-- kit:else -->
-- el código base que trae el kit, el transporte (`utils/api*Utils.ts`): lo
-  prueba el propio kit, y si el proyecto lo cambia (la forma del error de su
-  API), le escribe su test.
+- el código base que trae el kit, lo de i18n (`i18n/i18n.ts`,
+  `utils/languageUtils.ts`): lo prueba el propio kit, y si el proyecto lo
+  cambia, le escribe su test.
 <!-- kit:end -->
 
-<!-- kit:if i18n -->
 Los estilos (`.module.css`) y los textos (`i18n/*.json`) no son código: los
 textos los cubre la paridad de idiomas de la comprobación de la estructura.
-<!-- kit:else -->
-Los estilos (`.module.css`) no son código.
-<!-- kit:end -->
 
 Si un fichero de esta lista empieza a tener lógica, la lógica sale a un util
 o a un hook, y esos sí se prueban.
@@ -101,10 +114,14 @@ o a un hook, y esos sí se prueban.
     no tiene y, antes de cada test, deja la app como al arrancar: vacía el
     `localStorage` y el `sessionStorage` y deja la ventana en su ancho
     inicial. Después de cada test, deshace los `vi.spyOn`
+<!-- kit:if backend -->
     (`vi.restoreAllMocks`).
     Cuando el proyecto crea su dominio `session`, `setup.ts` cierra también
     la sesión antes de cada test, que vacía con ella los stores que se
     suscriben;
+<!-- kit:else -->
+    (`vi.restoreAllMocks`);
+<!-- kit:end -->
   - los ayudantes, en un objeto, `testUtils` (`src/tests/testUtils.tsx`):
     `renderPage`, `renderWithProviders`, `createProvidersWrapper` (su
     `wrapper` para `renderHook`) y `setViewportWidth`, que cambia el ancho de
@@ -117,69 +134,92 @@ lista del [paso 1](#1-lo-que-se-prueba):
 
 ```text
 ordersEdit/
-├── pages/
-│   ├── OrdersEditPage.tsx
-│   └── OrdersEditPage.test.tsx
-├── components/lines/
-│   ├── OrdersEditLinesCard.tsx
-│   └── OrdersEditLinesCard.test.tsx
-├── hooks/
-│   ├── useOrdersEdit.ts
-│   └── useOrdersEdit.test.ts
-├── utils/
-│   ├── ordersEditLineUtils.ts
-│   └── ordersEditLineUtils.test.ts
-├── constants/ordersEditTabs.ts      (sin test: solo declara)
-├── ordersEditPermissions.ts
-├── ordersEditPermissions.test.ts
-└── ordersEditRoutes.tsx             (sin test: lo recorre OrdersEditPage.test.tsx)
+    pages/
+        OrdersEditPage.tsx
+        OrdersEditPage.test.tsx
+    components/lines/
+        OrdersEditLinesCard.tsx
+        OrdersEditLinesCard.test.tsx
+<!-- kit:if !backend -->
+        OrdersEditLinesTable.tsx
+        OrdersEditLinesTable.test.tsx
+<!-- kit:end -->
+    hooks/
+        useOrdersEdit.ts
+        useOrdersEdit.test.ts
+    utils/
+        ordersEditLineUtils.ts
+        ordersEditLineUtils.test.ts
+    constants/ordersEditTabs.ts      (sin test: solo declara)
+<!-- kit:if backend -->
+    ordersEditPermissions.ts
+    ordersEditPermissions.test.ts
+<!-- kit:end -->
+    ordersEditRoutes.tsx             (sin test: lo recorre OrdersEditPage.test.tsx)
 ```
+<!-- kit:if backend -->
 
 Y lo que la sirve en `services/`:
 
 <!-- kit:if mocks -->
 ```text
 services/orders/
-├── ordersService.ts
-├── ordersService.test.ts
-├── ordersEditSchema.ts
-├── ordersEditSchema.test.ts
-└── ordersMocks.json                       (sin test: lo valida ordersEditSchema.test.ts)
+    ordersService.ts
+    ordersService.test.ts
+    ordersEditSchema.ts
+    ordersEditSchema.test.ts
+    ordersMocks.json                       (sin test: lo valida ordersEditSchema.test.ts)
 ```
 <!-- kit:else -->
 ```text
 services/orders/
-├── ordersService.ts
-├── ordersService.test.ts
-├── ordersEditSchema.ts
-└── ordersEditSchema.test.ts
+    ordersService.ts
+    ordersService.test.ts
+    ordersEditSchema.ts
+    ordersEditSchema.test.ts
 ```
+<!-- kit:end -->
 <!-- kit:end -->
 
 ## 3. La escritura de un test
 
 - **Se importa de `vitest` lo que se usa** (`describe`, `it`, `expect`,
   `vi`): no hay globales.
+<!-- kit:if backend -->
 - **El nombre de cada `it`** dice, en castellano, qué pasa: «vuelve a pedir
   las líneas al pulsar reintentar».
-- **Se busca como lo haría una persona:** por rol y nombre accesible
-  (`getByRole('button', { name: 'Guarda' })`) o por etiqueta. Nunca por clase
-  CSS.
-<!-- kit:if i18n -->
-- **Los textos son los reales,** en el idioma por defecto de la app
-  (`APP_DEFAULT_LANGUAGE`): `setup.ts` carga el i18n de la app, que en los
-  tests arranca en él. Un test que cambia de idioma lo devuelve al acabar.
 <!-- kit:else -->
-- **Los textos son los reales,** los que pinta la app.
+- **El nombre de cada `it`** dice, en castellano, qué pasa: «avisa de la
+  línea que se quita».
 <!-- kit:end -->
+- **Se busca como lo haría una persona:** por rol y nombre accesible
+  (`getByRole('button', { name: testUtils.translate('common:actions.save') })`)
+  o por etiqueta. Nunca por clase CSS.
+- **Los textos salen del catálogo, nunca escritos en el test:**
+  `testUtils.translate('orders:filters.subtitle', { count: 2 })` da el texto
+  en el idioma por defecto (`APP_DEFAULT_LANGUAGE`), con su namespace, sus
+  valores y su plural, y falla si la clave o esa forma no están. Nunca se
+  lee el JSON a mano ni se arma un texto con `replace`. Un componente que
+  recibe sus textos por props los recibe así también en su test. Lo que no
+  es un texto de la app, sino un dato del caso (un cliente, un importe, una
+  fecha), va escrito en el test. `setup.ts` carga el i18n de la app, que en
+  los tests arranca en el idioma por defecto; un test que cambia de idioma
+  lo devuelve al acabar.
 - **Las horas son las de %%TEST_TIMEZONE%%:** `vite.config.ts` fija `TZ` en
   los tests, para que una fecha con hora dé lo mismo en cualquier máquina.
+<!-- kit:if backend -->
 - **Las interacciones van con `userEvent`.** Lo que llega después (lo que
   piden los hooks) se espera con `findBy`; `getBy` es para lo que ya está en
   pantalla.
+<!-- kit:else -->
+- **Las interacciones van con `userEvent`.** Lo que llega después (una
+  página que se carga con `lazy`) se espera con `findBy`; `getBy` es para lo
+  que ya está en pantalla.
+<!-- kit:end -->
 
 Un `it` con todo eso:
 
+<!-- kit:if backend -->
 ```tsx
 import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
@@ -193,19 +233,80 @@ describe('OrdersEditLinesCard', () => {
     const onRetry = vi.fn()
     testUtils.renderWithProviders(<OrdersEditLinesCard lines={undefined} isError onRetry={onRetry} />)
 
-    await user.click(screen.getByRole('button', { name: 'Vuelve a intentarlo' }))
+    await user.click(screen.getByRole('button', { name: testUtils.translate('common:errorState.retry') }))
 
     expect(onRetry).toHaveBeenCalledOnce()
   })
 })
 ```
+<!-- kit:else -->
+```tsx
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it, vi } from 'vitest'
+import { testUtils } from '@/tests/testUtils'
+import { OrdersEditLinesTable } from './OrdersEditLinesTable'
+
+const LINE = { id: 3, product: 'Tornillos M6', quantity: '24', amount: '18,00 €' }
+
+describe('OrdersEditLinesTable', () => {
+  it('avisa de la línea que se quita', async () => {
+    const user = userEvent.setup()
+    const onRemove = vi.fn()
+    testUtils.renderWithProviders(<OrdersEditLinesTable lines={[LINE]} onRemove={onRemove} />)
+
+    await user.click(screen.getByRole('button', { name: testUtils.translate('orders:lines.removeOf', { number: 1 }) }))
+
+    expect(onRemove).toHaveBeenCalledWith(3)
+  })
+})
+```
+<!-- kit:end -->
+
+### Un test no se manipula
+
+Un test dice lo que la historia tiene que hacer: si falla, se arregla el
+código, nunca el test. Para que pase, nunca:
+
+- **se cambia lo que espera por lo que sale:** lo esperado viene del
+  criterio de la historia o del catálogo de textos, no de lo que pinta el
+  código ni de la misma lógica que lo calcula;
+- **se afloja:** una comprobación que acepta más (`toBeTruthy`, un trozo del
+  texto, una expresión regular más ancha), un `queryBy` que no se comprueba
+  o una comprobación de menos;
+- **se salta o se borra:** `it.skip`, `it.todo`, `it.only`, comentado, o
+  quitado de la lista de la historia;
+<!-- kit:if backend -->
+- **se simula lo que prueba:** solo se simula lo de fuera (la API, la hora),
+  nunca la pieza que se prueba ni la lógica que tiene que funcionar;
+<!-- kit:else -->
+- **se simula lo que prueba:** solo se simula lo de fuera (la hora, el
+  navegador), nunca la pieza que se prueba ni la lógica que tiene que
+  funcionar;
+<!-- kit:end -->
+- **se esconde el fallo:** un `try`/`catch`, un `if` dentro del test o una
+  espera más larga para algo que no llega;
+- **se amaña un texto:** escrito a mano, leído del JSON o arreglado con
+  `replace`, en lugar de pedírselo a `testUtils.translate`;
+- **se calla a las comprobaciones:** `// @ts-expect-error`,
+  `eslint-disable` o un cambio en la configuración de Vitest, de los tipos o
+  del lint.
+
+Si es el test el que está mal (el criterio ha cambiado, o pedía otra cosa),
+se para y se pregunta: con el OK, primero cambia la historia y después el
+test, en un paso aparte. `zaius-review` lo busca en cada historia.
 
 ## 4. El test de cada tipo de fichero
 
 Una página se monta con `testUtils.renderPage` y un componente con
 `testUtils.renderWithProviders`, los dos de `src/tests/`; un hook usa el
+<!-- kit:if backend -->
 `wrapper` de `testUtils.createProvidersWrapper`. Lo que no pinta (un service, un
 schema, un util o un store) se prueba llamándolo. Si el sistema de diseño
+<!-- kit:else -->
+`wrapper` de `testUtils.createProvidersWrapper`. Lo que no pinta (un schema, un
+util o un store) se prueba llamándolo. Si el sistema de diseño
+<!-- kit:end -->
 necesita sus proveedores, `/zaius-init` los pone en `testUtils`, como en
 `main.tsx` ([Sistema de diseño](../ux-ui/design-system.md)).
 
@@ -216,12 +317,19 @@ necesita sus proveedores, `/zaius-init` los pone en `testUtils`, como en
 - **las rutas de su feature, y solo esas,** en un router en memoria, para que el
   test siga siendo suyo. Lo que queda fuera de ellas no pinta nada: el test mira
   adónde ha llevado la página en el `router` que devuelve
+<!-- kit:if backend -->
   (`router.state.location.pathname`), junto a lo que devuelve `render` y su
   `queryClient`. Las rutas de una feature son relativas al segmento de su
   familia, así que se montan dentro de él:
   `testUtils.renderPage([{ path: 'orders', children: ordersEditRoutes }], '/orders/1287/edit')`.
 - **un `QueryClient` nuevo,** con `queryClientConfig`, para que ningún test
   herede la caché de otro.
+<!-- kit:else -->
+  (`router.state.location.pathname`), junto a lo que devuelve `render`. Las
+  rutas de una feature son relativas al segmento de su familia, así que se
+  montan dentro de él:
+  `testUtils.renderPage([{ path: 'orders', children: ordersEditRoutes }], '/orders/1287/edit')`.
+<!-- kit:end -->
 <!-- kit:if mocks -->
 - **los mocks de la app, sin retardo,** como en todos los tests:
   `apiMockUtils` no espera en el modo `test`.
@@ -229,9 +337,11 @@ necesita sus proveedores, `/zaius-init` los pone en `testUtils`, como en
 
 La entrada puede llevar el estado de navegación con el que se llega:
 `testUtils.renderPage(routes, { pathname: '/orders/1287/edit', state: { back } })`.
+<!-- kit:if backend -->
 Una página que pide permisos necesita una sesión que los tenga: el test la abre
 antes de montarla
 ([Los tests de la regla](./apply-permissions.md#9-los-tests-de-la-regla)).
+<!-- kit:end -->
 
 Una página grande, que tarda en cargarse con la suite entera en marcha (un
 análisis), se importa arriba del test (`import './OrdersDashboardPage'`):
@@ -253,10 +363,10 @@ describe('OrdersEditPage', () => {
     useSessionStore.getState().setSession({ ...session, permissions: ['ORDERS.VIEW', 'ORDERS.EDIT'] })
     testUtils.renderPage([{ path: 'orders', children: ordersEditRoutes }], '/orders/1287/edit')
 
-    const save = await screen.findByRole('button', { name: 'Guarda' })
+    const save = await screen.findByRole('button', { name: testUtils.translate('common:actions.save') })
     expect(save).toBeDisabled()
 
-    await user.type(screen.getByRole('textbox', { name: 'Notas' }), ' Entregar por la mañana.')
+    await user.type(screen.getByRole('textbox', { name: testUtils.translate('orders:form.notes') }), ' Entregar por la mañana.')
 
     expect(save).toBeEnabled()
   })
@@ -274,6 +384,7 @@ describe('OrdersEditPage', () => {
 vi.spyOn(ordersService, 'getOrderDetail').mockRejectedValue(apiErrorUtils.buildError(404, 'ORDER_NOT_FOUND'))
 ```
 <!-- kit:else -->
+<!-- kit:if backend -->
 El test simula el service con `vi.mock`, escrito con `import()` para que
 TypeScript compruebe la ruta. Sin fábrica, Vitest cambia cada método
 por una función vacía, y cada test le da la respuesta del caso con
@@ -305,10 +416,10 @@ describe('OrdersEditPage', () => {
     useSessionStore.getState().setSession({ ...session, permissions: ['ORDERS.VIEW', 'ORDERS.EDIT'] })
     testUtils.renderPage([{ path: 'orders', children: ordersEditRoutes }], '/orders/1287/edit')
 
-    const save = await screen.findByRole('button', { name: 'Guarda' })
+    const save = await screen.findByRole('button', { name: testUtils.translate('common:actions.save') })
     expect(save).toBeDisabled()
 
-    await user.type(screen.getByRole('textbox', { name: 'Notas' }), ' Entregar por la mañana.')
+    await user.type(screen.getByRole('textbox', { name: testUtils.translate('orders:form.notes') }), ' Entregar por la mañana.')
 
     expect(save).toBeEnabled()
   })
@@ -321,6 +432,42 @@ describe('OrdersEditPage', () => {
 ```ts
 vi.mocked(ordersService.getOrderDetail).mockRejectedValue(apiErrorUtils.buildError(404, 'ORDER_NOT_FOUND'))
 ```
+<!-- kit:else -->
+Los datos del caso se ponen antes de montarla, donde la app los guarda (en el
+ejemplo, el store de los pedidos), con constantes del propio test:
+
+```tsx
+import { screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { describe, expect, it } from 'vitest'
+import { testUtils } from '@/tests/testUtils'
+import { useOrderRecordsStore } from '../../common/stores/useOrderRecordsStore'
+import type { OrderRecord } from '../../common/stores/useOrderRecordsStore'
+import { ordersEditRoutes } from '../ordersEditRoutes'
+
+const ORDER: OrderRecord = { id: 1287, customerId: 7, carrierId: null, orderDate: '2026-03-10', deliveryDate: null, shippingCost: 12.5, notes: null, lines: [] }
+
+describe('OrdersEditPage', () => {
+  it('activa «Guarda» al cambiar las notas', async () => {
+    const user = userEvent.setup()
+    useOrderRecordsStore.setState({ orders: [ORDER] })
+    testUtils.renderPage([{ path: 'orders', children: ordersEditRoutes }], '/orders/1287/edit')
+
+    const save = await screen.findByRole('button', { name: testUtils.translate('common:actions.save') })
+    expect(save).toBeDisabled()
+
+    await user.type(screen.getByRole('textbox', { name: testUtils.translate('orders:form.notes') }), ' Entregar por la mañana.')
+
+    expect(save).toBeEnabled()
+  })
+})
+```
+
+- **Nada más se simula:** el test recorre de verdad la página, sus hooks,
+  sus utils y sus schemas.
+- **Cada test pone sus datos antes de montar la página:** un store no vuelve
+  solo a su estado inicial entre un test y el siguiente.
+<!-- kit:end -->
 <!-- kit:end -->
 
 Además de lo que pinta y de sus acciones, el test de una página comprueba lo
@@ -337,17 +484,25 @@ que las normas piden a toda pantalla:
   `getByRole('table', { name: 'Listado de pedidos' })`, sus filas (`row`, la
   primera es la de las cabeceras), sus cabeceras (`columnheader`; la
   ordenada, con su `aria-sort`) y sus celdas (`cell`).
-- **El teclado:** lo que se abre con el ratón (el ⋮ de una fila, un selector)
-  se prueba también sin él, con `user.keyboard('{Enter}')` y las flechas.
+- **El teclado:** lo que se abre con el ratón (el menú de más acciones de una
+  fila, un selector) se prueba también sin él, con `user.keyboard('{Enter}')` y
+  las flechas.
 - **La validación** ([D6](../ux-ui/rules.md#d6-formularios)): nada sale
   antes del primer intento; tras él, el error de un campo se va en cuanto se
   corrige, y la barra dice «Hay N campos por revisar».
 - **Los plurales** ([D11](../ux-ui/rules.md#d11-textos-y-formato)): un texto
-  con número se prueba con uno y con varios («1 pedido», «2 pedidos»), para
-  que no falte ninguna de las dos formas.
+  con número se prueba con uno y con varios
+  (`testUtils.translate('orders:filters.subtitle', { count: 1 })` y
+  `{ count: 2 }`): si falta una de las dos formas, `translate` falla.
+<!-- kit:if backend -->
 - **Lo que no se ofrece** ([D5](../ux-ui/rules.md#d5-acciones)): sin permiso,
   o en un estado que no lo deja, la acción no está (`queryByRole` da `null`),
   ni siquiera desactivada.
+<!-- kit:else -->
+- **Lo que no se ofrece** ([D5](../ux-ui/rules.md#d5-acciones)): en un estado
+  que no lo deja, la acción no está (`queryByRole` da `null`), ni siquiera
+  desactivada.
+<!-- kit:end -->
 - **Los enlaces** ([D10](../ux-ui/rules.md#d10-navegación)): lo que lleva a
   otra pantalla («Gestiona», «Ve al listado») es un enlace con su ruta
   (`getByRole('link', { name })` y su `href`).
@@ -363,13 +518,24 @@ caso, y se comprueba lo que ve y lo que avisa una persona, como en el ejemplo de
 - **Un componente que pide datos** se prueba como una página: responden los
   mocks.
 <!-- kit:else -->
+<!-- kit:if backend -->
 - **Un componente que pide datos** se prueba como una página, con el service
   simulado.
+<!-- kit:else -->
+- **Un componente que lee un store** se prueba como una página: el test pone
+  sus datos en el store antes de montarlo.
+<!-- kit:end -->
 <!-- kit:end -->
 - **`testUtils.renderWithProviders` lleva un router en memoria,** así que un
+<!-- kit:if backend -->
   componente con enlaces se monta igual. Uno que depende de la ruta (una guarda,
   un layout con `Outlet`, el aviso de cambios sin guardar, que usa `useBlocker`)
   se monta con `testUtils.renderPage` y unas rutas de prueba.
+<!-- kit:else -->
+  componente con enlaces se monta igual. Uno que depende de la ruta (un layout
+  con `Outlet`, el aviso de cambios sin guardar, que usa `useBlocker`) se monta
+  con `testUtils.renderPage` y unas rutas de prueba.
+<!-- kit:end -->
 <!-- kit:if i18n -->
 - **Un test que cambia de idioma,** o que pinta algo que lo cambia, lo
   devuelve al idioma por defecto en su `afterEach`, con la instancia de
@@ -381,8 +547,13 @@ caso, y se comprueba lo que ve y lo que avisa una persona, como en el ejemplo de
 
 ### Un hook
 
+<!-- kit:if backend -->
 Un hook se prueba con `renderHook` y el `wrapper` que da
 `testUtils.createProvidersWrapper()`, con un `QueryClient` nuevo:
+<!-- kit:else -->
+Un hook se prueba con `renderHook` y el `wrapper` que da
+`testUtils.createProvidersWrapper()`:
+<!-- kit:end -->
 
 ```ts
 const { result } = renderHook(() => useOrderFilters(), { wrapper: testUtils.createProvidersWrapper().wrapper })
@@ -392,10 +563,16 @@ const { result } = renderHook(() => useOrderFilters(), { wrapper: testUtils.crea
 - **Si el hook pide datos,** responden los mocks, igual que en una página, y
   lo que los mocks no dan, con `vi.spyOn` sobre el método del service.
 <!-- kit:else -->
+<!-- kit:if backend -->
 - **Si el hook pide datos,** el service se simula con
   `vi.mock(import('@/services/orders/ordersService'))` y `vi.mocked`, igual
   que en una página.
+<!-- kit:else -->
+- **Si el hook lee un store,** el test pone sus datos en el store antes de
+  llamarlo, igual que en una página.
 <!-- kit:end -->
+<!-- kit:end -->
+<!-- kit:if backend -->
 
 ### Un service
 
@@ -417,6 +594,7 @@ por su schema. El ejemplo está en
 Un caso de error (un 404) se da con una respuesta de `fetch` con ese estado,
 y el test espera el fallo de la API, con su `status`.
 <!-- kit:end -->
+<!-- kit:end -->
 
 ### Un schema, un util o un store
 
@@ -427,15 +605,23 @@ y el test espera el fallo de la API, con su `status`.
   el error en el campo que toca
   ([Crear un formulario](./create-a-form.md#1-el-schema)).
 <!-- kit:else -->
+<!-- kit:if backend -->
 - **Un schema:** un `describe` por schema. Comprueba que acepta una respuesta
   con la forma real, escrita en el test, y que rechaza una a la que le falta
   un campo; un schema de formulario, que acepta un formulario bueno y rechaza
   uno malo con el error en el campo que toca
   ([Crear un formulario](./create-a-form.md#1-el-schema)).
+<!-- kit:else -->
+- **Un schema:** un `describe` por schema. Comprueba que acepta un valor bueno
+  y que rechaza uno al que le falta un campo; un schema de formulario, que
+  acepta un formulario bueno y rechaza uno malo con el error en el campo que
+  toca ([Crear un formulario](./create-a-form.md#1-el-schema)).
+<!-- kit:end -->
 <!-- kit:end -->
 - **Un util:** un `describe` por función pública de su objeto, con sus casos
   normales y sus casos raros (vacíos, `null`, límites). Las privadas se
   prueban a través de las públicas.
+<!-- kit:if backend -->
 - **Un store:** su estado inicial y cada acción. Si se vacía al cerrar la
   sesión, el test cierra la sesión y comprueba que vuelve al estado inicial:
 
@@ -451,6 +637,20 @@ it('vuelve a la consulta inicial al cerrar la sesión', () => {
 
 - **Una regla de permisos:** un `it` por regla, con el permiso y sin él
   ([Aplicar permisos](./apply-permissions.md#9-los-tests-de-la-regla)).
+<!-- kit:else -->
+- **Un store:** su estado inicial y cada acción, con lo que cambia en el resto
+  del estado:
+
+```ts
+it('vuelve a la página 1 al buscar', () => {
+  useOrdersStore.getState().setListPage(3)
+
+  useOrdersStore.getState().setListSearch('1287')
+
+  expect(useOrdersStore.getState().listQuery.page).toBe(1)
+})
+```
+<!-- kit:end -->
 
 <!-- kit:if mocks -->
 ## 5. Los mocks que casan
@@ -488,11 +688,17 @@ describe('los mocks casan entre services', () => {
 | Un test pasa solo y falla con los demás | Comparte la caché de consultas: falta usar `testUtils.renderPage` o `testUtils.renderWithProviders`. |
 | Un `vi.spyOn` del service no cambia lo que pinta la página | Se puso después de montarla, o la página pide otro método: va antes de `testUtils.renderPage`. |
 <!-- kit:else -->
+<!-- kit:if backend -->
 | Un test pasa solo y falla con los demás | Comparte la caché de consultas: falta usar `testUtils.renderPage` o `testUtils.renderWithProviders`. O un `vi.mocked` de un test sigue en el siguiente: cada test pone sus respuestas en `beforeEach`. |
+<!-- kit:else -->
+| Un test pasa solo y falla con los demás | Un store sigue con lo que dejó otro test: cada test pone sus datos antes de montar. |
+<!-- kit:end -->
 <!-- kit:end -->
 | Un `vi.mock` no hace nada | La ruta no existe. Con `vi.mock(import('…'))`, TypeScript lo detecta. |
 | La página del test no pinta nada | Sus rutas son relativas al segmento de la familia: se montan dentro de `{ path: 'orders', children: … }`. |
+<!-- kit:if backend -->
 | La página del test dice que no hay acceso | El test no ha abierto una sesión con los permisos que pide la regla. |
+<!-- kit:end -->
 | `findByRole` no encuentra un botón que se ve | El nombre accesible no es el texto que se busca: mira su `aria-label`. |
 | `getByRole('button', { name: 'Gestiona' })` no lo encuentra | Lleva a otra pantalla, así que es un enlace, y su nombre accesible nombra el registro: `getByRole('link', { name: 'Gestiona el pedido #1287' })`. |
 | Un texto sale como «1 pedidos» | El texto no tiene sus dos formas, o no recibe el número. |

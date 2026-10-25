@@ -1,5 +1,6 @@
 import { readdir } from 'node:fs/promises'
 import { basename, join } from 'node:path'
+import { GIT_TOOLS } from './gitRepo.mjs'
 import { detectPackageManager } from './packageManagers.mjs'
 import { readManifest, readOptionalFile } from './projectManifest.mjs'
 import { detectType, detectWebAnswers } from './typeDetection.mjs'
@@ -23,9 +24,10 @@ async function readWebProject (projectDir, names, packageJson) {
 /**
  * Mira qué hay en la carpeta donde se lanza el instalador.
  * @param projectDir La carpeta.
- * @returns `isEmpty` (sin nada más que ficheros ocultos), `hasPackageJson`, `packageManager` y `type` (los que usa, o `null`), `web` (las respuestas de una web de un proyecto Astro, o `null`), `known` (las respuestas que su código ya fija, si es un proyecto existente), `manifest` (el del kit, o `null`) y `folderName`.
+ * @param git Lo que se hace con git (`GIT_TOOLS`, o uno falso en los tests).
+ * @returns `isEmpty` (sin nada más que ficheros ocultos), `hasPackageJson`, `packageManager` y `type` (los que usa, o `null`), `web` (las respuestas de una web de un proyecto Astro, o `null`), `known` (las respuestas que su código ya fija, si es un proyecto existente), `git` (`installed`, si git está en el equipo, e `inRepo`, si la carpeta ya está en un repositorio), `manifest` (el del kit, o `null`) y `folderName`.
  */
-export async function detectProject (projectDir) {
+export async function detectProject (projectDir, git = GIT_TOOLS) {
   const names = await readdir(projectDir)
   const packageJson = names.includes('package.json') ? await readOptionalFile(join(projectDir, 'package.json')) : null
   const type = detectType(names, packageJson)
@@ -43,6 +45,7 @@ export async function detectProject (projectDir) {
       ...(packageManager === null ? {} : { packageManager }),
       ...web?.known,
     },
+    git: { installed: await git.isInstalled(), inRepo: await git.isInsideRepo(projectDir) },
     manifest: await readManifest(projectDir),
   }
 }

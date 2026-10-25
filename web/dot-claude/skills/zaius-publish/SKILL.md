@@ -45,9 +45,17 @@ disable-model-invocation: true
      empezar, con una cuenta), Netlify, Cloudflare o el alojamiento de la
      empresa;
 <!-- kit:end -->
+<!-- kit:if git -->
    - y cómo: **conectando el repositorio** (recomendada, si el proyecto está
      en GitHub, GitLab o Bitbucket: la plataforma publica sola cada cambio
-     que se sube) o **desde este ordenador**, con una orden cada vez.
+     que se sube; si aún no lo está, primero `/zaius-git remoto`, que lanza
+     la persona) o **desde este ordenador**, con una orden cada vez.
+<!-- kit:else -->
+   - y cómo: **desde este ordenador**, con una orden cada vez. Para que la
+     plataforma publique sola cada cambio, conectando el repositorio, el
+     proyecto tiene que guardar su historial con git: se añade con
+     `%%KIT_RUN%% change`.
+<!-- kit:end -->
 3. **Lo que pide la plataforma,** con el OK, porque son ficheros del
    proyecto:
 <!-- kit:if server -->
@@ -107,6 +115,7 @@ disable-model-invocation: true
    crea ni guarda contraseñas. Las órdenes que piden entrar con la cuenta
    las lanza la persona, en la terminal, en la carpeta del proyecto: se le
    dan listas para copiar.
+<!-- kit:if git -->
    - **Conectando el repositorio:** la persona lo importa desde la web de la
      plataforma («Add new project», «Import»), con estos valores: la orden
      de build, `%%PM%% run build`, y la carpeta que se publica, `dist`
@@ -114,10 +123,17 @@ disable-model-invocation: true
 <!-- kit:if backend -->
      Y la variable con la dirección de la API, si no va en `.env.production`.
 <!-- kit:end -->
+<!-- kit:end -->
 <!-- kit:if server -->
    - **Desde este ordenador,** en Vercel: `%%PM_DLX%% vercel login` la
      primera vez y después `%%PM_DLX%% vercel --prod`. En Netlify y en
-     Cloudflare, con servidor, se publica conectando el repositorio.
+<!-- kit:if git -->
+     Cloudflare, con servidor, se publica conectando el repositorio
+     (`/zaius-git remoto`, si aún no está).
+<!-- kit:else -->
+     Cloudflare, con servidor, se publica conectando el repositorio, que pide
+     guardar el historial con git: se añade con `%%KIT_RUN%% change`.
+<!-- kit:end -->
    - **En un servidor de la empresa:** se copia el proyecto construido
      (`dist/`, con `package.json` y las dependencias de producción) y se
      arranca con `node dist/server/entry.mjs`, detrás del servidor web de la
@@ -158,7 +174,12 @@ disable-model-invocation: true
     se miden las visitas y con qué, y cómo se vuelve a publicar. Y en «Dónde
     estamos», lo publicado, con la fecha.
 12. **Cuéntalo:** la dirección publicada y cómo se publica la próxima vez
-    (con el repositorio conectado, basta con subir los cambios).
+<!-- kit:if git -->
+    (con el repositorio conectado, basta con que la persona suba los
+    cambios).
+<!-- kit:else -->
+    (la misma orden, cada vez).
+<!-- kit:end -->
 
 ## Comprobación
 

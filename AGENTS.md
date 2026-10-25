@@ -73,11 +73,12 @@ cambia el prefijo por el punto al copiar.
 | `server` | Web: ¿la web recibe mensajes o datos de quien la visita? | Sí: con servidor, en Node hasta que se elige la plataforma al publicar. También con zona privada. |
 | `content` | Web: ¿lleva blog, noticias o artículos? | Sí: las colecciones de contenido. |
 | `adapterNode`, `adapterVercel`, `adapterNetlify`, `adapterCloudflare` | Web con servidor, solo con `change`: ¿dónde se va a publicar la web? | La de la plataforma elegida; Node mientras no se elige otra. La elige `zaius-publish`, que manda lanzar `change`: así el kit pone su adaptador y no lo pisa al actualizar. |
-| `backend` | Web, solo con `change`: ¿la web muestra datos de otro sistema (una API)? | Sí: el transporte, los services y sus datos de ejemplo. Siempre verdadera en una app y con la zona privada. |
+| `backend` | App: ¿la app saca sus datos de una API? Web, solo con `change`: ¿la web muestra datos de otro sistema (una API)? | Sí: el transporte, los services y sus datos de ejemplo; en una app, también la sesión, los permisos y TanStack Query. En una web, siempre verdadera con la zona privada. |
 | `privateArea` | Web, solo con `change`: ¿la web tiene una zona privada? | Sí: el servidor, la API, la sesión y los permisos. |
-| `api` | App: ¿quieres apuntar cómo es la API? | Sí: `docs/api/` y `docs/api-requests.md`. |
-| `mocks` | App: ¿quieres datos de ejemplo para avanzar sin la API? | Sí: las respuestas inventadas de cada service. En una web, va con la API. |
-| `i18n` | ¿Va a estar en más de un idioma? | Sí: i18next y un catálogo por idioma. |
+| `api` | No se pregunta | Una app con API: `docs/api/` y `docs/api-requests.md`, siempre. |
+| `mocks` | App con API: ¿quieres datos de ejemplo para avanzar sin la API? | Sí: las respuestas inventadas de cada service. En una web, va con la API. |
+| `i18n` | ¿Va a estar en más de un idioma? | Sí: más de un idioma, con lo que solo tiene sentido entonces (quién traduce, cambiar de idioma, el idioma en lo que pide a la API). El catálogo de textos, i18next y `testUtils.translate` van siempre. |
+| `git` | ¿Guardamos el historial de cambios con git? | Sí, o la carpeta ya está en un repositorio: la sección «Git» de `AGENTS.md`, la skill `zaius-git`, los commits que se proponen y `git mv`. El instalador hace `git init` (sin commits) si no lo hay; `update` la toma del repositorio. |
 | `npm`, `pnpm`, `yarn`, `bun` | ¿Con qué gestor de paquetes? | La del gestor elegido; las otras tres, falsas. |
 
 Las condiciones de una web son falsas en una app, y las de una app, en una web,
@@ -96,10 +97,10 @@ del marcador desaparece entera al instalar; los bloques se pueden anidar y la
 condición se niega con `!`.
 
 ```md
-<!-- kit:if i18n -->
-Los textos salen de los catálogos con `t()`.
+<!-- kit:if mocks -->
+La página pide sus datos al service, que responde su `*Mocks.json`.
 <!-- kit:else -->
-Los textos van escritos en el componente.
+La página pide sus datos al service, que llama a la API.
 <!-- kit:end -->
 ```
 
@@ -184,18 +185,21 @@ inglés, casi siempre lo que sale de él:
 
 | Etapa | Comando | En una web | En una app |
 |---|---|---|---|
-| 1 | `/zaius-init` | El brief y el sistema de diseño | La visión, el alcance, las decisiones caras y el sistema de diseño |
+| 1 | `/zaius-init` | El brief y el sistema de diseño, con su identidad | La visión, el alcance, las decisiones caras y el sistema de diseño, con su identidad |
 | 2 | `/zaius-backlog` | Las páginas y el mapa del sitio | Las épicas y las historias |
-| 3 | `/zaius-page ROOMS` · `/zaius-spec RES001` | El documento de una página, su boceto y su lista de tests | La historia refinada (criterios Dado / Cuando / Entonces, no incluye, plan, lista de tests), sus pantallas y su boceto |
+| 3 | `/zaius-page ROOMS` o `/zaius-spec RES001` | El documento de una página, su boceto y su lista de tests | La historia refinada (criterios Dado / Cuando / Entonces, no incluye, plan, lista de tests), sus pantallas y su boceto |
 | 4 | `/zaius-build <unidad>` | En pareja, test a test, parando tras cada ciclo | Igual |
 | 5 | `/zaius-review <unidad>` | Comprueba, revisa sin el contexto de la conversación, resume y, con el OK, la da por hecha | Igual |
 | 6 | `/zaius-publish` | Plataforma, dominio, analítica, sitemap | Plataforma, API de producción, build sin mocks |
 
 Las etapas 3 a 5 se repiten por unidad. Cuando hace falta:
-`zaius-refactor`, `zaius-sketch`, `zaius-design`, `zaius-rename`,
-`zaius-languages`, `zaius-merge` y `zaius-api`. Los usa la IA dentro de otros:
-`zaius-adopt`, `zaius-service`, `zaius-form` y `zaius-permissions` (apps, y
-webs con zona privada). `/zaius-review` sin unidad revisa el cambio en curso.
+`zaius-refactor`, `zaius-brand`, `zaius-sketch`, `zaius-design`,
+`zaius-rename`, `zaius-languages`, `zaius-merge`, `zaius-api` y `zaius-git`
+(con git: el remoto, las ramas, el CI y, si se pide, el commit, el push o el
+pull request). Los usa la IA
+dentro de otros: `zaius-adopt`, `zaius-service`, `zaius-form` y
+`zaius-permissions` (apps, y webs con zona privada). `/zaius-review` sin
+unidad revisa el cambio en curso.
 
 Una skill que hace algo distinto en cada camino tiene un fichero en `web/` y
 otro en `app/`, con el mismo nombre y sin ramas dentro; las demás viven en
@@ -215,7 +219,7 @@ En una app, cada pantalla tiene además su documento en `docs/features/`, que
 dice lo que hace hoy; las épicas no son las familias de pantallas.
 
 Cada unidad dice su estado, en su fichero y en `docs/backlog.md`, igual en los
-dos caminos: pendiente → por aprobar → aprobada → en curso → por cerrar →
+dos caminos: pendiente, por aprobar, aprobada, en curso, por cerrar y
 hecha.
 
 ### La persona decide
@@ -298,6 +302,12 @@ Lo que cambia según el tipo dentro de un fichero de `shared/` va en sus valores
   interfaz de los ejemplos, en castellano y entre «».
 - **Ficheros y carpetas, siempre en inglés**, también los documentos y las
   skills, aunque su contenido vaya en castellano.
+- **Escrito como lo escribiría una persona,** el kit y lo que deja: sin «·»,
+  «→», «—», «–», «✓», «×», el dibujo de cajas ni emojis, sin las aperturas
+  de un chatbot ni las frases de la IA, como dice «Escribir como una
+  persona», en el `docs/process.md` de la plantilla. Un signo solo va entre
+  «», cuando se cita. `npm run verify` lo comprueba en los documentos de cada
+  proyecto, y los mensajes del instalador tampoco los llevan.
 - **Las skills del proyecto llevan el prefijo `zaius-`**, en su carpeta y en su
   `name`, y detrás una palabra. Cada una es de la persona, que la lanza, o de
   la IA, que la usa dentro de otra.

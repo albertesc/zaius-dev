@@ -3,9 +3,10 @@ const SKILL_FILE = /^\.claude\/skills\/[^/]+\/SKILL\.md$/
 /**
  * Arma la pregunta de confirmación con lo que va a hacer la instalación.
  * @param result Lo que devuelve `installProject` con `dryRun`.
- * @returns «Voy a crear N ficheros, …. ¿Sigo?»; si solo cambian las respuestas, que se apuntan.
+ * @param options `initGit`, si va a iniciar el repositorio git.
+ * @returns «Voy a crear N ficheros, …. ¿Sigo?», con «e» delante de «iniciar»; si solo cambian las respuestas, que se apuntan.
  */
-export function buildInstallQuestion ({ groups, packageChange }) {
+export function buildInstallQuestion ({ groups, packageChange }, { initGit = false } = {}) {
   const skills = [...groups.create, ...groups.replace].filter((path) => SKILL_FILE.test(path)).length
   const dependencies = (packageChange?.added.dependencies.length ?? 0) + (packageChange?.added.devDependencies.length ?? 0)
   const parts = [
@@ -15,10 +16,12 @@ export function buildInstallQuestion ({ groups, packageChange }) {
     groups.remove.length > 0 ? `quitar ${groups.remove.length}` : null,
     packageChange?.changed ? (dependencies > 0 ? `poner ${dependencies} dependencias en package.json` : 'actualizar package.json') : null,
     skills > 0 ? `añadir ${skills} skills` : null,
+    initGit ? 'iniciar el repositorio git' : null,
   ].filter((part) => part !== null)
   if (parts.length === 0) return 'No cambia ningún fichero: voy a apuntar las respuestas nuevas en zaius-dev.json. ¿Sigo?'
   const last = parts.pop()
-  const list = parts.length > 0 ? `${parts.join(', ')} y ${last}` : last
+  const and = last.startsWith('i') ? 'e' : 'y'
+  const list = parts.length > 0 ? `${parts.join(', ')} ${and} ${last}` : last
   return `Voy a ${list}. ¿Sigo?`
 }
 
@@ -55,13 +58,14 @@ export function findFixedAnswerChange (previous, next) {
 }
 
 /**
- * Arma los avisos de un cambio de respuestas de una web que deja de funcionar código que el proyecto ya tiene.
+ * Arma los avisos de un cambio de respuestas que deja de funcionar código que el proyecto ya tiene.
  * @param previous Las respuestas de ahora.
  * @param next Las respuestas nuevas, ya normalizadas.
  * @returns Las líneas de aviso, o ninguna.
  */
 export function buildChangeWarnings (previous, next) {
-  if (previous.type !== 'web' || next.type !== 'web') return []
+  if (previous.type !== next.type) return []
+  if (next.type === 'app') return previous.backend && !next.backend ? ['Sin API, se quitan el transporte, los services, la sesión y los permisos: lo que lee o guarda datos en la API deja de funcionar.'] : []
   return [
     previous.privateArea && !next.privateArea ? 'Sin zona privada se quitan la sesión y los permisos: las páginas privadas dejan de funcionar.' : null,
     previous.server && !next.server ? 'Sin servidor, los formularios y lo que se pinta en cada petición dejan de funcionar.' : null,

@@ -1,10 +1,17 @@
 # Features
 
+<!-- kit:if backend -->
 Cada pantalla de %%APP_NAME%% (cada feature) tiene aquí su documento, que
 dice lo que hace hoy: qué se puede ver y hacer en ella, sus páginas, sus
 permisos, sus zonas, los datos que pide y las decisiones de producto que hay
 que respetar. Es lo que se lee para saber cómo es una pantalla sin abrir el
 código.
+<!-- kit:else -->
+Cada pantalla de %%APP_NAME%% (cada feature) tiene aquí su documento, que
+dice lo que hace hoy: qué se puede ver y hacer en ella, sus páginas, sus
+zonas, los datos que usa y las decisiones de producto que hay que respetar.
+Es lo que se lee para saber cómo es una pantalla sin abrir el código.
+<!-- kit:end -->
 
 - **Lo crea o lo pone al día `zaius-spec`,** cuando una historia toca la
   pantalla: con lo que la historia añade o cambia, y se aprueba con ella.
@@ -26,7 +33,7 @@ Lo que depende de un documento cambia con él:
 <!-- kit:end -->
 las normas y las guías.
 
-**En esta página:** [Plantilla](#plantilla) · [Cómo se escribe](#cómo-se-escribe) · [Índice](#índice) · [Lo que no es feature](#lo-que-no-es-feature)
+**En esta página:** [Plantilla](#plantilla), [Cómo se escribe](#cómo-se-escribe), [Índice](#índice), [Lo que no es feature](#lo-que-no-es-feature)
 
 ## Plantilla
 
@@ -39,8 +46,10 @@ la historia y quedan como decisiones. Todos los documentos tienen los mismos
 apartados, en este orden:
 
 1. **Qué hace:** lo que la persona puede ver y hacer.
-2. **URL y páginas:** cada ruta con su página y su miga de pan. Debajo, cómo
-   se llega a la pantalla y adónde se vuelve.
+2. **URL y páginas:** cada ruta con su página, el título de su pestaña y, si
+   la app pinta miga, su miga de pan. Debajo, cómo se llega a la pantalla y
+   adónde se vuelve.
+<!-- kit:if backend -->
 3. **Permisos:** la regla `<feature>Permissions` y el permiso de la API que
    mira cada `canX`, con lo que decide.
 4. **Zonas de la pantalla:** cada zona, de arriba abajo, con el nombre de su
@@ -51,13 +60,28 @@ apartados, en este orden:
 5. **Datos:** los métodos de service que usa, con su endpoint y su alcance, y
    qué se cachea, se invalida o se guarda en el store.
 6. **Raíz, dominios, familia y específico:** de dónde sale cada pieza que usa,
+<!-- kit:else -->
+3. **Zonas de la pantalla:** cada zona, de arriba abajo, con el nombre de su
+   componente, lo que muestra y la pieza de cada papel que usa
+   ([Piezas por papel](../ux-ui/design-system.md#piezas-por-papel)). Lo
+   que no es de la feature dice de dónde sale: «(raíz)», «(dominio
+   `products`)», «(familia, `orders/common`)».
+4. **Datos:** de dónde sale cada dato que usa (una constante de
+   `constants/`, el store de la pantalla), con su alcance, y lo que guarda.
+5. **Raíz, dominios, familia y específico:** de dónde sale cada pieza que usa,
+<!-- kit:end -->
    en cuatro tablas, de lo más general a lo más concreto. La sección empieza
    directamente por las tablas: los grupos se explican aquí, no en cada
    documento.
    - **raíz:** lo genérico, sin negocio (la raíz de `src/` o el sistema de
      diseño), con nombres que dicen lo que es (`TableSearch`);
    - **dominios:** cada pieza con su [dominio](../standards.md#dominios)
+<!-- kit:if backend -->
      (`session`, `products`…), con la entidad delante (`ProductStatsSection`);
+<!-- kit:else -->
+     (`products`, `warehouses`…), con la entidad delante
+     (`ProductStatsSection`);
+<!-- kit:end -->
    - **familia:** el `common` de su familia, con la entidad delante
      (`OrderStatusBadge`);
    - **específico:** solo la feature, con su prefijo (`OrdersEdit…`).
@@ -67,6 +91,7 @@ apartados, en este orden:
    de lo específico es `| Tipo | Piezas |`. Lo que no es específico se escribe
    pensando en todas las features que lo usan: su nombre, sus props y sus
    datos no dependen de la pantalla.
+<!-- kit:if backend -->
 7. **Decisiones de producto:** las reglas propias de la feature.
 8. **Historias:** las que la han hecho o cambiado, por su código y con su
    enlace a `docs/specs/`, de la primera a la última. Su estado está en el
@@ -82,16 +107,36 @@ apartados, en este orden:
    Su petición va a [Peticiones a la API](../api-requests.md).
 <!-- kit:end -->
    Si no queda nada, «Nada pendiente».
+<!-- kit:else -->
+6. **Decisiones de producto:** las reglas propias de la feature.
+7. **Historias:** las que la han hecho o cambiado, por su código y con su
+   enlace a `docs/specs/`, de la primera a la última. Su estado está en el
+   backlog, no aquí.
+8. **Pendiente:** solo lo que la persona decide dejar abierto a propósito. Un
+   documento no se da por escrito con dudas: cada una se resuelve con ella al
+   escribirlo y queda como decisión de producto. Lo que falta por hacer en la
+   pantalla es una historia del backlog, y aquí se cita por su código. Lo que
+   depende de otro (el sistema de diseño, otra historia) se escribe como
+   decisión («en cuanto el sistema de diseño tenga el selector de fechas, el
+   filtro Fecha lo usará»). Si no queda nada, «Nada pendiente».
+<!-- kit:end -->
 
 El esqueleto, con los apartados en su orden y las cabeceras de sus tablas:
 
 ```markdown
 # ordersEdit
 
+<!-- kit:if backend -->
 La gestión de un pedido: una sola pantalla para seguirlo y corregirlo de
 principio a fin. Es para quien lleva los pedidos, con el permiso `ORDERS.EDIT`.
 
-**En esta página:** Qué hace · URL y páginas · Permisos · Zonas de la pantalla · Datos · Raíz, dominios, familia y específico · Decisiones de producto · Historias · Pendiente
+**En esta página:** Qué hace, URL y páginas, Permisos, Zonas de la pantalla, Datos, Raíz, dominios, familia y específico, Decisiones de producto, Historias, Pendiente
+<!-- kit:else -->
+La gestión de un pedido: una sola pantalla para seguirlo y corregirlo de
+principio a fin. Es para quien lleva los pedidos.
+
+**En esta página:** Qué hace, URL y páginas, Zonas de la pantalla, Datos, Raíz, dominios, familia y específico, Decisiones de producto, Historias, Pendiente
+<!-- kit:end -->
 
 ## Qué hace
 
@@ -100,10 +145,11 @@ principio a fin. Es para quien lleva los pedidos, con el permiso `ORDERS.EDIT`.
 
 ## URL y páginas
 
-| Ruta | Página | Miga de pan |
-|---|---|---|
-| `/orders/:id/edit` | `OrdersEditPage` | «Pedidos › Gestión de pedidos › Pedido #1287» |
+| Ruta | Página | Pestaña | Miga de pan |
+|---|---|---|---|
+| `/orders/:id/edit` | `OrdersEditPage` | «Pedido #1287» | «Pedidos / Gestión de pedidos / Pedido #1287» |
 
+<!-- kit:if backend -->
 ## Permisos
 
 `ordersEditPermissions` (`ordersEditPermissions.ts`, junto a las rutas):
@@ -113,6 +159,7 @@ principio a fin. Es para quien lleva los pedidos, con el permiso `ORDERS.EDIT`.
 | `canView` | `ORDERS.VIEW` | La ruta. |
 | `canEdit` | `ORDERS.EDIT` | Sin él, la gestión se abre en lectura. |
 
+<!-- kit:end -->
 ## Zonas de la pantalla
 
 ### Cabecera
@@ -120,12 +167,21 @@ principio a fin. Es para quien lleva los pedidos, con el permiso `ORDERS.EDIT`.
 
 ## Datos
 
+<!-- kit:if backend -->
 | Método | Endpoint | Para qué | Alcance |
 |---|---|---|---|
 | `getOrderDetail` | `GET /orders/{id}` | El pedido entero. | Familia: también `orders` |
 
 - **Claves.** …
 - **Qué se invalida.** …
+<!-- kit:else -->
+| Dato | De dónde sale | Para qué | Alcance |
+|---|---|---|---|
+| Los estados de un pedido | `ORDER_STATUS_KEYS` (`orders/common/constants/orderStatus.ts`) | El selector de estado. | Familia: también `orders` |
+
+- **Guardar.** …
+- **Store.** …
+<!-- kit:end -->
 
 ## Raíz, dominios, familia y específico
 
@@ -183,12 +239,10 @@ Nada pendiente.
   invalida, Refresco y Store. Cada punto empieza por su rótulo en negrita,
   acabado en punto.
 <!-- kit:else -->
-- **Datos.** La feature dice el endpoint de cada método y cómo lo usa. Tras la
-  tabla, la lista va en este orden, saltando lo que no aplique: Cuerpo,
-  Claves, Cuándo se pide (también lo que se pide solo cuando hace falta), Sin
-  caducidad o Catálogos, Idioma, Guardar o exportar, Errores, Qué se
-  invalida, Refresco y Store. Cada punto empieza por su rótulo en negrita,
-  acabado en punto.
+- **Datos.** La tabla dice de dónde sale cada dato. Tras ella, la lista va en
+  este orden, saltando lo que no aplique: Guardar o exportar, Errores y
+  Store. Lo que la pantalla guarda va donde dice el brief. Cada punto empieza
+  por su rótulo en negrita, acabado en punto.
 <!-- kit:end -->
 - **Utils.** Un objeto por tema, con el nombre del objeto y sus funciones
   (`orderCloseUtils.buildOrderCloseRequest`)

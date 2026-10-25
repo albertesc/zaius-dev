@@ -19,7 +19,7 @@ mientras exista: no hay otro.
   [Cómo se trabaja con la IA](../../../docs/process.md): la persona decide,
   hablar con la persona, iterar y empezar de cero.
 - [Dónde estamos](../../../docs/next-steps.md#dónde-estamos).
-- El fichero de la página, en `docs/pages/`, y su línea en el
+- El fichero de la página, en `docs/pages/`, y su apartado en el
   [backlog](../../../docs/backlog.md), con el mapa del sitio.
 - [Páginas](../../../docs/pages/README.md): su
   [plantilla](../../../docs/pages/README.md#plantilla), con lo que lleva cada
@@ -94,9 +94,10 @@ se sabe.
    normas o el sistema de diseño no se pregunta, y nunca se inventa un
    requisito. Cada respuesta va al fichero en el momento, y la pregunta
    abierta, a «Dónde estamos», antes de hacerla.
-2. **Para qué:** lo que tiene que conseguir, en dos o tres líneas, y su
-   llamada a la acción: el botón o el enlace que más importa, con su texto y
-   adónde lleva.
+2. **Para qué:** su historia, la del backlog («Como…, quiero…, para…»),
+   ajustada con la persona (si cambia, también en el backlog), y su llamada
+   a la acción: el botón o el enlace que más importa, con su texto y adónde
+   lleva.
 3. **Las secciones,** de arriba abajo en el móvil: cada una con lo que
    enseña y la pieza que la pinta, por su papel
    ([Piezas por papel](../../../docs/ux-ui/design-system.md#piezas-por-papel)),
@@ -128,22 +129,22 @@ se sabe.
      pulsarlo, y hasta entonces es su imagen con un botón de reproducir, sin
      las cookies de la plataforma.
 5. **Los datos,** de dónde sale cada dato que se ve y quién lo cambia, como
-   dice su línea del backlog:
-   - la página: sus textos;
-   - `constants/`: qué datos, con sus campos;
+   dice «Lo que enseña» en su apartado del backlog:
+   - «sus textos», los de la página;
+   - «los datos de …», en `constants/`: qué datos, con sus campos;
 <!-- kit:if content -->
-   - una colección: sus campos, quién escribe las entradas y en qué orden
-     salen;
+   - «las entradas de …», una colección: sus campos, quién escribe las
+     entradas y en qué orden salen;
 <!-- kit:end -->
 <!-- kit:if server -->
-   - un formulario: sus campos y sus reglas (obligatorios, máximos), qué ve
+   - «un formulario»: sus campos y sus reglas (obligatorios, máximos), qué ve
      quien lo envía, adónde llega lo que se escribe (un correo, otro
      sistema), que se pregunta si nadie lo ha dicho, y si la página se pinta
      en cada petición. Funciona sin JavaScript;
 <!-- kit:end -->
 <!-- kit:if backend -->
-   - la API: qué dato, de qué endpoint (si no se sabe, se pregunta), y qué
-     ve quien visita si falla o no hay nada;
+   - «lo que da …», por la API: qué dato, de qué endpoint (si no se sabe,
+     se pregunta), y qué ve quien visita si falla o no hay nada;
 <!-- kit:end -->
 <!-- kit:if privateArea -->
    - en la zona privada, quién puede verla y qué puede hacer cada uno, por
@@ -153,7 +154,7 @@ se sabe.
 6. **Buscadores y compartir**
    ([D14](../../../docs/ux-ui/rules.md#d14-buscadores-y-compartir)): su
    título, único; su descripción, de una o dos frases (unos 150 caracteres),
-   que dice qué hay en ella; su imagen para compartir, de 1200 × 630 px, o la
+   que dice qué hay en ella; su imagen para compartir, de 1200 por 630 px, o la
    de la portada si no lleva una propia; o `noindex`, si no se ofrece a los
    buscadores (lo privado y las páginas de error).
 <!-- kit:if i18n -->
@@ -167,7 +168,7 @@ se sabe.
    fechas) es una isla: se dice en el OK, y la primera de la web trae React,
    una dependencia nueva
    ([Añadir una isla](../../../docs/guides/add-an-island.md)).
-8. **Los tests,** en su tabla, `Test | Nivel | ✓`:
+8. **Los tests,** en su tabla, `Test | Nivel | En verde`:
    - **cada cosa que la página tiene que enseñar o hacer, con al menos un
      test,** en el nivel más alto que se pueda: la página, pintada entera,
      antes que un componente o un util;
@@ -200,12 +201,12 @@ se sabe.
 
    La lista aprobada es la especificación: `zaius-build` escribe estos, en
    este orden, y uno nuevo, cambiado o quitado necesita el OK.
-9. **El boceto,** con `zaius-sketch`: `docs/ux-ui/mockups/<NOMBRE>.html`, en
-   el nivel de «Bocetos» del sistema de diseño, diseñado desde el móvil (el
-   ancho más estrecho de «Anchos») y comprobado en el más ancho, con el
-   contenido que hay (y el de prueba, marcado) y cada estado de la página:
-   un formulario vacío, con errores y enviado; una lista con entradas y sin
-   ninguna.
+9. **El boceto,** con `zaius-sketch`: `docs/ux-ui/mockups/<NOMBRE>.html`,
+   con la identidad del sistema de diseño (su logo, su letra, sus fotos y
+   su firma), diseñado desde el móvil (el ancho más estrecho de «Anchos») y
+   comprobado en el más ancho, con el contenido que hay (y el de prueba,
+   marcado) y cada estado de la página: un formulario vacío, con errores y
+   enviado; una lista con entradas y sin ninguna.
 10. **El tamaño:** si el documento pasa de unas 200 líneas, la página hace
     demasiado: propón partirla, y las partes nuevas van al backlog con el OK,
     «pendiente», con su fichero.
@@ -221,14 +222,39 @@ se sabe.
     Falta: <los textos, las fotos o los legales que no han llegado, con quién los da>
     Se comprobará: <los tests, con palabras de la web, en una o dos líneas>
     El boceto: docs/ux-ui/mockups/ROOMS.html (se abre con doble clic)
-    ¿La doy por aprobada, o cambio algo?
+    ```
+
+    Y debajo, enteros y tal como han quedado en el fichero, las secciones, su
+    título y su descripción para los buscadores y la lista de tests: es lo
+    que se aprueba.
+
+    Y al final, después de todo eso, lo siguiente, para que la persona sepa
+    qué hacer:
+
+    ```text
+    Lo siguiente:
+    - Si te encaja, dime «OK» y la doy por aprobada; después, la construimos
+      juntos o especificamos antes la página siguiente.
+    - Si quieres cambiar algo, dime qué: lo cambio y te enseño solo lo que
+      cambie.
     ```
 
     Lo que pida se cambia en el fichero y en el boceto, y se enseña solo lo
-    que ha cambiado, hasta su sí.
+    que ha cambiado, otra vez con lo siguiente al final, hasta su sí.
 13. **Con el OK:** «aprobada» con la fecha, en el fichero y en el backlog; en
     «Dónde estamos», lo siguiente, `/zaius-build <NOMBRE>`, que lanza la
-    persona. Para: no escribe código.
+    persona, o especificar antes la página siguiente: la primera «pendiente»
+    del backlog. Díselo a ella con las dos salidas:
+
+    ```text
+    ROOMS, aprobada. Lo siguiente, lo que prefieras:
+    - Construirla ahora, juntos: /zaius-build ROOMS
+    - Especificar antes la siguiente, CONTACT <su título>: /zaius-page CONTACT
+    ```
+
+    Sin páginas pendientes, solo la primera. Si esta requiere otra que aún
+    no está hecha, la primera salida es construir esa. Para: no escribe
+    código.
 
 ## Cambiar una página
 
@@ -257,7 +283,8 @@ cierra con `/zaius-review`
 - [ ] El fichero, con los apartados de la plantilla en su orden.
 - [ ] La cabecera, con su nombre y su título, y debajo su URL y su estado
       con la fecha, el mismo que en el backlog.
-- [ ] Su para qué, con su llamada a la acción y adónde lleva.
+- [ ] Su para qué: su historia, la misma que en el backlog, y su llamada a
+      la acción y adónde lleva.
 - [ ] Cada sección, en su orden, con su pieza del sistema de diseño.
 - [ ] El contenido: quién da cada texto, foto y vídeo, y lo que falta,
       apuntado; ningún texto legal propuesto por la IA.

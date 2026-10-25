@@ -10,7 +10,7 @@ zona.
 <!-- kit:end -->
 Lo que queda por hacer en la app está en el [backlog](./backlog.md).
 
-**En esta página:** [Cómo se escribe una petición](#cómo-se-escribe-una-petición) · [Cómo se cierra una petición](#cómo-se-cierra-una-petición) · [Varias features](#varias-features)
+**En esta página:** [Cómo se escribe una petición](#cómo-se-escribe-una-petición), [Cómo se cierra una petición](#cómo-se-cierra-una-petición), [Varias features](#varias-features)
 
 ## Cómo se escribe una petición
 

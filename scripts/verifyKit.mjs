@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, readdir, readFile, realpath, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readdir, readFile, realpath, rm, stat, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, relative, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -12,7 +12,7 @@ const keep = process.argv.includes('--keep')
 const docsOnly = process.argv.includes('--docs')
 const only = process.argv.find((argument) => argument.startsWith('--only='))?.slice('--only='.length).split(',')
 
-const APP_ALL_YES = { type: 'app', name: 'Pedidos del Sur', i18n: true, languages: ['es', 'ca'], mocks: true, api: true }
+const APP_ALL_YES = { type: 'app', name: 'Pedidos del Sur', i18n: true, languages: ['es', 'ca'], backend: true, mocks: true }
 
 const WEB_ALL_YES = { type: 'web', name: 'Casa del Roble', i18n: true, languages: ['es', 'en'], server: true, content: true, backend: true, privateArea: true }
 
@@ -21,7 +21,8 @@ const LEGACY_README = '# Legacy\n'
 const COMBINATIONS = [
   { id: 'app-por-defecto', answers: { type: 'app', name: 'Gestión de pedidos' } },
   { id: 'app-todo-si', answers: APP_ALL_YES },
-  { id: 'app-todo-no', answers: { type: 'app', name: 'Pedidos', mocks: false, api: false } },
+  { id: 'app-sin-mocks', answers: { type: 'app', name: 'Pedidos', mocks: false } },
+  { id: 'app-todo-no', answers: { type: 'app', name: 'Pedidos', backend: false, git: false } },
   { id: 'app-existente', answers: { name: 'Pedidos', existing: true }, existingFiles: { 'package.json': '{ "name": "legacy", "type": "module", "dependencies": { "react": "^19.2.8", "react-dom": "^19.2.8" } }\n', 'README.md': LEGACY_README } },
   { id: 'app-pnpm', answers: { ...APP_ALL_YES, packageManager: 'pnpm' } },
   { id: 'app-yarn', answers: { ...APP_ALL_YES, packageManager: 'yarn' } },
@@ -32,7 +33,7 @@ const COMBINATIONS = [
   { id: 'web-api', answers: { type: 'web', name: 'Casa del Roble', backend: true } },
   { id: 'web-todo-si', answers: WEB_ALL_YES },
   { id: 'web-crece', answers: { type: 'web', name: 'Casa del Roble', server: true }, then: { privateArea: true, platform: 'vercel' } },
-  { id: 'web-netlify', answers: { type: 'web', name: 'Casa del Roble', server: true, platform: 'netlify' } },
+  { id: 'web-netlify', answers: { type: 'web', name: 'Casa del Roble', server: true, platform: 'netlify', git: false } },
   { id: 'web-cloudflare', answers: { ...WEB_ALL_YES, platform: 'cloudflare' } },
   { id: 'web-existente', answers: { name: 'Casa del Roble', existing: true }, existingFiles: { 'package.json': '{ "name": "legacy", "type": "module", "dependencies": { "astro": "^7.4.2", "@astrojs/node": "^11.1.9" } }\n', 'README.md': LEGACY_README } },
   { id: 'web-pnpm', answers: { ...WEB_ALL_YES, packageManager: 'pnpm' } },
@@ -40,7 +41,11 @@ const COMBINATIONS = [
   { id: 'web-bun', answers: { ...WEB_ALL_YES, packageManager: 'bun' } },
 ]
 
-const GENERATED = /^(node_modules|dist|\.yarn|\.astro|\.wrangler|\.vercel|\.netlify)\/|^\.pnp\.|^(package-lock\.json|npm-shrinkwrap\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb?)$|\.tsbuildinfo$/
+const GENERATED = /^(\.git|node_modules|dist|\.yarn|\.astro|\.wrangler|\.vercel|\.netlify)\/|^\.pnp\.|^(package-lock\.json|npm-shrinkwrap\.json|pnpm-lock\.yaml|yarn\.lock|bun\.lockb?)$|\.tsbuildinfo$/
+
+const AI_SIGNS = /[·→←⇒—–≈≥≤×─│├└✓✔✅❌✖⚠]|\u20E3|(?![©®™])\p{Extended_Pictographic}/u
+
+const QUOTED = /«[^»]*»/g
 
 const FORBIDDEN = [/%%[A-Z_]+%%/, /kit:(if|else|end)\b/, /`zaius-dev (init|change|update|status|help)\b/]
 
@@ -100,11 +105,11 @@ async function findBrokenLinks (dir, files) {
       const [path, anchor] = target.split('#')
       const targetFile = path === '' ? file : relative(dir, resolve(dir, dirname(file), decodeURIComponent(path))).replaceAll('\\', '/')
       if (!files.includes(targetFile) && !files.some((other) => other.startsWith(`${targetFile}/`))) {
-        broken.push(`${file} → ${target} (no existe)`)
+        broken.push(`${file}: ${target} (no existe)`)
         continue
       }
       if (anchor !== undefined && targetFile.endsWith('.md') && !getAnchors(await readFile(join(dir, targetFile), 'utf8')).has(decodeURIComponent(anchor))) {
-        broken.push(`${file} → ${target} (no tiene el ancla)`)
+        broken.push(`${file}: ${target} (no tiene el ancla)`)
       }
     }
   }
@@ -120,7 +125,10 @@ async function findBrokenLinks (dir, files) {
  */
 function findTypeLeaks (answers, path, content) {
   if (answers.type === 'app') {
-    return /\.astro\b|\bastro:[a-z]|\bAstro\.[a-z]|docs\/pages\b|zaius-page\b/.test(content) ? [`${path}: habla de una web en una app`] : []
+    return [
+      /\.astro\b|\bastro:[a-z]|\bAstro\.[a-z]|docs\/pages\b|zaius-page\b/.test(content) ? `${path}: habla de una web en una app` : null,
+      !answers.backend && /apiSessionUtils|zaius-permissions\b|apply-permissions\.md|useQuery|useMutation|queryClient|QueryClient|@tanstack/.test(content) ? `${path}: habla de la sesión o de las consultas a la API sin API` : null,
+    ].filter((leak) => leak !== null)
   }
   return [
     /\bsrc\/(features|domains|router)\/|`(features|domains|router)\/`|useQuery|useMutation|zustand|react-hook-form|react-router|VITE_|tsc -b|\b5173\b|main\.tsx|docs\/specs\b|docs\/features\b|zaius-spec\b/.test(content) ? `${path}: habla de una app en una web` : null,
@@ -141,10 +149,10 @@ function findTypeLeaks (answers, path, content) {
 function findAnswerLeaks (answers, path, content) {
   const conditions = buildConditions(answers)
   const leaks = []
-  if (!answers.i18n && /useTranslation|getI18nT|\bt\('\w+:|from 'i18next'/.test(content)) leaks.push(`${path}: usa i18n sin multiidioma`)
   if (!conditions.mocks && /apiMockUtils|Mocks\.json/.test(content)) leaks.push(`${path}: habla de los mocks sin mocks`)
   if (!conditions.api && /docs\/api\/|api-requests/.test(content)) leaks.push(`${path}: habla de docs/api sin documentar la API`)
   if (!conditions.backend && /apiUtils|apiErrorUtils|\bAPI_URL\b|zaius-service\b|add-a-service|load-and-save-data|\bservices?\b/.test(content)) leaks.push(`${path}: habla de la API sin API`)
+  if (!conditions.git && path.endsWith('.md') && /\bgit (mv|diff|status|push|commit)\b|zaius-git|\bcommits?\b|\bpush\b|pull request|AGENTS\.md#git\b/i.test(content)) leaks.push(`${path}: habla de git sin git`)
   leaks.push(...findTypeLeaks(answers, path, content))
   const packageManager = answers.packageManager ?? 'npm'
   const dlx = packageManager === 'yarn' ? '|vercel|wrangler|--package=netlify-cli' : ''
@@ -230,6 +238,8 @@ async function verifyCombination ({ id, answers, then = null, existingFiles = {}
   if (manifest === null) return [...problems, 'no hay zaius-dev.json']
   const files = await listProjectFiles(dir)
   if (files.some((file) => file.endsWith('.kit-new') && !Object.hasOwn(existingFiles, file.slice(0, -'.kit-new'.length)))) problems.push(`hay .kit-new de ficheros que el proyecto no tenía: ${files.filter((file) => file.endsWith('.kit-new')).join(', ')}`)
+  const hasRepo = await stat(join(dir, '.git')).then(() => true, () => false)
+  if (manifest.answers.git !== hasRepo) problems.push(manifest.answers.git ? 'git: sí, pero no se ha iniciado el repositorio' : 'git: no, pero hay un repositorio')
   const packageManager = manifest.answers.packageManager
   if (!docsOnly) {
     const build = await runCommand(packageManager, ['run', 'build'], dir)
@@ -238,6 +248,8 @@ async function verifyCombination ({ id, answers, then = null, existingFiles = {}
   for (const path of files.filter((file) => !file.endsWith('.kit-new') && !Object.hasOwn(existingFiles, file))) {
     const content = await readFile(join(dir, path), 'utf8')
     for (const pattern of FORBIDDEN) if (pattern.test(content)) problems.push(`${path}: contiene ${pattern}`)
+    const sign = /\.(md|html|json)$/.test(path) ? AI_SIGNS.exec(content.replace(QUOTED, '')) : null
+    if (sign !== null) problems.push(`${path}: lleva «${sign[0]}», uno de los signos de la IA, fuera de una cita`)
     problems.push(...findAnswerLeaks(manifest.answers, path, content))
   }
   problems.push(...await findBrokenLinks(dir, files))
@@ -252,12 +264,12 @@ let failed = false
 for (const combination of COMBINATIONS.filter(({ id }) => only === undefined || only.some((name) => name.endsWith('-') ? id.startsWith(name) : id === name))) {
   const packageManager = combination.answers.packageManager ?? 'npm'
   if (!docsOnly && !(await runCommand(packageManager, ['--version'], baseDir)).ok) {
-    console.log(`– ${combination.id}: ${packageManager} no está instalado en este equipo, no se prueba`)
+    console.log(`${combination.id}: no se prueba, ${packageManager} no está instalado en este equipo`)
     continue
   }
   const problems = await verifyCombination(combination, baseDir, kitArgs)
   failed ||= problems.length > 0
-  console.log(problems.length === 0 ? `✔ ${combination.id}` : `✖ ${combination.id}\n${problems.map((problem) => `  - ${problem}`).join('\n')}`)
+  console.log(problems.length === 0 ? `${combination.id}: bien` : `${combination.id}: falla\n${problems.map((problem) => `  - ${problem}`).join('\n')}`)
 }
 if (keep) console.log(`Proyectos en ${baseDir}`)
 else await rm(baseDir, { recursive: true, force: true })

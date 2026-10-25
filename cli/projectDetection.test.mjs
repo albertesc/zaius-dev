@@ -8,6 +8,8 @@ import { writeManifest } from './projectManifest.mjs'
 
 let projectDir
 
+const NO_REPO = { isInstalled: () => Promise.resolve(true), isInsideRepo: () => Promise.resolve(false) }
+
 beforeEach(async () => {
   const parent = await mkdtemp(join(tmpdir(), 'kit-detect-'))
   projectDir = join(parent, 'pedidos')
@@ -22,7 +24,15 @@ describe('detectProject', () => {
   it('reconoce una carpeta vacía, aunque tenga ficheros ocultos', async () => {
     await writeFile(join(projectDir, '.gitkeep'), '')
 
-    assert.deepEqual(await detectProject(projectDir), { folderName: 'pedidos', isEmpty: true, hasPackageJson: false, packageManager: null, type: null, web: null, known: {}, manifest: null })
+    assert.deepEqual(await detectProject(projectDir, NO_REPO), { folderName: 'pedidos', isEmpty: true, hasPackageJson: false, packageManager: null, type: null, web: null, known: {}, git: { installed: true, inRepo: false }, manifest: null })
+  })
+
+  it('dice si git está instalado y si la carpeta ya está en un repositorio', async () => {
+    const asked = []
+    const git = { isInstalled: () => Promise.resolve(false), isInsideRepo: (dir) => asked.push(dir) && Promise.resolve(true) }
+
+    assert.deepEqual((await detectProject(projectDir, git)).git, { installed: false, inRepo: true })
+    assert.deepEqual(asked, [projectDir])
   })
 
   it('reconoce el gestor de paquetes del proyecto', async () => {

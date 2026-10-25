@@ -6,7 +6,7 @@ reglas imprescindibles resumidas están en [AGENTS.md](./AGENTS.md); los
 documentos las desarrollan, con ejemplos que se pueden copiar. Cada tema está
 en un solo sitio.
 
-**En esta página:** [Primeros pasos](#primeros-pasos) · [Arrancar la web](#arrancar-la-web) · [Comprobar](#comprobar) · [Publicar](#publicar) · [Documentación](#documentación) · [El kit zaius-dev](#el-kit-zaius-dev)
+**En esta página:** [Primeros pasos](#primeros-pasos), [Contar de qué va](#contar-de-qué-va), [Arrancar la web](#arrancar-la-web), [Comprobar](#comprobar), [Publicar](#publicar), [Documentación](#documentación), [El kit zaius-dev](#el-kit-zaius-dev)
 
 ## Primeros pasos
 
@@ -17,15 +17,20 @@ terminarlo y te dice cuál sigue.
 
 <!-- kit:if !existing -->
 1. Abre la IA en esta carpeta (claude u opencode).
-2. Escribe `/zaius-init` (en opencode: «usa la skill zaius-init»). La IA te
-   preguntará para qué es la web, para quién, con qué tono, quién da los
-   textos y las fotos, y cómo se verá (los colores, la tipografía, las
-   piezas de cada página), y lo dejará escrito en el brief y en el sistema
-   de diseño, con una guía visual que se abre en el navegador. Hasta que lo
-   hagas, la IA no empezará ninguna otra tarea.
+2. Escribe `/zaius-init` y, detrás, de qué va la web, con tus palabras
+   ([Contar de qué va](#contar-de-qué-va)); en opencode, «usa la skill
+   zaius-init» y lo mismo. La IA parte de lo que cuentes y te pregunta lo que
+   falte: para qué es la web, para quién, con qué tono y quién da los textos y
+   las fotos. Después te propondrá tres identidades distintas (la idea, el logo,
+   los colores, la letra y las fotos), en un boceto que se abre en el navegador,
+   para que elijas una, y lo dejará escrito en el brief y en el sistema de
+   diseño, con una guía visual. Hasta que lo hagas, la IA no empezará ninguna
+   otra tarea.
 3. `/zaius-backlog`: la IA propone las páginas de la web y el mapa del sitio
    (lo que lleva el menú y lo que lleva el pie), en orden, y los deja en el
-   backlog con tu OK. Cada página tiene su nombre: `HOME`, `ROOMS`.
+   backlog con tu OK. Cada página tiene su nombre (`HOME`, `ROOMS`) y su
+   historia: «Como pareja que busca una escapada, quiero ver cada habitación…,
+   para elegir la mía».
 4. `/zaius-page HOME`: la IA detalla la página (para qué es, sus secciones,
    su contenido y la lista de tests) con un boceto, para verla antes de
    construirla, y espera tu OK: nada se construye sin él.
@@ -38,11 +43,12 @@ terminarlo y te dice cuál sigue.
    espera tu OK antes de subir nada.
 <!-- kit:else -->
 1. Abre la IA en esta carpeta (claude u opencode).
-2. Escribe `/zaius-init` (en opencode: «usa la skill zaius-init»). La IA te
-   hará unas preguntas para escribir el brief de la web y definir el sistema
-   de diseño, y después analizará el proyecto y propondrá cómo traerlo a las
-   reglas del kit, por bloques. Hasta que lo hagas, la IA no empezará ninguna
-   otra tarea.
+2. Escribe `/zaius-init` y, detrás, de qué va la web, con tus palabras
+   ([Contar de qué va](#contar-de-qué-va)); en opencode, «usa la skill
+   zaius-init» y lo mismo. La IA te hará unas preguntas para escribir el brief
+   de la web y definir el sistema de diseño, y después analizará el proyecto y
+   propondrá cómo traerlo a las reglas del kit, por bloques. Hasta que lo hagas,
+   la IA no empezará ninguna otra tarea.
 3. Revisa con la IA los ficheros `.kit-new`: son las versiones del kit de
    ficheros que el proyecto ya tenía.
 4. Al terminar de traerlo, `%%KIT_RUN%% change`, con Sí a «¿Ha terminado ya
@@ -59,6 +65,46 @@ nueva de la IA. Lo demás (los formularios, las llamadas a otros sistemas, los
 permisos) lo lanza la IA cuando hace falta. Cómo se trabaja con ella está en
 [Cómo se trabaja con la IA](./docs/process.md), y todas las skills, las tuyas
 y las suyas, en [AGENTS.md](./AGENTS.md#skills-del-proyecto).
+<!-- kit:if git -->
+
+**Guardar el trabajo:** el proyecto guarda su historial con git, y los commits
+y los push los haces tú: al cerrar cada página, la IA te propone el mensaje.
+Si quieres que los haga ella, pídeselo («haz el commit y súbelo»): te dirá qué
+ha entrado, en qué rama y dónde está. `/zaius-git` conecta el repositorio de
+GitHub (o de GitLab, Bitbucket), apunta cómo se trabaja con ramas y, si lo
+pides, monta el CI. Las reglas, en [Git](./AGENTS.md#git).
+<!-- kit:end -->
+
+## Contar de qué va
+
+Lo primero que necesita la IA es que le cuentes de qué va la web, con tus
+palabras. Copia esto detrás de `/zaius-init`, rellena lo que sepas y borra lo
+que no:
+
+```text
+/zaius-init
+Qué es: <el negocio o el proyecto, en una o dos frases>
+Para qué es la web: <lo que tiene que conseguir: que llamen, que pidan una cita, que lean, que compren>
+Quién la visita: <quién es, qué busca al llegar y si la abre sobre todo desde el móvil>
+Lo que tiene que tener: <las páginas o las cosas que ya sabes que quieres>
+Lo que ya hay: <logo, colores, fotos, textos, una web anterior o una que te guste>
+Lo que no sé: <lo que quieres decidir con la IA>
+```
+
+Un ejemplo:
+
+```text
+/zaius-init
+Qué es: un taller de bicicletas de barrio, que también alquila bicis por días.
+Para qué es la web: que pidan cita para una reparación o reserven una bici por WhatsApp.
+Quién la visita: gente del barrio y turistas, casi siempre desde el móvil.
+Lo que tiene que tener: los precios de las reparaciones, las bicis de alquiler y cómo llegar.
+Lo que ya hay: el logo y fotos del taller.
+Lo que no sé: si poner un blog de rutas.
+```
+
+Lo que no cuentes, te lo pregunta. Si prefieres contarlo a tu manera, también
+vale: lo importante es qué es, para qué es la web y quién la visita.
 
 ## Arrancar la web
 
@@ -183,11 +229,7 @@ publicar.
 | Comprobar un cambio antes de darlo por hecho | [Comprobar](#comprobar) |
 | Crear una página nueva | [Crear una página](./docs/guides/create-a-page.md) |
 | Añadir un componente a una página | [Un componente](./docs/guides/create-a-page.md#un-componente) |
-<!-- kit:if i18n -->
 | Añadir un texto en todos los idiomas | [Los textos](./docs/guides/create-a-page.md#4-los-textos) |
-<!-- kit:else -->
-| Escribir los textos de una página | [Los textos](./docs/guides/create-a-page.md#4-los-textos) |
-<!-- kit:end -->
 | Añadir una entrada al menú o al pie | [El menú](./docs/guides/create-a-page.md#5-el-menú) |
 | Cambiar un dato o un texto de la web | [Los datos de la web](./docs/standards.md#los-datos-de-la-web) |
 | Que una página salga bien en Google y al compartirla | [Buscadores y compartir](./docs/guides/create-a-page.md#buscadores-y-compartir) |
@@ -220,6 +262,9 @@ publicar.
 | Proponer un cambio de diseño | [UX/UI](./docs/ux-ui/README.md) |
 | Ver una página antes de construirla | [Bocetos](./docs/ux-ui/README.md#bocetos) |
 | Escribir un test | [Escribir tests](./docs/guides/write-tests.md) |
+<!-- kit:if git -->
+| Guardar el trabajo o subirlo a GitHub | [Git](./AGENTS.md#git) |
+<!-- kit:end -->
 | Cambiar una respuesta del kit o actualizarlo | [El kit zaius-dev](#el-kit-zaius-dev) |
 
 ### Cómo se mantiene este índice

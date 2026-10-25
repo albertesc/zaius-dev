@@ -2,7 +2,7 @@
 
 ## Dónde estamos
 
-Al día el 2026-10-24. Lo que el kit deja en un proyecto está decidido y
+Al día el 2026-10-25. Lo que el kit deja en un proyecto está decidido y
 escrito en
 [AGENTS.md](./AGENTS.md#lo-que-deja-en-un-proyecto); la propuesta de la fase 1,
 con sus ejemplos (Casa del Roble y Aforo), está en una página privada de la
@@ -10,7 +10,11 @@ persona.
 
 - **Hecho:** los bloques 0 a 7. El plan, aprobado el 2026-10-24, con un commit
   al cerrar cada bloque.
-- **Lo siguiente:** el bloque 8, que hace la persona con los proyectos de prueba.
+- **En curso:** el bloque 8, que hace la persona con los proyectos de prueba:
+  Casa del Roble, Aforo y una lista de tareas sin API. Lo que sale de ellos
+  entra en el kit y en el CHANGELOG, en «Sin publicar».
+- **Lo siguiente:** que una web y una app lleguen a una unidad «hecha», y
+  después el bloque 9.
 
 ## Decidido al empezar (2026-10-24)
 
@@ -57,7 +61,7 @@ persona.
   `zaius-dev.json`.
 - [x] **2. Lo común (`shared/`).** La configuración base (TypeScript, ESLint,
   Vitest), su `package.fragment.json`, los documentos comunes (sistema de
-  diseño, normas D1–D6 y D10–D13, propuestas de diseño, bocetos), la semilla de
+  diseño, normas D1 a D6 y D10 a D13, propuestas de diseño, bocetos), la semilla de
   `docs/next-steps.md` con los estados y la regla de empezar de cero, y las
   skills comunes (`build`, `review`, `refactor`, `sketch`, `design`, `rename`,
   `merge`, `adopt`).
@@ -77,7 +81,7 @@ persona.
 - [x] **3. El camino Apps (`app/`).** El código base de React desde
   `stack-react` (transporte, mocks, sesión, i18n, comprobación de la
   estructura), su `AGENTS.md`, la normativa, la nomenclatura, las guías y las
-  normas D7–D9; las plantillas del brief, del backlog, de la spec (`XXX999`) y
+  normas D7 a D9; las plantillas del brief, del backlog, de la spec (`XXX999`) y
   de la pantalla; las skills `init`, `backlog`, `spec`, `publish`, `service`,
   `form`, `permissions`, `languages` y `api`; y los apartados que piden los
   ficheros de `shared/`.
@@ -86,7 +90,7 @@ persona.
   tests en `templateTests/app/`; los documentos (`AGENTS.md`,
   el README, la normativa con «Qué se revisa» y «Traer un proyecto que ya
   existe», la nomenclatura con «Revisar los nombres», las guías, las normas
-  D1–D13, el sistema de diseño, la API y las semillas del brief y del
+  D1 a D13, el sistema de diseño, la API y las semillas del brief y del
   backlog) y las skills (`init`, `backlog`, `spec`, `publish`, `service`,
   `form`, `permissions`, `languages` y `api`). Probado: con npm (multiidioma
   y mocks; sin mocks ni API) y con pnpm, tipos, lint, tests y build en verde,
@@ -105,8 +109,8 @@ persona.
   tests en `templateTests/web/`, separado en `server` (formularios), `backend`
   (la API) y `privateArea` (la sesión y los permisos); los documentos
   (`AGENTS.md`, el README, la normativa con «Qué se revisa», la nomenclatura
-  con «Revisar los nombres», las nueve guías, las normas D1–D6 y D10–D14, con
-  D7–D9 en la zona privada, el sistema de diseño con las piezas de web, y las
+  con «Revisar los nombres», las nueve guías, las normas D1 a D6 y D10 a D14, con
+  D7 a D9 en la zona privada, el sistema de diseño con las piezas de web, y las
   semillas del brief, del backlog y de `docs/pages/`), con Casa del Roble de
   ejemplo; y las skills (`init`, `backlog`, `page`, `publish`, `form`,
   `service`, `permissions` y `languages`). En el instalador: las respuestas
@@ -148,7 +152,7 @@ persona.
   `verify` al estrenarlo: tres frases de una web que hablaban de los services
   sin API, ya en su bloque.
 - [ ] **8. De principio a fin, con la IA.** Casa del Roble y Aforo en carpetas
-  de prueba: `init` → `backlog` → `page`/`spec` → `build` → `review` con
+  de prueba: `init`, `backlog`, `page` o `spec`, `build` y `review`, con
   Claude Code, cortando la sesión a mitad para retomarla sin contexto.
   *Está cuando:* las dos llegan a una unidad «hecha».
 - [ ] **9. Publicar.** El repo, en GitHub (`albertesc/zaius-dev`), con su

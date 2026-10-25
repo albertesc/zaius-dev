@@ -5,6 +5,9 @@ import type { ActionAPIContext } from 'astro:actions'
 import { experimental_AstroContainer as AstroContainer } from 'astro/container'
 import type { ContainerRenderOptions } from 'astro/container'
 import { JSDOM } from 'jsdom'
+import type { TOptions } from 'i18next'
+import { APP_DEFAULT_LANGUAGE } from '@/constants/appLanguages'
+import { i18n } from '@/i18n/i18n'
 
 type AstroComponent = Parameters<AstroContainer['renderToString']>[0]
 // kit:if server
@@ -22,6 +25,19 @@ async function renderAstro (component: AstroComponent, options: ContainerRenderO
   const container = await AstroContainer.create()
   const html = await container.renderToString(component, options)
   return within(new JSDOM(html).window.document.body)
+}
+
+/**
+ * Da un texto del catálogo en el idioma por defecto, el que pinta la web en los tests, para buscarlo sin escribirlo a mano.
+ * @param key Su clave (`rooms.card.capacity`).
+ * @param options Sus valores y su número, como en `t` (`{ count: 2 }`).
+ * @returns El texto, con sus valores.
+ * @throws Si la clave, o su forma para ese número, no está en el catálogo: un texto que falta no pasa por bueno.
+ */
+function translate (key: string, options: TOptions = {}): string {
+  const fixed = { ...options, lng: APP_DEFAULT_LANGUAGE }
+  if (!i18n.exists(key, fixed)) throw new Error(`Falta el texto «${key}» en ${APP_DEFAULT_LANGUAGE}.json.`)
+  return i18n.t(key, fixed)
 }
 // kit:if server
 
@@ -44,6 +60,7 @@ function callAction<TInput, TResult> (action: ActionCall<TInput, TResult>, input
 
 export const testUtils = {
   renderAstro,
+  translate,
   // kit:if server
   callAction,
   // kit:end

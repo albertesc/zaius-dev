@@ -39,7 +39,7 @@ suyos (`required`, `autofocus`, `autocomplete`, `data-*`).
 - [5. Los cambios sin guardar](#5-los-cambios-sin-guardar)
 - [El formulario terminado](#el-formulario-terminado)
 <!-- kit:if privateArea -->
-- [Editar un registro](#editar-un-registro) · [Formularios en un modal](#formularios-en-un-modal) · [Formularios por partes](#formularios-por-partes): [Con una isla](#con-una-isla)
+- [Editar un registro](#editar-un-registro), [Formularios en un modal](#formularios-en-un-modal), [Formularios por partes](#formularios-por-partes): [Con una isla](#con-una-isla)
 <!-- kit:end -->
 - [Errores comunes](#errores-comunes)
 
@@ -52,7 +52,6 @@ El schema dice qué recibe la action del formulario y lo valida. Va en
 formularios de varias páginas (el texto obligatorio) pasa a
 `src/schemas/commonSchema.ts` con el segundo que lo necesita.
 
-<!-- kit:if i18n -->
 ```ts
 import { z } from 'astro/zod'
 import { CONTACT_MESSAGE_MAX, CONTACT_NAME_MAX } from '@/constants/contactForm'
@@ -74,35 +73,13 @@ export const contactFormSchema = z.object({
 
 export type ContactFormValues = z.infer<typeof contactFormSchema>
 ```
-<!-- kit:else -->
-```ts
-import { z } from 'astro/zod'
-import { CONTACT_MESSAGE_MAX, CONTACT_NAME_MAX } from '@/constants/contactForm'
-
-const REQUIRED = 'Este campo es obligatorio.'
-
-export const contactFormSchema = z.object({
-  name: z.string({ error: REQUIRED }).trim().min(1, REQUIRED).max(CONTACT_NAME_MAX, `Como máximo ${CONTACT_NAME_MAX} caracteres.`),
-  email: z.string({ error: REQUIRED }).trim().min(1, REQUIRED).email('Escribe un correo como nombre@ejemplo.com.'),
-  arrival: z.string({ error: REQUIRED }).min(1, REQUIRED),
-  departure: z.string({ error: REQUIRED }).min(1, REQUIRED),
-  guests: z.number({ error: REQUIRED }).int(),
-  roomSlug: z.string().optional(),
-  message: z.string().trim().max(CONTACT_MESSAGE_MAX, `Como máximo ${CONTACT_MESSAGE_MAX} caracteres.`).optional(),
-  privacy: z.boolean().refine((accepted) => accepted, 'Acepta la política de privacidad para enviar el mensaje.'),
-  website: z.string().optional(),
-}).refine(({ arrival, departure }) => departure > arrival, { path: ['departure'], error: 'La salida tiene que ser después de la llegada.' })
-
-export type ContactFormValues = z.infer<typeof contactFormSchema>
-```
-<!-- kit:end -->
 
 - **`z` sale de `astro/zod`,** el de Astro, que es con el que valida la
   action.
 - **Astro convierte lo que envía el `<form>` según el schema:** un campo vacío
   llega como `null`, o como `undefined` si es `.optional()`; un `z.number()`
-  recibe el número (`'2'` → `2`) y un `z.boolean()`, `true` si la casilla va
-  marcada.
+  recibe el número (`'2'` pasa a `2`) y un `z.boolean()`, `true` si la casilla
+  va marcada.
 - **Lo obligatorio lleva su mensaje dos veces:** en `z.string({ error })`, para
   el campo vacío, que llega como `null`, y en `.min(1, …)`, para el que solo
   tiene espacios. Un selector obligatorio, en `z.number({ error })`.
@@ -117,17 +94,11 @@ export type ContactFormValues = z.infer<typeof contactFormSchema>
   error va en la salida.
 - **`website` es el campo trampa** contra el spam: no se ve, y una persona no
   lo rellena ([4. Enviar el formulario](#4-enviar-el-formulario)).
-<!-- kit:if i18n -->
 - **Los mensajes de error** son claves del catálogo:
   `common.formErrors.required` o una de la página, en su grupo `errors`
   (`contact.form.errors.privacy`). El formulario las traduce al pintarlas.
   Cada mensaje es una frase completa, con punto: qué está mal y, si cabe, cómo
   tiene que ser.
-<!-- kit:else -->
-- **Los mensajes de error** van escritos en el schema, que es quien sabe qué
-  está mal, y el formulario los pinta tal cual. Cada mensaje es una frase
-  completa, con punto: qué está mal y, si cabe, cómo tiene que ser.
-<!-- kit:end -->
 
 Su test, al lado, comprueba que acepta un envío bueno y que el error de uno
 malo sale en el campo que toca
@@ -251,7 +222,6 @@ de diseño, y cómo se colocan y se marcan,
 [D6](../ux-ui/rules.md#d6-formularios). Aquí, cómo se enlazan con el
 formulario. Los de «Pide disponibilidad»:
 
-<!-- kit:if i18n -->
 ```astro
 ---
 const t = getI18nT(Astro.currentLocale)
@@ -275,36 +245,12 @@ const roomOptions = [{ value: '', label: t('contact.form.anyRoom') }, ...rooms.m
 </Checkbox>
 <input class='trap' type='text' name='website' tabindex='-1' autocomplete='off' aria-hidden='true' />
 ```
-<!-- kit:else -->
-```astro
----
-const errors = isInputError(result?.error) ? result.error.fields : {}
-const today = dateUtils.getToday()
-const guestOptions = [{ value: '', label: '' }, ...['1', '2', '3', '4'].map((value) => ({ value, label: value }))]
-const roomOptions = [{ value: '', label: 'Cualquiera' }, ...rooms.map((room) => ({ value: room.slug, label: room.name }))]
----
-
-<TextInput name='name' label='Nombre' autocomplete='name' value={fieldValue('name')} error={errors.name?.[0]} required />
-<TextInput name='email' type='email' label='Correo' autocomplete='email' value={fieldValue('email')} error={errors.email?.[0]} required />
-<DateInput name='arrival' label='Llegada' min={today} value={fieldValue('arrival')} error={errors.arrival?.[0]} required />
-<DateInput name='departure' label='Salida' min={today} value={fieldValue('departure')} error={errors.departure?.[0]} required />
-<Select name='guests' label='Personas' options={guestOptions} value={fieldValue('guests')} error={errors.guests?.[0]} required />
-<Select name='roomSlug' label='Habitación' options={roomOptions} value={fieldValue('roomSlug')} />
-<TextArea name='message' label='Mensaje' max={CONTACT_MESSAGE_MAX} value={fieldValue('message')} error={errors.message?.[0]} />
-<Checkbox name='privacy' checked={sent?.has('privacy') ?? false} error={errors.privacy?.[0]} required>
-  He leído la <a href='/privacy'>política de privacidad</a>
-</Checkbox>
-<input class='trap' type='text' name='website' tabindex='-1' autocomplete='off' aria-hidden='true' />
-```
-<!-- kit:end -->
 
 - **`name`** es el del campo en el schema, y es lo que envía el `<form>`.
 - **El error** sale de `fields` (`isInputError`), un array de mensajes por
   campo: se pinta el primero, en la nota del campo, que la pieza enlaza con
   `aria-invalid` y `aria-describedby`.
-<!-- kit:if i18n -->
   Se traduce con `t()`, con `{ max }` si el campo tiene máximo.
-<!-- kit:end -->
   Lo obligatorio lleva `required`, que con `novalidate` solo lo marca.
 - **`autocomplete`** (`name`, `email`) deja al navegador rellenar lo que ya
   sabe.
@@ -443,7 +389,6 @@ export const contactActions = {
 
 El formulario pinta el resultado:
 
-<!-- kit:if i18n -->
 ```astro
 ---
 const hasFailure = result?.error !== undefined && !isInputError(result.error)
@@ -456,21 +401,6 @@ const reviewCount = Object.keys(errors).length
   </ActionBar>
 </form>
 ```
-<!-- kit:else -->
-```astro
----
-const hasFailure = result?.error !== undefined && !isInputError(result.error)
-const reviewCount = Object.keys(errors).length
-const reviewText = reviewCount === 1 ? 'Hay 1 campo por revisar' : `Hay ${reviewCount} campos por revisar`
----
-
-  {hasFailure ? <PageAlert tone='error' title='No se ha podido enviar el mensaje'>Vuelve a intentarlo dentro de un rato, o llámanos.</PageAlert> : null}
-  <ActionBar hint={reviewCount > 0 ? reviewText : undefined}>
-    <Button type='submit'>Pide disponibilidad</Button>
-  </ActionBar>
-</form>
-```
-<!-- kit:end -->
 
 - **Cuándo se valida:** en el servidor, al enviar. Nada antes del primer
   intento, y cada envío pinta los errores que quedan. Revalidar cada campo
@@ -491,7 +421,6 @@ const reviewText = reviewCount === 1 ? 'Hay 1 campo por revisar' : `Hay ${review
 **Tras enviar,** la página enseña, en lugar del formulario, lo que pasa ahora.
 Lee la cookie que dejó el middleware y la borra:
 
-<!-- kit:if i18n -->
 ```astro
 ---
 const isSent = Astro.cookies.get('saved')?.value === 'contact.sendContactMessage'
@@ -502,18 +431,6 @@ if (isSent) Astro.cookies.delete('saved', { path: '/' })
   ? <Card title={t('contact.sent.title')}>{t('contact.sent.description')}</Card>
   : <ContactForm rooms={ROOMS} roomSlug={roomSlug} result={result} sent={sent} />}
 ```
-<!-- kit:else -->
-```astro
----
-const isSent = Astro.cookies.get('saved')?.value === 'contact.sendContactMessage'
-if (isSent) Astro.cookies.delete('saved', { path: '/' })
----
-
-{isSent
-  ? <Card title='Hemos recibido tu mensaje'>Te contestaremos en menos de un día.</Card>
-  : <ContactForm rooms={ROOMS} roomSlug={roomSlug} result={result} sent={sent} />}
-```
-<!-- kit:end -->
 
 La action tiene su test al lado, con `testUtils.callAction`, que la llama como
 Astro, con el `FormData` del envío, y el envío simulado con
@@ -817,7 +734,6 @@ porque lo abren la gestión y cada fila de «Mis reservas». La página le pasa 
 motivos (`bookingsService.getBookingCancelReasonsCatalog`), su resultado y lo
 enviado, como al formulario de la página:
 
-<!-- kit:if i18n -->
 ```astro
 ---
 const t = getI18nT(Astro.currentLocale)
@@ -845,33 +761,6 @@ const reasonError = errors.reasonId === undefined ? undefined : t(errors.reasonI
   if (dialog?.dataset.open !== undefined) dialog.showModal()
 </script>
 ```
-<!-- kit:else -->
-```astro
----
-const errors = isInputError(result?.error) ? result.error.fields : {}
-const hasFailure = result?.error !== undefined && !isInputError(result.error)
-const reasonOptions = [{ value: '', label: '' }, ...reasons.map((reason) => ({ value: String(reason.id), label: reason.name }))]
----
-
-<Button variant='danger' type='button' data-booking-cancel-open>Cancela la reserva</Button>
-<dialog data-booking-cancel data-open={result === undefined ? undefined : ''} aria-labelledby='booking-cancel-title'>
-  <h2 id='booking-cancel-title'>¿Quieres cancelar la reserva?</h2>
-  <form method='POST' action={formUtils.buildFormAction(actions.account.cancelBooking, Astro.url)} novalidate>
-    <input type='hidden' name='id' value={id} />
-    <Select name='reasonId' label='Motivo' options={reasonOptions} value={String(sent?.get('reasonId') ?? '')} error={errors.reasonId?.[0]} required />
-    {hasFailure ? <PageAlert tone='error' title='No se ha podido cancelar la reserva'>Vuelve a intentarlo dentro de un rato.</PageAlert> : null}
-    <Button variant='quiet' formmethod='dialog'>Mantén la reserva</Button>
-    <Button variant='danger' type='submit'>Cancela la reserva</Button>
-  </form>
-</dialog>
-
-<script>
-  const dialog = document.querySelector<HTMLDialogElement>('dialog[data-booking-cancel]')
-  document.querySelector('[data-booking-cancel-open]')?.addEventListener('click', () => dialog?.showModal())
-  if (dialog?.dataset.open !== undefined) dialog.showModal()
-</script>
-```
-<!-- kit:end -->
 
 - **El `<dialog>`** se abre con `showModal()`: es lo único que pide
   JavaScript. Escape lo cierra y, al cerrarse, el foco vuelve al botón que lo
@@ -890,7 +779,7 @@ const reasonOptions = [{ value: '', label: '' }, ...reasons.map((reason) => ({ v
   el fallo al final del cuerpo ([D9](../ux-ui/rules.md#d9-modales)).
 - **Una confirmación se cierra sin preguntar.** Un modal con un formulario que
   no es una confirmación pregunta antes de cerrarse con cambios por Escape o
-  por la ×: su `<script>` para el `cancel` del `<dialog>`
+  por su botón de cerrar: su `<script>` para el `cancel` del `<dialog>`
   (`event.preventDefault()`) y abre otro, «¿Quieres salir sin guardar?», con
   «Sigue editando» y «Descarta los cambios». Su «Cancela» cierra sin
   preguntar.
@@ -968,11 +857,9 @@ const errors = isInputError(error) ? Object.fromEntries(error.issues.map(({ path
   errores, el error de un campo se va en cuanto se cambia.
 - **Los cambios sin guardar:** la isla compara sus filas con las guardadas y,
   mientras no son iguales, avisa con `beforeunload`.
-<!-- kit:if i18n -->
 - **Los textos llegan traducidos,** porque la isla no usa i18n: la página le
   pasa los suyos y los de los mensajes de error que puede recibir, por su
   clave (`errorTexts`), y la isla pinta `errorTexts[message]`.
-<!-- kit:end -->
 
 Un asistente (un alta en varios pasos) también es una isla: lleva el paso y
 lo escrito; cada paso es un componente suyo, y al cambiar de paso el foco va a
@@ -987,9 +874,7 @@ isla vuelve al primer paso que los tiene, con «Hay N campos por revisar».
 | El envío no hace nada y `Astro.getActionResult` siempre es `undefined` | La página se genera al compilar: le falta `export const prerender = false`. |
 | Un campo obligatorio vacío dice «Invalid input: expected string, received null» | Un campo vacío llega como `null`: el mensaje va también en `z.string({ error })`, no solo en `.min(1, …)`. |
 | Un campo opcional vacío da error | Le falta `.optional()`: sin él, vacío llega como `null`. |
-<!-- kit:if i18n -->
 | El error sale como una clave (`common.formErrors.…`) | El formulario no traduce el mensaje con `t()`, o falta la clave en el catálogo. |
-<!-- kit:end -->
 | El navegador enseña sus propios avisos («Rellena este campo») | Al `<form>` le falta `novalidate`. |
 | Tras un error, el formulario se vacía y se pierde lo escrito | Los campos no parten de lo enviado: la página lee `Astro.request.formData()` y el formulario usa `sent`. |
 | Al recargar después de enviar, el navegador pregunta si reenviar el formulario | No hay post/redirect/get: el middleware no redirige (303) tras un envío bueno. |

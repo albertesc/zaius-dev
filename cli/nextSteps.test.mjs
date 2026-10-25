@@ -9,8 +9,8 @@ describe('buildNextSteps', () => {
   it('en una app nueva lleva a zaius-init, al backlog y a cada historia con ORD001', () => {
     const text = buildNextSteps(app, 'npx github:albertesc/zaius-dev#v0.1.0').join('\n')
 
-    assert.match(text, /2\. Escribe \/zaius-init\n/)
-    assert.match(text, /Te preguntará por la app/)
+    assert.match(text, /2\. Escribe \/zaius-init y, detrás, de qué va la app, con\n/)
+    assert.match(text, /la plantilla está en el README, «Contar de qué va»/)
     assert.match(text, /3\. \/zaius-backlog: las épicas y las historias de usuario\./)
     assert.match(text, /4\. Para cada historia, tres pasos/)
     assert.match(text, /\/zaius-spec ORD001 {4}sus criterios, su boceto y sus tests\n/)
@@ -23,7 +23,7 @@ describe('buildNextSteps', () => {
   it('en una web nueva lleva a las páginas y a cada página con HOME', () => {
     const text = buildNextSteps(web, 'zaius-dev').join('\n')
 
-    assert.match(text, /Te preguntará por la web/)
+    assert.match(text, /de qué va la web/)
     assert.match(text, /3\. \/zaius-backlog: las páginas y el mapa del sitio\./)
     assert.match(text, /4\. Para cada página, tres pasos/)
     assert.match(text, /\/zaius-page HOME {4}su documento, su boceto y sus tests\n/)
@@ -62,14 +62,13 @@ describe('buildNextSteps', () => {
   it('en un proyecto existente habla de la migración y de los .kit-new', () => {
     const text = buildNextSteps({ ...app, existing: true }, 'npx github:albertesc/zaius-dev#v0.1.0').join('\n')
 
-    assert.match(text, /\/zaius-init/)
-    assert.match(text, /Te preguntará por la app/)
+    assert.match(text, /\/zaius-init y, detrás, de qué va la app/)
     assert.match(text, /propondrá cómo traerlo, por bloques/)
     assert.match(text, /\.kit-new/)
     assert.match(text, /llegan con «change»/)
     assert.match(text, /npx github:albertesc\/zaius-dev#v0\.1\.0 status/)
     assert.doesNotMatch(text, /npm run dev|zaius-backlog/)
-    assert.match(buildNextSteps({ ...web, existing: true }, 'zaius-dev').join('\n'), /Te preguntará por la web/)
+    assert.match(buildNextSteps({ ...web, existing: true }, 'zaius-dev').join('\n'), /de qué va la web/)
   })
 })
 

@@ -9,12 +9,14 @@ de %%APP_NAME%%. Cada respuesta se escribe en su sección de
 - **Antes, las referencias:** pregunta si hay algo en lo que basar el
   diseño: una web que le guste, capturas, la guía de marca, un enlace a
   Figma. Lo que pase se guarda en `docs/ux-ui/references/` y orienta las
-  respuestas: el color de la marca, por ejemplo, se saca de ahí antes que
-  preguntarlo.
+  respuestas y la identidad: el color de la marca, por ejemplo, se saca de
+  ahí antes que preguntarlo. Y si tiene una skill de diseño propia (la de
+  su empresa, una que usa siempre): se añade como dice
+  [Una skill de diseño propia](../../../docs/ux-ui/README.md#una-skill-de-diseño-propia),
+  y manda en lo que fija.
 - **En cuatro tandas cortas,** en este orden: las piezas de las pantallas
-  (la 1); el color de la marca y la tipografía (la 3 y la 4); dónde se usa y
-  el modo oscuro (la 5 y la 6); y el movimiento y los bocetos (la 9 y la
-  8).
+  (la 1); la identidad, con `zaius-brand` (la 3); dónde se usa y el modo
+  oscuro (la 4 y la 5); y las animaciones (la 7).
 - **Con palabras de la app,** como dice
   [Hablar con la persona](../../../docs/process.md#hablar-con-la-persona): la
   pregunta, como va en negrita, y cada opción, con lo que la persona notará
@@ -23,7 +25,7 @@ de %%APP_NAME%%. Cada respuesta se escribe en su sección de
 - **Cada pregunta, con sus opciones:** la recomendada, la primera y marcada
   «(recomendada)», y con cada una, lo que pasa si se elige; y «No lo sé», que
   se queda con la recomendada.
-- **Los tokens y los iconos no se preguntan** (la 2 y la 7): se eligen con
+- **Los tokens y los iconos no se preguntan** (la 2 y la 6): se eligen con
   su tabla, según las otras respuestas, y se dicen en una frase. Si la
   persona quiere otra cosa, se cambia.
 - **Se repregunta lo que no queda claro** («azul», «la de siempre»), y nunca
@@ -58,7 +60,7 @@ formularios?**
 ## 2. Los tokens
 
 **No se pregunta:** los colores, la tipografía, los espacios y los radios
-salen de las piezas (la 1) y de la marca (la 3). Se eligen con esta tabla y
+salen de las piezas (la 1) y de la identidad (la 3). Se eligen con esta tabla y
 se dicen en una frase («Los colores y los espacios, del tema de la librería,
 con el color de la marca»).
 
@@ -66,42 +68,50 @@ con el color de la marca»).
 |---|---|---|
 | Del tema de la librería | La librería tiene tema y lo expone como variables CSS. | Los valores de la marca, en su tema; en «Tokens», cómo se usan en un `.module.css`. |
 | Propios, en variables CSS | Sin librería, o con una sin tema. | `src/styles/tokens.css`, importado en `src/main.tsx`: el color de la marca, la tipografía, una escala neutra de grises, los espacios y los radios. |
-| Provisionales | Sin librería con tema y sin marca todavía (la 3, «Todavía no se sabe»). | `tokens.css` con una escala neutra mínima, marcada en «Tokens» como provisional; se cambia con `zaius-design`. |
 
 - **Se escribe en** «Tokens» y en la línea «Sistema de diseño» de
   `AGENTS.md` («tokens en …»).
 
-## 3. El color de la marca
+## 3. La identidad
 
-**¿Cuál es el color principal de la marca?**
+**¿Cuál de estas tres direcciones se parece más a lo que quieres?**
 
-| Opción | Cuándo | Qué se escribe |
-|---|---|---|
-| Uno exacto (recomendada) | Hay un logo, una web o una guía de marca. | El token de la marca con ese valor, en el tema o en `tokens.css`. |
-| Uno de los de la librería | No hay marca propia. | El nombre de ese color en la paleta, como token de la marca. |
-| Todavía no se sabe | No se ha decidido. | Un azul neutro, marcado en «Tokens» como provisional. |
-
-- **Repregunta** un color sin valor («azul»): pide el logo o la web de la
-  marca y saca el color de ahí, o propón uno y espera el sí.
-- **Comprueba el contraste** del texto sobre la marca (4,5:1,
-  [D12](../../../docs/ux-ui/rules.md#d12-accesibilidad)); si no llega, dilo
-  y propón un tono más oscuro para los botones primarios.
-
-## 4. La tipografía
-
-**¿La marca tiene una tipografía propia?**
+No se pregunta en frío: la skill `zaius-brand` propone tres direcciones,
+cada una con su idea, su logo, sus colores, su letra, sus fotos y su firma,
+y las enseña en un boceto, `docs/ux-ui/mockups/identity.html`.
 
 | Opción | Cuándo | Qué se escribe |
 |---|---|---|
-| No: la del sistema (recomendada) | No hay una de marca. | `system-ui` y sus alternativas, sin nada que descargar. |
-| No: la de la librería | No hay una de marca y la librería trae la suya. | La de su tema. |
-| Sí, la de la marca | La marca tiene la suya. | Su nombre, sus pesos y cómo se carga: un paquete (con el OK) o sus ficheros en `public/`. |
+| La recomendada | La que mejor encaja con el tono y con quien usa la app, según el brief. | «Identidad», y sus colores y su letra en «Tokens». |
+| Otra de las tres | La persona prefiere otra. | Lo mismo, con la elegida. |
+| Mezclar | Le gusta algo de cada una («los colores de la primera, la letra de la segunda»). | Lo mismo, con la mezcla, enseñada antes en el boceto. |
+| Ninguna | No le encaja ninguna, y dice qué no le gusta. | Nada todavía: salen tres nuevas. |
 
-- **Repregunta** si es de pago, por su licencia. Los pesos no se preguntan:
-  normal y negrita.
-- **Se escribe en** «Tokens»: la familia y la escala de tamaños.
+- **El boceto de las direcciones** enseña, en el ancho en el que más se usa,
+  el marco (la cabecera o el menú lateral, con el logo), la pantalla
+  principal con datos de ejemplo y, si se entra con una cuenta, la pantalla
+  de entrar, con su foto o su dibujo. Debajo, fuera de la app, su ficha: la
+  idea, la firma, los colores (con su nombre, su valor, su papel y su
+  contraste), la letra y el logo, a varios tamaños. En una app, la firma es
+  más callada: va en el marco, en la entrada y en los estados vacíos, no en
+  cada tabla.
+- **Con una marca** (una guía, un logo, unos colores, una letra) o con una
+  librería, las tres respetan lo que fijan y cambian lo demás.
+- **La letra** se sirve desde la propia app, con su paquete de Fontsource
+  (`@fontsource-variable/<familia>`, con el OK: es una dependencia),
+  importado en `src/main.tsx`; con una librería con tema, también en su
+  tema. Solo los pesos que se usan; en `tokens.css`, la letra se nombra con
+  su repuesto (`'Instrument Sans Variable', system-ui, sans-serif`). Una de
+  pago, con sus ficheros y su licencia.
+- **El logo:** el símbolo, en `public/logo.svg`, con los colores de la
+  marca. La cabecera (`AppLogoImage`) y el icono de la pestaña lo usan
+  cuando los pide la primera historia.
+- **El contraste** del texto sobre la marca, 4,5:1
+  ([D12](../../../docs/ux-ui/rules.md#d12-accesibilidad)); si no llega, un
+  tono más oscuro para los botones primarios.
+- **Se escribe en** «Identidad» y «Tokens».
 
-## 5. Los anchos
+## 4. Los anchos
 
 **¿Dónde se va a usar la app: en el ordenador, en pantallas grandes o
 también en el móvil?**
@@ -116,7 +126,7 @@ también en el móvil?**
   funciona sin scroll horizontal de la página y los anchos en los que se
   revisa cada pantalla.
 
-## 6. El modo oscuro
+## 5. El modo oscuro
 
 **¿La app tiene modo oscuro?**
 
@@ -129,7 +139,7 @@ también en el móvil?**
 - **Con referencias,** la recomendada es la que enseñan: si la marca es
   oscura, «Solo oscuro».
 
-## 7. Los iconos
+## 6. Los iconos
 
 **No se pregunta:** se eligen con esta tabla y se dicen en una frase («Los
 iconos, los de la librería»).
@@ -143,31 +153,18 @@ iconos, los de la librería»).
 - **Se escribe en** «Iconos»: el paquete, cómo se pasa un icono a una pieza
   y su tamaño; y, en «Piezas por papel», el botón de icono.
 
-## 8. Los bocetos
+## 7. Las animaciones
 
-**¿Cómo quieres ver cada pantalla antes de construirla?**
-
-| Opción | Cuándo | Qué se escribe |
-|---|---|---|
-| Con el diseño de verdad (recomendada) | Lo habitual: se aprueba cómo se verá. | «Bocetos»: alta. |
-| En grises, con las piezas | Se quiere decidir la jerarquía antes que los colores. | «Bocetos»: media. |
-| Solo cajas | Al principio, cuando aún se decide qué va en cada pantalla. | «Bocetos»: baja. |
-
-- **Se escribe en** «Bocetos»: el nivel de partida. Cada boceto se puede ver
-  también en los otros dos, con su selector
-  ([Bocetos](../../../docs/ux-ui/README.md#bocetos)).
-
-## 9. El movimiento
-
-**¿Cuánto se mueve la app?**
+**¿Qué animaciones quieres en la app?**
 
 | Opción | Cuándo | Qué se escribe |
 |---|---|---|
-| Lo justo (recomendada) | Una app de trabajo: lo que se mueve explica qué ha pasado. | «Movimiento»: lo justo, de 150 a 250 ms. |
-| Nada | Se quiere la app quieta del todo. | «Movimiento»: nada; los cambios, sin transición. |
+| Pocas y cortas (recomendada) | Una app de trabajo: una animación corta explica qué ha pasado (un panel que se abre, una fila que se guarda) y lo que se pulsa responde al pasar por encima. | «Movimiento»: lo justo, de 150 a 250 ms. |
+| Ninguna | Se quiere la app sin animaciones. | «Movimiento»: nada; los cambios, sin transición. |
 
 - **Con referencias,** la recomendada es la que enseñan.
 - **Se escribe en** «Movimiento»: el nivel, sus duraciones y su curva como
-  tokens (`--motion-fast`, `--motion-slow`, `--motion-ease`), y que con
-  «reducir movimiento» solo queda un fundido
-  ([D13](../../../docs/ux-ui/rules.md#d13-movimiento)).
+  tokens (`--motion-fast`, `--motion-slow`, `--motion-ease`), cómo responde
+  lo que se pulsa al pasar por encima y con el foco (su color, su fondo o un
+  pequeño desplazamiento), y que con «reducir movimiento» solo queda un
+  fundido ([D13](../../../docs/ux-ui/rules.md#d13-movimiento)).

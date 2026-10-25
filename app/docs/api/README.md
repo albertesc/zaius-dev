@@ -27,7 +27,7 @@ valen para todos están en este documento, una sola vez.
 
 Lo escribe y lo pone al día la skill `zaius-api`.
 
-**En esta página:** [Cómo se lee un documento](#cómo-se-lee-un-documento) · [Sin verificar](#sin-verificar) · [Base y cabeceras](#base-y-cabeceras) · [Sesión y token](#sesión-y-token) · [Errores](#errores) · [Fechas](#fechas) · [Paginación](#paginación) · [Idioma](#idioma) · [Ficheros](#ficheros) · [Las zonas](#las-zonas) · [Lo propuesto](#lo-propuesto)
+**En esta página:** [Cómo se lee un documento](#cómo-se-lee-un-documento), [Sin verificar](#sin-verificar), [Base y cabeceras](#base-y-cabeceras), [Sesión y token](#sesión-y-token), [Errores](#errores), [Fechas](#fechas), [Paginación](#paginación), [Idioma](#idioma), [Ficheros](#ficheros), [Las zonas](#las-zonas), [Lo propuesto](#lo-propuesto)
 
 ## Cómo se lee un documento
 
@@ -38,7 +38,7 @@ Todos tienen la misma forma, un fichero por zona (`docs/api/<zona>.md`):
 
 <Qué sirven estos endpoints.>
 
-**En esta página:** Endpoints · Rarezas comunes · <cada grupo> · Propuestos (no existen)
+**En esta página:** Endpoints, Rarezas comunes, <cada grupo>, Propuestos (no existen)
 
 ## Endpoints
 
