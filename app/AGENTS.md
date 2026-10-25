@@ -194,8 +194,9 @@ Es lo más importante del proyecto. Los listados completos están en
   es una ruta: un registro tiene una sola pantalla. Lo que cuelga de una
   feature son páginas suyas (`InvoicesUploadNewPage`), salvo la gestión, que
   siempre es su propia feature. Una pantalla sin familia se llama como su
-  segmento (`home`, la portada; `profile`). Las pestañas, paneles y modales
-  no son features.
+  segmento (`profile`), y la de `/`, que es la pantalla con la que se abre la
+  app si no es de una familia, por lo que es (`home`, la portada). Las
+  pestañas, paneles y modales no son features.
 - **El fichero se llama como lo que exporta.** Si agrupa varias piezas del mismo
   tipo: `<prefijo><Zona><Tipo>` (`ordersEditFormSchema.ts`). La configuración
   estática es `<qué configura>.config.ts`.

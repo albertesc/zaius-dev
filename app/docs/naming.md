@@ -69,9 +69,11 @@ la cumple.
   `adminWarehouses`) tienen dos, `AdminProductsPage` y `AdminProductsNewPage`,
   y su gestión es otra feature (`adminProductsEdit`). Las demás, una sola.
 <!-- kit:end -->
-- **F4. Pantalla sin familia.** Se llama como su segmento de URL: la portada,
-  `home` (`/home`), `profile`, `terms`. Si un día tiene varias pantallas en el
-  menú, pasa a ser familia.
+- **F4. Pantalla sin familia.** Se llama como su segmento de URL: `profile`,
+  `terms`. La de `/`, que no tiene segmento, por lo que es: la portada,
+  `home`, o la única pantalla de la app, por su tema (`tasks`, en una lista
+  de tareas). Si un día tiene varias pantallas en el menú, pasa a ser
+  familia.
 - **F5. No son features** las pestañas, los paneles laterales y los modales,
   que son componentes de la feature que los contiene, ni las páginas genéricas
   de `src/pages/`.

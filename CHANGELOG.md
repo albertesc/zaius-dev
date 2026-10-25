@@ -237,3 +237,8 @@
   miran `zaius-spec`, `zaius-build` y la revisión. Visto en la prueba: una
   app de una pantalla tenía el hook de la miga solo para el título de la
   pestaña.
+- En una app, la pantalla con la que se abre está en `/`, sin redirección,
+  si no es de una familia: la portada, `home`, o la única pantalla de la app,
+  que se llama por su tema. Solo si se abre en una de una familia, `/` lleva
+  a ella. Visto en la prueba: una app de una pantalla tenía `/` solo para
+  llevar a `/tasks`.

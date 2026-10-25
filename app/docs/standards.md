@@ -508,8 +508,8 @@ también el de sus hallazgos, de lo más grave a lo menos:
    tamaños ([Código](#código) y [Sencillez y tamaño](#sencillez-y-tamaño)).
    Y nada «por si acaso»: lo que no usa nada de la historia es un hallazgo,
    sea un fichero, una prop, una variante, una dependencia o un mecanismo
-   (la miga de pan en una app que no la pinta, el `loading` de un botón que
-   nadie pone).
+   (la miga de pan en una app que no la pinta, una redirección de `/` a la
+   única pantalla, el `loading` de un botón que nadie pone).
 4. **Los textos:** ninguno de usuario en el código ni en los tests, que los
    piden a `testUtils.translate`; el namespace de cada `t()`, las claves de
    la nomenclatura y las mismas claves en todos los idiomas
@@ -826,18 +826,26 @@ useSessionStore.subscribe((state) => {
 Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está en
 [D10](./ux-ui/rules.md#d10-navegación).
 
-- **URLs.** Las pantallas cuelgan de la raíz (`/home`, `/orders`,
+- **URLs.** Las pantallas cuelgan de la raíz (`/orders`,
 <!-- kit:if backend -->
   `/orders/:id/edit`, `/admin/users`), y la entrada, si la hay, tampoco lleva
-  prefijo (`/login`). `/` lleva a la portada o al login, según la sesión.
+  prefijo (`/login`).
 <!-- kit:else -->
-  `/orders/:id/edit`, `/admin/products`), y `/` lleva a la portada.
+  `/orders/:id/edit`, `/admin/products`).
 <!-- kit:end -->
   `/<familia>/:id` no es una ruta: un registro tiene una sola pantalla, su
   gestión ([D7](./ux-ui/rules.md#d7-un-registro-una-pantalla)).
+- **`/`, sin redirección.** La pantalla con la que se abre la app está en
+  `/` si no es de una familia: la portada (`home`) o, en una app de una sola
+  pantalla, esa pantalla. Solo si se abre en una de una familia (`/orders`),
+  `/` lleva a ella, con `replace`.
+<!-- kit:if backend -->
+  Sin sesión, la guarda de la app lleva al login, como en cualquier otra.
+<!-- kit:end -->
 - **Rutas de una feature.** Cada feature declara las suyas en
-  `<feature>Routes.tsx`. Con una sola pantalla en la app, su página va
-  directa (`Component: OrdersPage`): no hay otra que descargar aparte. Desde
+  `<feature>Routes.tsx`. Con una sola pantalla en la app, su página va en
+  `/`, directa (`{ index: true, Component: OrdersPage }`): no hay otra que
+  descargar aparte. Desde
   la segunda, cada página se carga con `lazy`, también las que ya había, en
   forma de función (`lazy: () => import('./pages/OrdersPage').then((m) => ({
   Component: m.OrdersPage }))`), nunca en la de objeto (`lazy: {
@@ -913,7 +921,8 @@ Esta parte es la técnica. Cómo se ve y cómo se comporta la navegación está 
   sabe qué menú pinta. Sus tipos (`NavEntry`, `NavGroup` y `NavMenu`) están
   en `types/navigation.ts`.
 <!-- kit:end -->
-  - Es una lista de entradas sueltas («Inicio») y de grupos, uno por familia.
+  - Es una lista de entradas sueltas («Inicio», la de `/`, que se marca solo
+    en ella, con `end` en el enlace del router) y de grupos, uno por familia.
     La cabecera de un grupo es solo el nombre de su familia («Pedidos»), sin
     enlace, y sus entradas son sus pantallas: «Añadir pedido»
     (`/orders/new`), «Análisis de pedidos» (`/orders/dashboard`) y «Gestión de

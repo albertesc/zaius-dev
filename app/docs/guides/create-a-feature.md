@@ -129,14 +129,15 @@ carpetas que hacen falta.
 ## 3. Las rutas
 
 La feature declara sus rutas en `ordersRoutes.tsx`. Con una sola pantalla en
-la app, su página va directa, sin `lazy` ni `handle`:
+la app, su página va en `/`, directa, sin `lazy`, ni `handle`, ni una
+redirección desde `/`:
 
 ```tsx
 import type { RouteObject } from 'react-router'
 import { OrdersPage } from './pages/OrdersPage'
 
 export const ordersRoutes: RouteObject[] = [
-  { path: 'orders', Component: OrdersPage },
+  { index: true, Component: OrdersPage },
 ]
 ```
 
